@@ -6,9 +6,9 @@ import tensorflow as tf
 from tensorflow import keras
 
 SEQUENCE_SIZE = 10
-TRAINNING_DATA_SIZE = 5000
+TRAINING_DATA_SIZE = 5000
 TEST_DATA_SIZE = 100
-TRAINNING_EPOCH = 10
+TRAINING_EPOCH = 10
 
 
 def seq_xor(sequence_pair):
@@ -41,10 +41,10 @@ def batch_xor(data):
     return result
 
 
-def load_trainning_date():
-    trainning_seq_pairs = random_seq_pairs(TRAINNING_DATA_SIZE)
-    trainning_labels = batch_xor(trainning_seq_pairs)
-    return trainning_seq_pairs, trainning_labels
+def load_training_date():
+    training_seq_pairs = random_seq_pairs(TRAINING_DATA_SIZE)
+    training_labels = batch_xor(training_seq_pairs)
+    return training_seq_pairs, training_labels
 
 
 def load_test_date():
@@ -92,15 +92,16 @@ def show_history(history):
                  arrowprops=dict(facecolor='black', shrink=0.05, width=1),
                  ha='center')
 
-    plt.title('trainning history')
-    plt.xlabel('epoch')
-    plt.xticks(range(TRAINNING_EPOCH), range(1, TRAINNING_EPOCH + 1))
+    plt.title('Training Loss & Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss/Accuracy')
+    plt.xticks(range(TRAINING_EPOCH), range(1, TRAINING_EPOCH + 1))
     plt.legend(['accuracy', 'loss'], loc='center right')
 
     plt.show()
 
 
-def show_result(data, result):
+def show_example(data, example):
     plt.figure(figsize=(9, 6))
 
     plt.subplot(3, 1, 1)
@@ -116,22 +117,22 @@ def show_result(data, result):
     plt.subplot(3, 1, 3)
     plt.xticks(range(SEQUENCE_SIZE), range(1, SEQUENCE_SIZE + 1))
     plt.ylabel('xor')
-    plt.bar(range(SEQUENCE_SIZE), result)
+    plt.bar(range(SEQUENCE_SIZE), example)
 
     plt.show()
 
 
 if __name__ == '__main__':
-    trainning_seq_pairs, trainning_labels = load_trainning_date()
+    training_seq_pairs, training_labels = load_training_date()
     test_seq_pairs, test_labels = load_test_date()
 
     model = create_model()
-    history = model.fit(trainning_seq_pairs,
-                        trainning_labels,
+    history = model.fit(training_seq_pairs,
+                        training_labels,
                         validation_data=(test_seq_pairs, test_labels),
-                        epochs=TRAINNING_EPOCH)
+                        epochs=TRAINING_EPOCH)
     show_history(history)
 
-    data = random_seq_pairs(1)
-    result = model.predict(data)
-    show_result(data[0], result[0])
+    example_data = random_seq_pairs(1)
+    example_result = model.predict(example_data)
+    show_example(example_data[0], example_result[0])
