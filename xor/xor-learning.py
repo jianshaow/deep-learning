@@ -56,11 +56,12 @@ def load_test_date():
 def create_model():
     model = keras.Sequential([
         keras.layers.Flatten(input_shape=(2, SEQUENCE_SIZE)),
-        keras.layers.Dense(128, activation=tf.nn.relu),
-        keras.layers.Dense(128, activation=tf.nn.relu),
+        keras.layers.Dense(64, activation=tf.nn.relu),
+        keras.layers.Dense(64, activation=tf.nn.relu),
+        keras.layers.Dense(64, activation=tf.nn.relu),
         keras.layers.Dense(SEQUENCE_SIZE, activation=tf.nn.sigmoid)
     ])
-    model.compile(optimizer=tf.train.AdamOptimizer(),
+    model.compile(optimizer=tf.compat.v1.train.AdamOptimizer(),
                   loss=keras.losses.binary_crossentropy,
                   metrics=[keras.metrics.binary_accuracy])
     return model

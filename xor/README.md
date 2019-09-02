@@ -14,10 +14,10 @@ virtualenv --system-site-packages -p python tf-keras
 source tf-keras/bin/activate
 
 # install tensorflow
-pip install tensorflow==1.13.2
+pip install tensorflow
 
-# reinstall numpy to avoid deprecated api warning
-pip install numpy==1.16.4
+# reinstall numpy to avoid tons of deprecated api warning
+pip install numpy==1.16.5
 
 # install matplotlib for producing figures
 pip install matplotlib
