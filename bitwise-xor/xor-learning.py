@@ -2,7 +2,6 @@ import random
 
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
 from tensorflow import keras
 
 SEQUENCE_SIZE = 10
@@ -56,12 +55,12 @@ def load_test_date():
 def create_model():
     model = keras.Sequential([
         keras.layers.Flatten(input_shape=(2, SEQUENCE_SIZE)),
-        keras.layers.Dense(64, activation=tf.nn.relu),
-        keras.layers.Dense(64, activation=tf.nn.relu),
-        keras.layers.Dense(64, activation=tf.nn.relu),
-        keras.layers.Dense(SEQUENCE_SIZE, activation=tf.nn.sigmoid)
+        keras.layers.Dense(64, activation=keras.activations.relu),
+        keras.layers.Dense(64, activation=keras.activations.relu),
+        keras.layers.Dense(64, activation=keras.activations.relu),
+        keras.layers.Dense(SEQUENCE_SIZE, activation=keras.activations.sigmoid)
     ])
-    model.compile(optimizer=tf.compat.v1.train.AdamOptimizer(),
+    model.compile(optimizer=keras.optimizers.Adam(),
                   loss=keras.losses.binary_crossentropy,
                   metrics=[keras.metrics.binary_accuracy])
     return model
