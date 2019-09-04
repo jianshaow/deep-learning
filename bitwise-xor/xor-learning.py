@@ -61,8 +61,8 @@ def create_model():
         keras.layers.Dense(SEQUENCE_SIZE, activation=keras.activations.sigmoid)
     ])
     model.compile(optimizer=keras.optimizers.Adam(),
-                  loss=keras.losses.binary_crossentropy,
-                  metrics=[keras.metrics.binary_accuracy])
+                  loss=keras.losses.BinaryCrossentropy(),
+                  metrics=[keras.metrics.BinaryAccuracy()])
     return model
 
 
@@ -102,7 +102,8 @@ def show_history(history):
     plt.xlabel('Epoch')
     plt.ylabel('Loss/Accuracy')
     plt.xticks(range(TRAINING_EPOCH), range(1, TRAINING_EPOCH + 1))
-    plt.legend(['accuracy', 'val_accuracy', 'loss', 'val_loss'], loc='center right')
+    plt.legend(['accuracy', 'val_accuracy', 'loss',
+                'val_loss'], loc='center right')
 
     plt.show()
 
