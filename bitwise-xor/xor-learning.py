@@ -3,6 +3,7 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow import keras
+from common import vis
 
 SEQUENCE_SIZE = 10
 TRAINING_DATA_SIZE = 5000
@@ -66,50 +67,8 @@ def create_model():
     return model
 
 
-def show_history(history):
-    plt.figure(figsize=(9, 6))
-
-    accuracy = history.history['binary_accuracy']
-    val_accuracy = history.history['val_binary_accuracy']
-    loss = history.history['loss']
-    val_loss = history.history['val_loss']
-
-    plt.plot(accuracy, '.b-')
-    plt.plot(val_accuracy, '.b--')
-    last_index = len(accuracy) - 1
-    plt.annotate('accuracy: %f' % accuracy[last_index],
-                 xy=(last_index, accuracy[last_index]),
-                 xytext=(-30, -50), textcoords='offset points', ha='center',
-                 arrowprops=dict(facecolor='black', arrowstyle='-|>'))
-    plt.annotate('val_accuracy: %f' % val_accuracy[last_index],
-                 xy=(last_index, val_accuracy[last_index]),
-                 xytext=(-90, -30), textcoords='offset points', ha='center',
-                 arrowprops=dict(facecolor='black', arrowstyle='-|>'))
-
-    plt.plot(loss, '.r-')
-    plt.plot(val_loss, '.r--')
-    last_index = len(loss) - 1
-    plt.annotate('loss: %f' % loss[last_index],
-                 xy=(last_index, loss[last_index]),
-                 xytext=(-20, 50), textcoords='offset points', ha='center',
-                 arrowprops=dict(facecolor='black', arrowstyle='-|>'))
-    plt.annotate('val_loss: %f' % val_loss[last_index],
-                 xy=(last_index, val_loss[last_index]),
-                 xytext=(-80, 30), textcoords='offset points', ha='center',
-                 arrowprops=dict(facecolor='black', arrowstyle='-|>'))
-
-    plt.title('Training Loss & Accuracy')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss/Accuracy')
-    plt.xticks(range(TRAINING_EPOCH), range(1, TRAINING_EPOCH + 1))
-    plt.legend(['accuracy', 'val_accuracy', 'loss',
-                'val_loss'], loc='center right')
-
-    plt.show()
-
-
-def show_example(data, example):
-    plt.figure(figsize=(9, 6))
+def build_example_figure(data, example):
+    figure = plt.figure(figsize=(9, 6))
 
     plt.subplot(3, 1, 1)
     plt.xticks(range(SEQUENCE_SIZE), range(1, SEQUENCE_SIZE + 1))
@@ -128,8 +87,7 @@ def show_example(data, example):
     plt.yticks([1])
     plt.ylabel('xor')
     plt.bar(range(SEQUENCE_SIZE), example, width=1, edgecolor='black')
-
-    plt.show()
+    return figure
 
 
 if __name__ == '__main__':
@@ -137,12 +95,22 @@ if __name__ == '__main__':
     test_seq_pairs, test_labels = load_test_date()
 
     model = create_model()
+
+    vis.build_model_figure(model)
+
+    # callback = vis.VisualizationCallback()
     history = model.fit(training_seq_pairs,
                         training_labels,
                         validation_data=(test_seq_pairs, test_labels),
-                        epochs=TRAINING_EPOCH)
-    show_history(history)
+                        epochs=TRAINING_EPOCH,
+                        verbose=0,
+                        # callbacks=[callback]
+                        )
+
+    vis.build_history_figure(history, acc_name='binary_accuracy',
+                             val_acc_name='val_binary_accuracy')
 
     example_data = random_seq_pairs(1)
     example_result = model.predict(example_data)
-    show_example(example_data[0], example_result[0])
+    build_example_figure(example_data[0], example_result[0])
+    plt.show()
