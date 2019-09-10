@@ -1,8 +1,8 @@
 import random
 
-import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow import keras
+
 from common import vis
 
 SEQUENCE_SIZE = 10
@@ -67,50 +67,22 @@ def create_model():
     return model
 
 
-def build_example_figure(data, example):
-    figure = plt.figure(figsize=(9, 6))
-
-    plt.subplot(3, 1, 1)
-    plt.xticks(range(SEQUENCE_SIZE), range(1, SEQUENCE_SIZE + 1))
-    plt.yticks([1])
-    plt.ylabel('seq 1')
-    plt.bar(range(SEQUENCE_SIZE), data[0], width=1, edgecolor='black')
-
-    plt.subplot(3, 1, 2)
-    plt.xticks(range(SEQUENCE_SIZE), range(1, SEQUENCE_SIZE + 1))
-    plt.yticks([1])
-    plt.ylabel('seq 2')
-    plt.bar(range(SEQUENCE_SIZE), data[1], width=1, edgecolor='black')
-
-    plt.subplot(3, 1, 3)
-    plt.xticks(range(SEQUENCE_SIZE), range(1, SEQUENCE_SIZE + 1))
-    plt.yticks([1])
-    plt.ylabel('xor')
-    plt.bar(range(SEQUENCE_SIZE), example, width=1, edgecolor='black')
-    return figure
-
-
 if __name__ == '__main__':
     training_seq_pairs, training_labels = load_training_date()
     test_seq_pairs, test_labels = load_test_date()
 
+    callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
+
     model = create_model()
-
-    vis.build_model_figure(model)
-
-    # callback = vis.VisualizationCallback()
     history = model.fit(training_seq_pairs,
                         training_labels,
                         validation_data=(test_seq_pairs, test_labels),
                         epochs=TRAINING_EPOCH,
-                        verbose=0,
-                        # callbacks=[callback]
+                        callbacks=[callback]
                         )
-
-    vis.build_history_figure(history, acc_name='binary_accuracy',
-                             val_acc_name='val_binary_accuracy')
 
     example_data = random_seq_pairs(1)
     example_result = model.predict(example_data)
-    build_example_figure(example_data[0], example_result[0])
-    plt.show()
+    vis.build_multi_bar_figure(['seq1', 'seq2', 'xor'],
+                               [example_data[0][0], example_data[0][1], example_result[0]])
+    vis.show_figures()
