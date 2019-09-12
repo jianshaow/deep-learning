@@ -3,7 +3,7 @@ import random
 import numpy as np
 from tensorflow import keras
 
-from common import vis
+from common import visualization as vis
 
 SEQUENCE_SIZE = 10
 TRAINING_DATA_SIZE = 5000
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     training_seq_pairs, training_labels = load_training_date()
     test_seq_pairs, test_labels = load_test_date()
 
-    callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
+    callback = vis.VisualizationCallback(show_model=True, runtime_plot=False)
 
     model = create_model()
     history = model.fit(training_seq_pairs,
@@ -85,4 +85,4 @@ if __name__ == '__main__':
     example_result = model.predict(example_data)
     vis.build_multi_bar_figure(['seq1', 'seq2', 'xor'],
                                [example_data[0][0], example_data[0][1], example_result[0]])
-    vis.show_figures()
+    vis.show_all()

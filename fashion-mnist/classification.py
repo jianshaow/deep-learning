@@ -1,6 +1,6 @@
 from tensorflow import keras
 
-from common import vis
+from common import visualization as vis
 
 if __name__ == "__main__":
     fashion_mnist = keras.datasets.fashion_mnist
