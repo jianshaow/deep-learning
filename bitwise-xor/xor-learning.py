@@ -71,7 +71,7 @@ if __name__ == '__main__':
     training_seq_pairs, training_labels = load_training_date()
     test_seq_pairs, test_labels = load_test_date()
 
-    callback = vis.VisualizationCallback(show_model=True, runtime_plot=False)
+    callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
 
     model = create_model()
     history = model.fit(training_seq_pairs,

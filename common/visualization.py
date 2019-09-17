@@ -50,15 +50,19 @@ class VisualizationCallback(keras.callbacks.Callback):
         _plot_history(self.history_figure, epochs, self.metrics)
 
 
-def build_model_figure(model):
-    figure = plt.figure(figsize=(6, 9))
+def build_model_figure(model, dpi=100):
     with tempfile.TemporaryDirectory() as tmpdirname:
         model_image_file = path.join(tmpdirname, 'model.png')
         keras.utils.plot_model(model, show_shapes=True,
                                to_file=model_image_file)
         img = mpimg.imread(model_image_file)
-        plt.imshow(img)
-    return figure
+
+        figsize = (img.shape[1] * (1.25) / dpi, img.shape[0] / dpi)
+        fig = plt.figure(figsize=figsize, dpi=dpi)
+        ax = fig.add_axes([0, 0, 1, 1])
+        ax.set_axis_off()
+        ax.imshow(img)
+    return fig
 
 
 def build_history_figure(history):
@@ -90,9 +94,9 @@ def _plot_history(figure, epochs, metrics):
     left_ax.set_xlabel('Epoch')
     left_ax.set_ylabel('Accuracy', c='blue')
 
-    left_ax.set_xlim(-0.5, epochs-0.5)
-    left_ax.set_xticks(range(epochs))
-    left_ax.set_xticklabels(range(1, epochs + 1))
+    left_ax.set_xlim(-0.5, epochs - 0.5)
+    left_ax.set_xticks(range(epochs // 10 - 1, epochs, epochs // 10))
+    left_ax.set_xticklabels(range(epochs // 10, epochs + 1, epochs // 10))
     left_ax.tick_params(axis='y', colors='blue')
 
     right_ax = left_ax.twinx()
@@ -128,7 +132,7 @@ def __plot_metric(ax, metric_name, metric, style='.b-', c='black', offset=1):
     ax.plot(metric, style, c=c)
     __annotate(ax, metric_name + ': %f' % metric[-1],
                (len(metric) - 1, metric[-1]),
-               (70, offset*30))
+               (20, offset*40))
 
 
 def __get_style(metric_name):
@@ -174,16 +178,7 @@ def __get_offsets(metrics):
 
 def __annotate(ax, text, xy, xytext):
     ax.annotate(text, xy=xy,
-                xytext=xytext, textcoords='offset points', ha='right',
+                xytext=xytext, c='green',
+                textcoords='offset points', ha='right',
                 arrowprops=dict(facecolor='black', arrowstyle='-|>'),
                 )
-
-
-if __name__ == '__main__':
-    figure1 = plt.figure(figsize=(6, 9))
-    figure2 = plt.figure(figsize=(6, 9))
-    plt.show()
-    figure3 = plt.figure(figsize=(6, 9))
-    figure4 = plt.figure(figsize=(6, 9))
-    plt.show()
-    plt.subplot()
