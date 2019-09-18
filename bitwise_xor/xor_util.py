@@ -38,13 +38,13 @@ def batch_xor(data):
     return result
 
 
-def load_training_date():
+def load_training_data():
     training_seq_pairs = random_seq_pairs(TRAINING_DATA_SIZE)
     training_labels = batch_xor(training_seq_pairs)
     return training_seq_pairs, training_labels
 
 
-def load_test_date():
+def load_test_data():
     test_seq_pairs = random_seq_pairs(TEST_DATA_SIZE)
     test_labels = batch_xor(test_seq_pairs)
     return test_seq_pairs, test_labels

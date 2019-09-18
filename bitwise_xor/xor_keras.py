@@ -23,8 +23,8 @@ def create_model():
 
 
 if __name__ == '__main__':
-    training_seq_pairs, training_labels = util.load_training_date()
-    test_seq_pairs, test_labels = util.load_test_date()
+    training_seq_pairs, training_labels = util.load_training_data()
+    test_seq_pairs, test_labels = util.load_test_data()
 
     callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
 
