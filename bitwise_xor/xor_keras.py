@@ -3,10 +3,9 @@ import random
 import numpy as np
 from tensorflow import keras
 
-from xor_util import SEQUENCE_SIZE
-from xor_util import TRAINING_EPOCH
 import xor_util as util
 from common import visualization as vis
+from xor_util import SEQUENCE_SIZE, TRAINING_EPOCH
 
 
 def create_model():
