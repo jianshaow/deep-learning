@@ -8,18 +8,17 @@ sudo pip install --upgrade pip
 sudo pip install virtualenv
 
 # create a virtual environment
-virtualenv --system-site-packages -p python tf-keras
+virtualenv --system-site-packages -p python tf-2.0
 
 # activate the env
-source tf-keras/bin/activate
+source tf-2.0/bin/activate
 
 # install tensorflow
-pip install tensorflow
-
-# reinstall numpy to avoid tons of deprecated api warning
-pip install numpy==1.16.5
+pip install tensorflow==2.0.0rc1
 
 # install matplotlib for producing figures
 pip install matplotlib
-~~~
 
+# for show the model graph, it depends on Graphviz
+pip install pydot_ng
+~~~
