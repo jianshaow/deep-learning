@@ -132,7 +132,7 @@ def __plot_metric(ax, metric_name, metric, style='.b-', c='black', offset=1):
     ax.plot(metric, style, c=c)
     __annotate(ax, metric_name + ': %f' % metric[-1],
                (len(metric) - 1, metric[-1]),
-               (20, offset*40))
+               (20, offset*40), c=c)
 
 
 def __get_style(metric_name):
@@ -176,9 +176,9 @@ def __get_offsets(metrics):
     return offsets
 
 
-def __annotate(ax, text, xy, xytext):
+def __annotate(ax, text, xy, xytext, c='green'):
     ax.annotate(text, xy=xy,
-                xytext=xytext, c='green',
+                xytext=xytext, c=c,
                 textcoords='offset points', ha='right',
                 arrowprops=dict(facecolor='black', arrowstyle='-|>'),
                 )
