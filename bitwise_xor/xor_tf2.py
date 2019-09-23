@@ -3,6 +3,7 @@ import tensorflow as tf
 from tensorflow import keras
 
 import xor_util as util
+from common import visualization as vis
 from xor_util import SEQUENCE_SIZE, TRAINING_EPOCH
 
 
@@ -11,11 +12,14 @@ class XORModel(tf.keras.Model):
         super(XORModel, self).__init__()
 
         self.flatten_layer = keras.layers.Flatten()
-        self.dense_layer1 = keras.layers.Dense(units=64, activation=tf.nn.relu)
-        self.dense_layer2 = keras.layers.Dense(units=64, activation=tf.nn.relu)
-        self.dense_layer3 = keras.layers.Dense(units=64, activation=tf.nn.relu)
-        self.output_layer = tf.compat.v1.layers.Dense(
-            units=SEQUENCE_SIZE, activation=tf.nn.sigmoid)
+        self.dense_layer1 = keras.layers.Dense(
+            units=64, activation=keras.activations.relu)
+        self.dense_layer2 = keras.layers.Dense(
+            units=64, activation=keras.activations.relu)
+        self.dense_layer3 = keras.layers.Dense(
+            units=64, activation=keras.activations.relu)
+        self.output_layer = keras.layers.Dense(
+            units=SEQUENCE_SIZE, activation=keras.activations.sigmoid)
 
     def call(self, data):
         x = self.flatten_layer(data)
@@ -25,40 +29,33 @@ class XORModel(tf.keras.Model):
         return self.output_layer(y)
 
 
-loss_object = keras.losses.BinaryCrossentropy()
-optimizer = keras.optimizers.Adam()
+def do_train(dataset, model):
+    loss_object = keras.losses.BinaryCrossentropy()
+    optimizer = keras.optimizers.Adam(0.001)
 
+    epochs = []
+    train_loss_results = []
+    train_accuracy_results = []
 
-def grad(model, inputs, targets):
-    with tf.GradientTape() as tape:
-        loss_value = loss(model, inputs, targets)
-        pred = model(inputs)
-        loss_value = loss_object(targets, pred)
-    return loss_value, tape.gradient(loss_value, model.trainable_variables)
+    for epoch in range(TRAINING_EPOCH):
+        epoch_loss_avg = keras.metrics.Mean()
+        epoch_accuracy = keras.metrics.BinaryAccuracy()
 
+        for data, labels in dataset:
+            with tf.GradientTape() as tape:
+                preds = model(data)
+                loss_value = loss_object(labels, preds)
+                grads = tape.gradient(loss_value, model.trainable_variables)
+            optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
-def loss(model, x, y):
-    y_ = model(x)
+            epoch_loss_avg(loss_value)
+            epoch_accuracy(labels, preds)
 
-    return loss_object(y_true=y, y_pred=y_)
-
-
-def train():
-    dataset = prepare_data()
-
-    model = XORModel()
-
-    for data, labels in dataset:
-        loss_value, grads = grad(model, data, labels)
-        print("Step: {}, Initial Loss: {}".format(optimizer.iterations.numpy(),
-                                                  loss_value.numpy()))
-
-        optimizer.apply_gradients(zip(grads, model.trainable_variables))
-
-    print("kernel={}, bias={}".format(
-        model.output_layer.kernel, model.output_layer.bias))
-
-    # do_train(iterator, step, loss)
+        epochs.append(epoch)
+        train_loss_results.append(epoch_loss_avg.result())
+        train_accuracy_results.append(epoch_accuracy.result())
+        print('epoch {}: loss={}, accuracy={}'.format(
+            epoch, epoch_loss_avg.result(), epoch_accuracy.result()))
 
 
 def prepare_data():
@@ -67,10 +64,24 @@ def prepare_data():
 
     dataset = tf.data.Dataset.from_tensor_slices(
         (training_data, training_labels))
-    dataset = dataset.batch(1).take(1)
+    dataset = dataset.batch(32)  # .take(10)
 
     return dataset
 
 
 if __name__ == '__main__':
-    train()
+    dataset = prepare_data()
+
+    model = XORModel()
+
+    # model.compile(optimizer=keras.optimizers.Adam(),
+    #             loss=keras.losses.BinaryCrossentropy(),
+    #             metrics=[keras.metrics.BinaryAccuracy()])
+
+    # callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
+    # model.fit(dataset, epochs=10, callbacks=[callback])
+
+    do_train(dataset, model)
+
+    model.summary()
+    # print(model.trainable_variables)
