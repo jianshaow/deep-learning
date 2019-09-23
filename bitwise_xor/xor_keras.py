@@ -1,6 +1,5 @@
 import random
 
-import numpy as np
 from tensorflow import keras
 
 import xor_util as util
