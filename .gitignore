@@ -105,3 +105,4 @@ venv.bak/
 # vsc
 .vscode/
 *.code-workspace
+proto/
