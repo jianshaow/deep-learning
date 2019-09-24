@@ -8,7 +8,7 @@ from common import vis_utils as vis
 
 if __name__ == '__main__':
     dataset = tf.data.Dataset.from_tensor_slices(util.load_training_data())
-    dataset = dataset.batch(32)  # .take(1)
+    dataset = dataset.batch(32)
 
     model = models.SimpleModel([
         keras.layers.Flatten(input_shape=(2, SEQUENCE_SIZE)),
@@ -21,8 +21,14 @@ if __name__ == '__main__':
                   loss=keras.losses.BinaryCrossentropy(),
                   metrics=[keras.metrics.BinaryAccuracy()])
 
-    callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
-    model.fit(dataset=dataset,
-              epochs=TRAINING_EPOCH,
-              callbacks=[callback]
-              )
+    callback = vis.VisualizationCallback(show_model=True, runtime_plot=False)
+    history = model.fit(dataset=dataset,
+                        epochs=TRAINING_EPOCH,
+                        callbacks=[callback]
+                        )
+
+    example_data = util.random_seq_pairs(1)
+    example_result = model.predict(example_data)
+    vis.build_multi_bar_figure(['seq1', 'seq2', 'xor'],
+                               [example_data[0][0], example_data[0][1], example_result[0]])
+    vis.show_all()

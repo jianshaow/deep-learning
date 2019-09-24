@@ -8,8 +8,6 @@ if __name__ == '__main__':
     training_seq_pairs, training_labels = util.load_training_data()
     test_seq_pairs, test_labels = util.load_test_data()
 
-    callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
-
     model = keras.Sequential([
         keras.layers.Flatten(input_shape=(2, SEQUENCE_SIZE)),
         keras.layers.Dense(64, activation=keras.activations.relu),
@@ -20,6 +18,8 @@ if __name__ == '__main__':
     model.compile(optimizer=keras.optimizers.Adam(),
                   loss=keras.losses.BinaryCrossentropy(),
                   metrics=[keras.metrics.BinaryAccuracy()])
+
+    callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
     history = model.fit(training_seq_pairs,
                         training_labels,
                         validation_data=(test_seq_pairs, test_labels),

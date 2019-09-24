@@ -8,7 +8,7 @@ class SimpleModel():
         self.name = 'Simple Model'
         self._is_graph_network = True
         self._layers = layers
-        self.history = dict()
+        self.history = History()
 
     def __call__(self, data):
         input = data
@@ -36,15 +36,19 @@ class SimpleModel():
         self.loss_mean = keras.metrics.Mean()
 
     def fit(self, dataset, epochs, callbacks=[]):
-        for callback in callbacks:
-            callback.set_model(self)
-            params = {'metrics': self.__get_metrics(), 'epochs': epochs}
-            callback.set_params(params)
-            callback.on_train_begin()
+        callbacks = CallbackList(callbacks)
+        callbacks.append(keras.callbacks.BaseLogger())
+        callbacks.append(self.history)
+        callbacks.set_model(self)
+        params = {'metrics': self.__get_metrics(), 'epochs': epochs}
+        callbacks.set_params(params)
+
+        callbacks.on_train_begin()
 
         for epoch in range(epochs):
             self.__reset_metrics()
             logs = dict()
+            callbacks.on_epoch_begin(epoch, logs)
             for data, labels in dataset:
                 with tf.GradientTape() as tape:
                     preds = self(data)
@@ -61,12 +65,15 @@ class SimpleModel():
             logs['loss'] = self.loss_mean.result().numpy()
             for metric in self.metrics:
                 logs[metric.name] = metric.result().numpy()
-            for callback in callbacks:
-                callback.on_epoch_end(epoch, logs)
+            callbacks.on_epoch_end(epoch, logs)
             self.__print_log(epoch, epochs)
 
-        for callback in callbacks:
-            callback.on_train_end()
+        callbacks.on_train_end()
+
+        return self.history
+
+    def predict(self, data):
+        return self(data)
 
     def __print_log(self, epoch, epochs):
         template = 'Epoch {}/{} - loss: {}'
@@ -84,3 +91,53 @@ class SimpleModel():
         for metric in self.metrics:
             log = log + metric.name + ': ' + str(metric.result().numpy())
         return log
+
+
+class CallbackList():
+    def __init__(self, callbacks=None):
+        callbacks = callbacks or []
+        self.callbacks = [c for c in callbacks]
+        self.params = {}
+        self.model = None
+
+    def append(self, callback):
+        self.callbacks.append(callback)
+
+    def set_params(self, params):
+        self.params = params
+        for callback in self.callbacks:
+            callback.set_params(params)
+
+    def set_model(self, model):
+        self.model = model
+        for callback in self.callbacks:
+            callback.set_model(model)
+
+    def on_train_begin(self, logs=None):
+        for callback in self.callbacks:
+            callback.on_train_begin(logs)
+
+    def on_train_end(self, logs=None):
+        for callback in self.callbacks:
+            callback.on_train_end(logs)
+
+    def on_epoch_begin(self, epoch, logs=None):
+        for callback in self.callbacks:
+            callback.on_epoch_begin(epoch, logs)
+
+    def on_epoch_end(self, epoch, logs=None):
+        for callback in self.callbacks:
+            callback.on_epoch_end(epoch, logs)
+
+
+class History(keras.callbacks.Callback):
+
+    def on_train_begin(self, logs=None):
+        self.epoch = []
+        self.history = {}
+
+    def on_epoch_end(self, epoch, logs=None):
+        logs = logs or {}
+        self.epoch.append(epoch)
+        for k, v in logs.items():
+            self.history.setdefault(k, []).append(v)
