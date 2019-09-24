@@ -147,31 +147,18 @@ def __get_style(metric_name):
 
 def __get_offsets(metrics):
     offsets = dict()
-    last_acc = -1
-    last_loss = -1
-    last_acc_name = None
-    last_loss_name = None
+    last = -1
+    last_name = None
 
     for name, metric in metrics.items():
-        if 'acc' in name:
-            if metric[-1] < last_acc:
-                offsets[name] = -1
-            else:
-                offsets[name] = 1
-                if last_acc_name:
-                    offsets[last_acc_name] = -1
-                last_acc = metric[-1]
-                last_acc_name = name
-
-        if 'loss' in name:
-            if metric[-1] < last_loss:
-                offsets[name] = -1
-            else:
-                offsets[name] = 1
-                if last_loss_name:
-                    offsets[last_loss_name] = -1
-                last_loss = metric[-1]
-                last_loss_name = name
+        if metric[-1] < last:
+            offsets[name] = -1
+        else:
+            offsets[name] = 1
+            if last_name:
+                offsets[last_name] = -1
+            last = metric[-1]
+            last_name = name
 
     return offsets
 

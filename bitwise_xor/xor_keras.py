@@ -1,13 +1,15 @@
-import random
-
 from tensorflow import keras
 
 import xor_util as util
-from common import visualization as vis
+from common import vis_utils as vis
 from xor_util import SEQUENCE_SIZE, TRAINING_EPOCH
 
+if __name__ == '__main__':
+    training_seq_pairs, training_labels = util.load_training_data()
+    test_seq_pairs, test_labels = util.load_test_data()
 
-def create_model():
+    callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
+
     model = keras.Sequential([
         keras.layers.Flatten(input_shape=(2, SEQUENCE_SIZE)),
         keras.layers.Dense(64, activation=keras.activations.relu),
@@ -18,16 +20,6 @@ def create_model():
     model.compile(optimizer=keras.optimizers.Adam(),
                   loss=keras.losses.BinaryCrossentropy(),
                   metrics=[keras.metrics.BinaryAccuracy()])
-    return model
-
-
-if __name__ == '__main__':
-    training_seq_pairs, training_labels = util.load_training_data()
-    test_seq_pairs, test_labels = util.load_test_data()
-
-    callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
-
-    model = create_model()
     history = model.fit(training_seq_pairs,
                         training_labels,
                         validation_data=(test_seq_pairs, test_labels),
