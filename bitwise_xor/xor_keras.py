@@ -24,8 +24,7 @@ if __name__ == '__main__':
                         training_labels,
                         validation_data=(test_seq_pairs, test_labels),
                         epochs=TRAINING_EPOCH,
-                        callbacks=[callback]
-                        )
+                        callbacks=[callback])
 
     example_data = util.random_seq_pairs(1)
     example_result = model.predict(example_data)

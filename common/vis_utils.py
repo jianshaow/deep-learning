@@ -15,7 +15,7 @@ class VisualizationCallback(keras.callbacks.Callback):
         self.history_figure = None
 
     def on_train_begin(self, logs=None):
-        if self.show_model:
+        if self.show_model and self.model._is_graph_network:
             build_model_figure(self.model)
             show_all()
 
@@ -167,5 +167,4 @@ def __annotate(ax, text, xy, xytext, c='green'):
     ax.annotate(text, xy=xy,
                 xytext=xytext, c=c,
                 textcoords='offset points', ha='right',
-                arrowprops=dict(facecolor='black', arrowstyle='-|>'),
-                )
+                arrowprops=dict(facecolor='black', arrowstyle='-|>'))

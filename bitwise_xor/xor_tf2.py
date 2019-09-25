@@ -9,6 +9,7 @@ from common import vis_utils as vis
 if __name__ == '__main__':
     dataset = tf.data.Dataset.from_tensor_slices(util.load_training_data())
     dataset = dataset.batch(32)
+    test_seq_pairs, test_labels = util.load_test_data()
 
     model = models.SimpleModel([
         keras.layers.Flatten(input_shape=(2, SEQUENCE_SIZE)),
@@ -21,11 +22,11 @@ if __name__ == '__main__':
                   loss=keras.losses.BinaryCrossentropy(),
                   metrics=[keras.metrics.BinaryAccuracy()])
 
-    callback = vis.VisualizationCallback(show_model=True, runtime_plot=False)
+    callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
     history = model.fit(dataset=dataset,
                         epochs=TRAINING_EPOCH,
-                        callbacks=[callback]
-                        )
+                        validation_data=(test_seq_pairs, test_labels),
+                        callbacks=[callback])
 
     example_data = util.random_seq_pairs(1)
     example_result = model.predict(example_data)
