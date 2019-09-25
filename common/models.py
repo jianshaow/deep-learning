@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tensorflow import keras
+
 from common import callbacks as cbs
 
 
@@ -11,6 +12,7 @@ class SimpleModel():
         self._layers = layers
         self.history = History()
 
+    @tf.function
     def __call__(self, data):
         input = data
         for layer in self._layers:
