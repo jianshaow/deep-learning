@@ -12,7 +12,7 @@ class SimpleModel():
         self._layers = layers
         self.history = History()
 
-    @tf.function
+    # @tf.function
     def __call__(self, data):
         input = data
         for layer in self._layers:
@@ -33,7 +33,7 @@ class SimpleModel():
         metrics_names += [m.name for m in self._metrics]
         return metrics_names
 
-    def __reset_metrics(self):
+    def reset_metrics(self):
         self.loss_mean.reset_states()
         for metric in self._metrics:
             metric.reset_states()
@@ -41,7 +41,7 @@ class SimpleModel():
     def compile(self, optimizer, loss, metrics):
         self.optimizer = optimizer
         self.loss = loss
-        self.loss_mean = keras.metrics.Mean('loss')
+        self.loss_mean = keras.metrics.Mean()
         self._metrics = metrics
 
     def fit(self, dataset, epochs, callbacks=[], verbose=True, validation_data=None):
@@ -62,29 +62,15 @@ class SimpleModel():
         callbacks.on_train_begin()
 
         for epoch in range(epochs):
-            self.__reset_metrics()
-            epoch_logs = dict()
+            self.reset_metrics()
+            epoch_logs = {}
             callbacks.on_epoch_begin(epoch)
 
-            loss_value = None
             for batch, (data, labels) in dataset.enumerate():
                 batch_value = batch.numpy()
                 callbacks.on_batch_begin(batch_value)
-                with tf.GradientTape() as tape:
-                    preds = self(data)
-                    loss_value = self.loss(labels, preds)
-                    grads = tape.gradient(
-                        loss_value, self.trainable_variables)
-                self.optimizer.apply_gradients(
-                    zip(grads, self.trainable_variables))
-
-                batch_logs = {'size': len(
-                    data), 'batch': batch_value, 'loss': loss_value.numpy()}
-                self.loss_mean(loss_value)
-                for metric in self._metrics:
-                    metric_value = metric(labels, preds)
-                    batch_logs[metric.name] = metric_value.numpy()
-
+                batch_logs = {'size': len(data), 'batch': batch_value}
+                self.train_step(data, labels, batch_logs)
                 callbacks.on_batch_end(batch_value, batch_logs)
 
             epoch_logs['loss'] = self.loss_mean.result().numpy()
@@ -92,21 +78,40 @@ class SimpleModel():
                 epoch_logs[metric.name] = metric.result().numpy()
 
             if validation_data:
-                self.__reset_metrics()
-                (test_data, test_labels) = validation_data
-                test_preds = self(test_data)
-                test_loss_value = self.loss(test_labels, test_preds)
-                epoch_logs['val_loss'] = test_loss_value.numpy()
-                for metric in self._metrics:
-                    test_metric_value = metric(test_labels, test_preds)
-                    epoch_logs['val_' +
-                               metric.name] = test_metric_value.numpy()
+                self.test_step(validation_data, epoch_logs)
 
             callbacks.on_epoch_end(epoch, epoch_logs)
 
         callbacks.on_train_end()
 
         return self.history
+
+    def train_step(self, data, labels, batch_logs):
+        with tf.GradientTape() as tape:
+            preds = self(data)
+            loss_value = self.loss(labels, preds)
+            grads = tape.gradient(
+                loss_value, self.trainable_variables)
+        self.optimizer.apply_gradients(
+            zip(grads, self.trainable_variables))
+
+        self.loss_mean(loss_value)
+        batch_logs['loss'] = loss_value.numpy()
+
+        for metric in self._metrics:
+            metric_value = metric(labels, preds)
+            batch_logs[metric.name] = metric_value.numpy()
+
+    def test_step(self, validation_data, epoch_logs):
+        self.reset_metrics()
+        (test_data, test_labels) = validation_data
+        test_preds = self(test_data)
+        test_loss_value = self.loss(test_labels, test_preds)
+        epoch_logs['val_loss'] = test_loss_value.numpy()
+        for metric in self._metrics:
+            test_metric_value = metric(test_labels, test_preds)
+            epoch_logs['val_' +
+                       metric.name] = test_metric_value.numpy()
 
     def predict(self, data):
         return self(data).numpy()
