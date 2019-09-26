@@ -4,7 +4,7 @@ from tensorflow import keras
 from common import data_utils as utils
 from common import models
 from common import vis_utils as vis
-from common.data_utils import SEQUENCE_SIZE, TRAINING_EPOCH
+from common.data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
 
 if __name__ == '__main__':
     dataset = tf.data.Dataset.from_tensor_slices(utils.gen_xor_train_data())
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
     history = model.fit(dataset=dataset,
-                        epochs=TRAINING_EPOCH,
+                        epochs=TRAIN_EPOCH,
                         validation_data=(test_seq_pairs, test_labels),
                         callbacks=[callback])
 

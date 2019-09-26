@@ -3,9 +3,9 @@ import random
 import numpy as np
 
 SEQUENCE_SIZE = 10
-TRAINING_DATA_SIZE = 5000
+TRAIN_DATA_SIZE = 5000
 TEST_DATA_SIZE = 500
-TRAINING_EPOCH = 10
+TRAIN_EPOCH = 10
 
 
 def __seq_xor(seq_pair):
@@ -38,7 +38,7 @@ def random_seq_pairs(size=10):
     return seq_pairs
 
 
-def gen_xor_train_data(size=TRAINING_DATA_SIZE):
+def gen_xor_train_data(size=TRAIN_DATA_SIZE):
     train_seq_pairs = random_seq_pairs(size)
     train_labels = batch_xor(train_seq_pairs)
     return train_seq_pairs, train_labels

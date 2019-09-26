@@ -2,10 +2,10 @@ from tensorflow import keras
 
 from common import data_utils as utils
 from common import vis_utils as vis
-from common.data_utils import SEQUENCE_SIZE, TRAINING_EPOCH
+from common.data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
 
 if __name__ == '__main__':
-    training_seq_pairs, training_labels = utils.gen_xor_train_data()
+    train_seq_pairs, train_labels = utils.gen_xor_train_data()
     test_seq_pairs, test_labels = utils.gen_xor_test_data()
 
     model = keras.Sequential([
@@ -20,10 +20,10 @@ if __name__ == '__main__':
                   metrics=[keras.metrics.BinaryAccuracy()])
 
     callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
-    history = model.fit(training_seq_pairs,
-                        training_labels,
+    history = model.fit(train_seq_pairs,
+                        train_labels,
                         validation_data=(test_seq_pairs, test_labels),
-                        epochs=TRAINING_EPOCH,
+                        epochs=TRAIN_EPOCH,
                         callbacks=[callback])
 
     example_data = utils.random_seq_pairs(1)
