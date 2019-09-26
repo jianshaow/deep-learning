@@ -1,6 +1,6 @@
 from tensorflow import keras
 
-from common import visualization as vis
+from common import vis_utils as vis
 
 if __name__ == "__main__":
     mnist = keras.datasets.mnist
