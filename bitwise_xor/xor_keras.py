@@ -1,12 +1,12 @@
 from tensorflow import keras
 
-import xor_util as util
+from common import data_utils as utils
 from common import vis_utils as vis
-from xor_util import SEQUENCE_SIZE, TRAINING_EPOCH
+from common.data_utils import SEQUENCE_SIZE, TRAINING_EPOCH
 
 if __name__ == '__main__':
-    training_seq_pairs, training_labels = util.load_training_data()
-    test_seq_pairs, test_labels = util.load_test_data()
+    training_seq_pairs, training_labels = utils.gen_xor_train_data()
+    test_seq_pairs, test_labels = utils.gen_xor_test_data()
 
     model = keras.Sequential([
         keras.layers.Flatten(input_shape=(2, SEQUENCE_SIZE)),
@@ -26,7 +26,7 @@ if __name__ == '__main__':
                         epochs=TRAINING_EPOCH,
                         callbacks=[callback])
 
-    example_data = util.random_seq_pairs(1)
+    example_data = utils.random_seq_pairs(1)
     example_result = model.predict(example_data)
     vis.build_multi_bar_figure(['seq1', 'seq2', 'xor'],
                                [example_data[0][0], example_data[0][1], example_result[0]])
