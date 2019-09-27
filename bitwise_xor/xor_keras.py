@@ -5,8 +5,8 @@ from common import vis_utils as vis
 from common.data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
 
 if __name__ == '__main__':
-    train_seq_pairs, train_labels = utils.gen_xor_train_data()
-    test_seq_pairs, test_labels = utils.gen_xor_test_data()
+    train_data, train_labels = utils.gen_xor_train_data()
+    test_data = utils.gen_xor_test_data()
 
     model = keras.Sequential([
         keras.layers.Flatten(input_shape=(2, SEQUENCE_SIZE)),
@@ -20,9 +20,8 @@ if __name__ == '__main__':
                   metrics=[keras.metrics.BinaryAccuracy()])
 
     callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
-    history = model.fit(train_seq_pairs,
-                        train_labels,
-                        validation_data=(test_seq_pairs, test_labels),
+    history = model.fit(train_data, train_labels,
+                        validation_data=test_data,
                         epochs=TRAIN_EPOCH,
                         callbacks=[callback])
 
