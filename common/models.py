@@ -48,15 +48,16 @@ class SimpleModel():
         callbacks = [keras.callbacks.BaseLogger()] + \
             (callbacks or []) + [self.history]
         if verbose:
-            callbacks.append(keras.callbacks.ProgbarLogger())
+            callbacks.append(keras.callbacks.ProgbarLogger(count_mode='steps'))
         callbacks = cbs.CallbackList(callbacks)
 
         callbacks.set_model(self)
         callback_metrics = list(self.metrics_names)
         if validation_data:
             callback_metrics += ['val_' + n for n in self.metrics_names]
+        steps = tf.data.experimental.cardinality(dataset).numpy()
         params = {'metrics': callback_metrics, 'epochs': epochs,
-                  'samples': 5000, 'verbose': verbose}
+                  'steps': steps, 'verbose': verbose}
         callbacks.set_params(params)
 
         callbacks.on_train_begin()
@@ -115,12 +116,6 @@ class SimpleModel():
 
     def predict(self, data):
         return self(data).numpy()
-
-    def __metrics_log(self):
-        log = '- '
-        for metric in self._metrics:
-            log = log + metric.name + ': ' + str(metric.result().numpy())
-        return log
 
 
 class History(keras.callbacks.Callback):
