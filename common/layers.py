@@ -15,8 +15,11 @@ class SimpleFlatten():
         return {}
 
     def __call__(self, inputs):
-        input_shape = inputs.shape
-        return tf.reshape(inputs, (-1, np.prod(input_shape[1:], dtype=int)))
+        input_shape = inputs.shape[1:]
+        if self.input_shape and self.input_shape != input_shape:
+            raise ValueError('expected input shape ' + str(self.input_shape) +
+                             ', but got input with shape ' + str(input_shape))
+        return tf.reshape(inputs, (-1, np.prod(input_shape, dtype=int)))
 
 
 class SimpleDense():
