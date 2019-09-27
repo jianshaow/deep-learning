@@ -2,9 +2,8 @@ import tensorflow as tf
 from tensorflow import keras
 
 from common import data_utils as utils
-from common import models
+from common import layers, models
 from common import vis_utils as vis
-from common import layers
 from common.data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
 
 if __name__ == '__main__':
