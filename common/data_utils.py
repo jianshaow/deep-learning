@@ -1,6 +1,7 @@
 import random
 
 import numpy as np
+import tensorflow as tf
 
 SEQUENCE_SIZE = 10
 TRAIN_DATA_SIZE = 5000
@@ -48,3 +49,13 @@ def gen_xor_test_data(size=TEST_DATA_SIZE):
     test_seq_pairs = random_seq_pairs(size)
     test_labels = batch_xor(test_seq_pairs)
     return test_seq_pairs, test_labels
+
+
+def gen_xor_train_dataset():
+    return tf.data.Dataset.from_tensor_slices(
+        gen_xor_train_data())
+
+
+def gen_xor_test_dataset():
+    return tf.data.Dataset.from_tensor_slices(
+        gen_xor_test_data())
