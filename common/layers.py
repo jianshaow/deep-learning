@@ -29,7 +29,7 @@ class SimpleDense():
                  kernel_initializer=keras.initializers.GlorotUniform(),
                  bias_initializer=keras.initializers.Zeros()):
         self.units = units
-        self.activation = activation
+        self.activation = keras.activations.get(activation)
         self.kernel_initializer = kernel_initializer
         self.bias_initializer = bias_initializer
         self.weights = []

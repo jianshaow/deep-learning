@@ -2,6 +2,8 @@ import tensorflow as tf
 from tensorflow import keras
 
 from common import callbacks as cbs
+from common import losses
+from common import metrics as mtx
 
 
 class SimpleSequential():
@@ -39,10 +41,11 @@ class SimpleSequential():
             metric.reset_states()
 
     def compile(self, optimizer, loss, metrics):
-        self.optimizer = optimizer
-        self.loss = loss
+        self.optimizer = keras.optimizers.get(optimizer)
+        self.loss = losses.get_loss(loss)
         self.loss_mean = keras.metrics.Mean()
-        self._metrics = metrics
+        self._metrics = [mtx.get_metric(metric, self.loss)
+                         for metric in metrics]
 
     def fit(self, dataset, epochs, callbacks=[], verbose=True, validation_data=None):
         callbacks = [keras.callbacks.BaseLogger()] + \
