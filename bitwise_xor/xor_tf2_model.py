@@ -11,7 +11,7 @@ if __name__ == '__main__':
     dataset = dataset.batch(32)
     test_seq_pairs, test_labels = utils.gen_xor_test_data()
 
-    model = models.SimpleModel([
+    model = models.SimpleSequential([
         keras.layers.Flatten(input_shape=(2, SEQUENCE_SIZE)),
         keras.layers.Dense(64, activation=keras.activations.relu),
         keras.layers.Dense(64, activation=keras.activations.relu),

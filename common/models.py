@@ -4,7 +4,7 @@ from tensorflow import keras
 from common import callbacks as cbs
 
 
-class SimpleModel():
+class SimpleSequential():
 
     def __init__(self, layers):
         self.name = 'Simple Model'
