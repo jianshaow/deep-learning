@@ -9,7 +9,7 @@ from common import metrics as mtx
 class SimpleSequential():
 
     def __init__(self, layers):
-        self.name = 'Simple Model'
+        self.name = 'Simple Sequential'
         self._is_graph_network = False
         self._layers = layers
         self.history = History()

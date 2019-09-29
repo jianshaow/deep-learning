@@ -95,8 +95,10 @@ def _plot_history(figure, epochs, metrics):
     left_ax.set_ylabel('Accuracy', c='blue')
 
     left_ax.set_xlim(-0.5, epochs - 0.5)
-    left_ax.set_xticks(range(epochs // 10 - 1, epochs, epochs // 10))
-    left_ax.set_xticklabels(range(epochs // 10, epochs + 1, epochs // 10))
+    left_ax.set_xticks(
+        range(epochs // 10 - 1, epochs, max(1, epochs // 10)))
+    left_ax.set_xticklabels(
+        range(epochs // 10, epochs + 1, max(1, epochs // 10)))
     left_ax.tick_params(axis='y', colors='blue')
 
     right_ax = left_ax.twinx()
