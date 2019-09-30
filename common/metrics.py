@@ -39,8 +39,8 @@ def get_metric(metric, loss):
 
     if metric in ['accuracy', 'acc']:
         if is_binary_crossentropy:
-            return MeanMetricWrapper(keras.metrics.binary_accuracy, 'binary_accuracy')
+            return MeanMetricWrapper(keras.metrics.binary_accuracy, metric)
         elif is_sparse_categorical_crossentropy:
-            return MeanMetricWrapper(keras.metrics.sparse_categorical_accuracy, 'sparse_categorical_accuracy')
+            return MeanMetricWrapper(keras.metrics.sparse_categorical_accuracy, metric)
 
-    return MeanMetricWrapper(keras.metrics.categorical_accuracy, 'categorical_accuracy')
+    return MeanMetricWrapper(keras.metrics.categorical_accuracy, metric)

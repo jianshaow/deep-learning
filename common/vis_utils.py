@@ -7,11 +7,12 @@ from tensorflow import keras
 
 
 class VisualizationCallback(keras.callbacks.Callback):
-    def __init__(self, show_model=False, runtime_plot=False):
+    def __init__(self, show_model=False, show_metrics=False, dynamic_plot=False):
         super().__init__()
         self.metrics = dict()
         self.show_model = show_model
-        self.runtime_plot = runtime_plot
+        self.show_metrics = show_metrics
+        self.dynamic_plot = dynamic_plot
         self.history_figure = None
 
     def on_train_begin(self, logs=None):
@@ -21,13 +22,13 @@ class VisualizationCallback(keras.callbacks.Callback):
 
         self.history_figure = plt.figure(figsize=(9, 6))
 
-        if self.runtime_plot:
+        if self.show_metrics and self.dynamic_plot:
             for metric_name in self.params['metrics']:
                 self.metrics[metric_name] = []
             plt.ion()
 
     def on_epoch_end(self, epoch, logs=None):
-        if self.runtime_plot:
+        if self.show_metrics and self.dynamic_plot:
             for metric_name, metric in self.metrics.items():
                 metric.append(logs[metric_name])
 
@@ -37,13 +38,13 @@ class VisualizationCallback(keras.callbacks.Callback):
             plt.pause(0.005)
 
     def on_train_end(self, logs=None):
-        if self.runtime_plot:
-            plt.ioff()
-        else:
-            self.metrics = self.model.history.history
-            self.__plot_history()
-
-        show_all()
+        if self.show_metrics:
+            if self.dynamic_plot:
+                plt.ioff()
+            else:
+                self.metrics = self.model.history.history
+                self.__plot_history()
+            show_all()
 
     def __plot_history(self):
         epochs = self.params["epochs"]

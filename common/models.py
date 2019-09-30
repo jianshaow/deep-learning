@@ -17,6 +17,7 @@ class SimpleSequential():
     # @tf.function
     def __call__(self, data):
         input = data
+        output = input
         for layer in self._layers:
             output = layer(input)
             input = output
@@ -70,11 +71,11 @@ class SimpleSequential():
             epoch_logs = {}
             callbacks.on_epoch_begin(epoch)
 
-            for batch, (data, labels) in dataset.enumerate():
+            for batch, train_data in dataset.enumerate():
                 batch_value = batch.numpy()
                 callbacks.on_batch_begin(batch_value)
-                batch_logs = {'size': len(data), 'batch': batch_value}
-                self.train_step(data, labels, batch_logs)
+                batch_logs = {'size': len(train_data), 'batch': batch_value}
+                self.train_step(train_data, batch_logs)
                 callbacks.on_batch_end(batch_value, batch_logs)
 
             epoch_logs['loss'] = self.loss_mean.result().numpy()
@@ -90,7 +91,8 @@ class SimpleSequential():
 
         return self.history
 
-    def train_step(self, data, labels, batch_logs):
+    def train_step(self, train_data, batch_logs):
+        (data, labels) = train_data
         with tf.GradientTape() as tape:
             preds = self(data)
             loss_value = self.loss(labels, preds)
@@ -98,7 +100,6 @@ class SimpleSequential():
                 loss_value, self.trainable_variables)
         self.optimizer.apply_gradients(
             zip(grads, self.trainable_variables))
-
         self.loss_mean(loss_value)
         batch_logs['loss'] = loss_value.numpy()
 
@@ -107,8 +108,8 @@ class SimpleSequential():
             batch_logs[metric.name] = metric_value.numpy()
 
     def test_step(self, validation_data, epoch_logs):
-        self.reset_metrics()
         (test_data, test_labels) = validation_data
+        self.reset_metrics()
         test_preds = self(test_data)
         test_loss_value = self.loss(test_labels, test_preds)
         epoch_logs['val_loss'] = test_loss_value.numpy()
