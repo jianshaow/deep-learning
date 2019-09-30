@@ -2,7 +2,8 @@ from tensorflow import keras
 
 from common import vis_utils as vis
 
-if __name__ == "__main__":
+
+def run():
     fashion_mnist = keras.datasets.fashion_mnist
 
     (train_images, train_labels), (test_images,
@@ -18,8 +19,12 @@ if __name__ == "__main__":
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
 
-    callback = vis.VisualizationCallback(show_model=True, runtime_plot=True)
+    callback = vis.VisualizationCallback(show_model=True, dynamic_plot=True)
     model.fit(train_images, train_labels,
               validation_data=(test_images, test_labels),
               callbacks=[callback],
               epochs=10)
+
+
+if __name__ == '__main__':
+    run()
