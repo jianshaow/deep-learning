@@ -20,12 +20,12 @@ class VisualizationCallback(keras.callbacks.Callback):
             build_model_figure(self.model)
             show_all()
 
-        self.history_figure = plt.figure(figsize=(9, 6))
-
         if self.show_metrics and self.dynamic_plot:
+            self.history_figure = plt.figure(figsize=(9, 6))
+            plt.ion()
+
             for metric_name in self.params['metrics']:
                 self.metrics[metric_name] = []
-            plt.ion()
 
     def on_epoch_end(self, epoch, logs=None):
         if self.show_metrics and self.dynamic_plot:
