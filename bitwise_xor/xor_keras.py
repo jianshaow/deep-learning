@@ -21,11 +21,12 @@ def run():
                   loss=keras.losses.BinaryCrossentropy(),
                   metrics=[keras.metrics.BinaryAccuracy()])
 
-    callback = vis.VisualizationCallback(show_model=True, dynamic_plot=True)
+    callback = vis.VisualizationCallback(
+        show_model=True, show_metrics=True, dynamic_plot=True)
     model.fit(train_data, train_labels,
-                        validation_data=test_data,
-                        epochs=TRAIN_EPOCH,
-                        callbacks=[callback])
+              validation_data=test_data,
+              epochs=TRAIN_EPOCH,
+              callbacks=[callback])
 
     example_data = utils.random_seq_pairs(1)
     example_result = model.predict(example_data)
