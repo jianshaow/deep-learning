@@ -14,7 +14,7 @@ virtualenv --system-site-packages -p python3 tf-2.0
 source tf-2.0/bin/activate
 
 # install tensorflow
-pip install tensorflow==2.0.0rc1
+pip install tensorflow==2.0.0rc2
 
 # install matplotlib for producing figures
 pip install matplotlib
