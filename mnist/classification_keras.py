@@ -25,7 +25,7 @@ def run():
     model.fit(x_train, y_train,
               validation_data=(x_test, y_test),
               callbacks=[callback],
-              epochs=10 )
+              epochs=10)
 
 
 if __name__ == '__main__':
