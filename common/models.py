@@ -2,20 +2,25 @@ import tensorflow as tf
 from tensorflow import keras
 
 from common import callbacks as cbs
-from common import losses
+from common import layers, losses
 from common import metrics as mtx
 
 
-class SimpleSequential():
+class SimpleSequential(layers.Layer):
 
     def __init__(self, layers):
-        self.name = 'Simple Sequential'
+        super(SimpleSequential, self).__init__()
         self._is_graph_network = False
-        self._layers = layers
+        self._layers = []
         self.history = History()
 
-    # @tf.function
-    def __call__(self, data):
+        for layer in layers:
+            self.add(layer)
+
+    def add(self, layer):
+        self._layers.append(layer)
+
+    def call(self, data):
         input = data
         output = input
         for layer in self._layers:

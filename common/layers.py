@@ -3,18 +3,38 @@ import tensorflow as tf
 from tensorflow import keras
 
 
-class SimpleFlatten():
+class Layer():
+    def __init__(self, name=None):
+        self.name = name
+
+    def __call__(self, inputs):
+        return self.call(inputs)
+
+    def call(self, inputs):
+        return inputs
+
+
+class SimpleInput(Layer):
+    def __init__(self, input_shape=None):
+        super(SimpleInput, self).__init__()
+        self.input_shape = input_shape
+
+
+class SimpleFlatten(Layer):
     def __init__(self,
                  units=None,
-                 input_shape=None):
+                 input_shape=None,
+                 dtype=tf.float32):
+        super(SimpleFlatten, self).__init__()
         self.units = units
         self.input_shape = input_shape
+        self.dtype = dtype
 
     @property
     def trainable_variables(self):
         return {}
 
-    def __call__(self, inputs):
+    def call(self, inputs):
         input_shape = inputs.shape[1:]
         if self.input_shape and self.input_shape != input_shape:
             raise ValueError('expected input shape ' + str(self.input_shape) +
@@ -22,12 +42,14 @@ class SimpleFlatten():
         return tf.reshape(inputs, (-1, np.prod(input_shape, dtype=int)))
 
 
-class SimpleDense():
+class SimpleDense(Layer):
     def __init__(self,
                  units,
                  activation=None,
                  kernel_initializer=keras.initializers.GlorotUniform(),
-                 bias_initializer=keras.initializers.Zeros()):
+                 bias_initializer=keras.initializers.Zeros(),
+                 **kwargs):
+        super(SimpleDense, self).__init__(**kwargs)
         self.units = units
         self.activation = keras.activations.get(activation)
         self.kernel_initializer = kernel_initializer
@@ -41,9 +63,9 @@ class SimpleDense():
     def trainable_variables(self):
         return self.weights
 
-    def __call__(self, inputs):
+    def call(self, inputs):
         if not inputs.dtype.is_floating:
-            inputs = tf.dtypes.cast(inputs, dtype=tf.float32)
+            inputs = tf.cast(inputs, dtype=tf.float32)
 
         self._maybe_build(inputs.shape)
 
