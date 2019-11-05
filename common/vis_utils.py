@@ -59,11 +59,11 @@ def build_model_figure(model, dpi=100):
         img = mpimg.imread(model_image_file)
 
         figsize = (img.shape[1] * (1.25) / dpi, img.shape[0] / dpi)
-        fig = plt.figure(figsize=figsize, dpi=dpi)
-        ax = fig.add_axes([0, 0, 1, 1])
+        figure = plt.figure(figsize=figsize, dpi=dpi)
+        ax = figure.add_axes([0, 0, 1, 1])
         ax.set_axis_off()
         ax.imshow(img)
-    return fig
+    return figure
 
 
 def build_history_figure(history):
@@ -82,6 +82,16 @@ def build_multi_bar_figure(labels, data):
         plt.ylabel(labels[i])
         plt.bar(range(data_size), data[i], width=1, edgecolor='black')
 
+    return figure
+
+def build_images_figure(images):
+    figure = plt.figure(figsize=(9, 6))
+    size = len(images)
+    for i in range(size):
+        ax = figure.add_subplot(size // 6 + 1, 6, i + 1)
+        # ax = figure.add_axes([0, 0, 1, 1])
+        ax.set_axis_off()
+        ax.imshow(images[i])
     return figure
 
 
