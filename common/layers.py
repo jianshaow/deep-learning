@@ -64,7 +64,7 @@ class SimpleDense(Layer):
         return self.weights
 
     def call(self, inputs):
-        if not inputs.dtype.is_floating:
+        if not inputs.dtype == tf.float32:
             inputs = tf.cast(inputs, dtype=tf.float32)
 
         self._maybe_build(inputs.shape)
