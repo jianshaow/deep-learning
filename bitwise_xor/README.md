@@ -3,12 +3,11 @@
 Install python > 3.5
 
 ~~~ shell
-# update pip and install virtualenv
+# update pip
 sudo pip install --upgrade pip
-sudo pip install virtualenv
 
 # create a virtual environment
-virtualenv --system-site-packages -p python3 tf-2.0
+python -m venv --system-site-packages tf-2.0
 
 # activate the env
 source tf-2.0/bin/activate

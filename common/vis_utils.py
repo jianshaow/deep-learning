@@ -24,13 +24,9 @@ class VisualizationCallback(keras.callbacks.Callback):
             self.history_figure = plt.figure(figsize=(9, 6))
             plt.ion()
 
-            for metric_name in self.params['metrics']:
-                self.metrics[metric_name] = []
-
     def on_epoch_end(self, epoch, logs=None):
         if self.show_metrics and self.dynamic_plot:
-            for metric_name, metric in self.metrics.items():
-                metric.append(logs[metric_name])
+            self.__save_history(logs)
 
             self.history_figure.clf()
             self.__plot_history()
@@ -45,6 +41,14 @@ class VisualizationCallback(keras.callbacks.Callback):
                 self.metrics = self.model.history.history
                 self.__plot_history()
             show_all()
+
+    def __save_history(self, logs):
+        for name, value in logs.items():
+            history = self.metrics.get(name)
+            if not history:
+                history = []
+                self.metrics[name] = history
+            history.append(value)
 
     def __plot_history(self):
         epochs = self.params["epochs"]
@@ -83,6 +87,7 @@ def build_multi_bar_figure(labels, data):
         plt.bar(range(data_size), data[i], width=1, edgecolor='black')
 
     return figure
+
 
 def build_images_figure(images):
     figure = plt.figure(figsize=(9, 6))

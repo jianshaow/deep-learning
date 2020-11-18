@@ -12,6 +12,7 @@ class SimpleSequential(layers.Layer):
         super(SimpleSequential, self).__init__()
         self._is_graph_network = False
         self._layers = []
+        self.metrics = []
         self.history = History()
 
         for layer in layers:
