@@ -139,10 +139,10 @@ def __split_metrics(metrics):
     acc_metrics = dict()
     loss_metrics = dict()
     for metric_name, metric in metrics.items():
-        if 'acc' in metric_name:
-            acc_metrics[metric_name] = metric
         if 'loss' in metric_name:
             loss_metrics[metric_name] = metric
+        else:
+            acc_metrics[metric_name] = metric
     return acc_metrics, loss_metrics
 
 
