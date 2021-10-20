@@ -13,10 +13,10 @@ sudo apt-get install graphviz
 sudo pip install --upgrade pip
 
 # create a virtual environment
-python -m venv --system-site-packages tf-2.0
+python -m venv --system-site-packages tf-2
 
 # activate the env
-source tf-2.0/bin/activate
+source tf-2/bin/activate
 
 # install tensorflow
 pip install tensorflow
