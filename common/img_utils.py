@@ -1,58 +1,75 @@
-
 import os
-import numpy as np
-import tensorflow as tf
-import matplotlib.pyplot as plt
 import random
+
+import matplotlib.patches as ptchs
+import matplotlib.pyplot as plt
+import numpy as np
+from tensorflow import image as tfimg
 
 TRAIN_DATA_SIZE = 5000
 TEST_DATA_SIZE = 500
 TRAIN_EPOCH = 10
 CIRCLES_MAX = 6
 
+SIDE_LIMIT = 100
+RADIUS = 10
+SPACE = 2
+CENTER_LOWER = RADIUS + SPACE
+CENTER_UPPER = SIDE_LIMIT - RADIUS - SPACE
+
 CIRCLE_COUNT_DATA_FILE = os.path.join(
     os.path.expanduser('~'), '.dataset/circle_count')
 
 
-def random_circles_imgs(handle, size=1):
+def random_circles_images(handle, size=1):
     fig = plt.figure(figsize=(1, 1))
     for i in range(size):
         circles = random.randint(0, CIRCLES_MAX - 1)
-
-        x = []
-        y = []
-        d = []
-
-        for _i in range(circles):
-            d.append(200)
-            lower = 15
-            upper = 85
-            x_value = random.randint(lower, upper)
-            y_value = random.randint(lower, upper)
-            x.append(x_value)
-            y.append(y_value)
-            # print('dim =', dim, ', lower =', lower, ', upper =', upper, ', x =', x_value, ', y =', y_value)
-
-        ax = fig.add_axes([0, 0, 1, 1], frameon=False)
-        ax.set_xlim(0, 100)
-        ax.set_ylim(0, 100)
-
-        ax.scatter(x, y, s=d, lw=0.5, edgecolors='black', facecolor='none')
-
-        canvas = fig.canvas
-        canvas.draw()
-        fig_size = fig.get_size_inches()
-        fig_dpi = fig.get_dpi()
-        # print(fig_size, fig_dpi)
-        width, height = fig_size * fig_dpi
-        data = np.fromstring(canvas.tostring_rgb(), np.uint8).reshape(
-            (int(height), int(width), 3))
-        data = tf.image.rgb_to_grayscale(data)
-        data = np.squeeze(data)
-
+        data = random_circles_image(fig, circles)
         handle(i, data, circles)
-        fig.clf()
     plt.close(fig)
+
+
+def random_circles_image(fig, circles):
+    ax = fig.add_axes([0, 0, 1, 1], frameon=False)
+    ax.set_xlim(0, SIDE_LIMIT)
+    ax.set_ylim(0, SIDE_LIMIT)
+
+    centers = []
+    for _i in range(circles):
+        center = random_circle_center(
+            centers, RADIUS, CENTER_LOWER, CENTER_UPPER)
+        centers.append(center)
+        circle = ptchs.Circle(center, RADIUS, fill=False)
+        ax.add_artist(circle)
+
+    canvas = fig.canvas
+    canvas.draw()
+    fig_size = fig.get_size_inches()
+    fig_dpi = fig.get_dpi()
+    # print(fig_size, fig_dpi)
+    width, height = fig_size * fig_dpi
+    data = np.fromstring(canvas.tostring_rgb(), np.uint8).reshape(
+        (int(height), int(width), 3))
+    data = tfimg.rgb_to_grayscale(data)
+    data = np.squeeze(data)
+    fig.clf()
+    return data
+
+
+def random_circle_center(centers, radius, lower, upper):
+    x, y = 0, 0
+    while(True):
+        x = random.randint(lower, upper)
+        y = random.randint(lower, upper)
+        success = True
+        for center in centers:
+            if np.sqrt(np.square(x-center[0]) + np.square(y-center[1])) <= 2 * radius + SPACE:
+                success = False
+                break
+        if success:
+            break
+    return x, y
 
 
 def gen_circle_count_data(size=1):
@@ -64,7 +81,7 @@ def gen_circle_count_data(size=1):
         datas[i] = data
         reg_labels[i] = label
         cls_labels[i][label] = 1
-    random_circles_imgs(handle, size)
+    random_circles_images(handle, size)
     return datas, reg_labels, cls_labels
 
 
@@ -100,14 +117,28 @@ def load_reg_data():
 
 def show_data(x_train, y_train, class_mapping=None):
     plt.figure(figsize=(10, 10))
+    start = random.randint(0, TRAIN_DATA_SIZE - 25 - 1)
+    plt.suptitle('data[' + str(start) + ' - ' + str(start + 25) + ']')
     for i in range(25):
         plt.subplot(5, 5, i+1)
         plt.xticks([])
         plt.yticks([])
         plt.grid(False)
-        plt.imshow(x_train[i], cmap=plt.cm.binary)
-        xlabel = y_train[i] if class_mapping == None else class_mapping[y_train[i]]
+        plt.imshow(x_train[start+i], cmap=plt.cm.binary)
+        xlabel = y_train[start +
+                         i] if class_mapping == None else class_mapping[y_train[start+i]]
         plt.xlabel(xlabel)
+    plt.show()
+
+
+def show_one(x, y, class_mapping=None):
+    plt.figure(figsize=(10, 10))
+    plt.xticks([])
+    plt.yticks([])
+    plt.grid(False)
+    plt.imshow(x, cmap=plt.cm.binary)
+    xlabel = y if class_mapping == None else class_mapping[y]
+    plt.xlabel(xlabel)
     plt.show()
 
 
@@ -120,6 +151,7 @@ def __test():
     print(test_reg_label[0], test_cls_label[0])
 
     show_data(train_data, train_reg_label)
+    show_one(train_data[1], train_reg_label[1])
 
 
 if __name__ == '__main__':
