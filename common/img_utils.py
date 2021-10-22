@@ -92,13 +92,17 @@ def gen_circle_count_data(size=1):
         data[index] = images
         reg_labels[index] = circles
         cls_labels[index][circles] = 1
+        if size > 1000 and index % 1000 == 0:
+            print(index, 'data generated...')
     random_circles_images(handle, size)
     return data, reg_labels, cls_labels
 
 
 def save_circle_count_dataset():
+    print('start to generate train data')
     train_data, train_reg_label, train_cls_label = gen_circle_count_data(
         TRAIN_DATA_SIZE)
+    print('start to generate test data')
     test_data, test_reg_label, test_cls_label = gen_circle_count_data(
         TEST_DATA_SIZE)
     np.savez(CIRCLE_COUNT_DATA_FILE, train_data=train_data,
