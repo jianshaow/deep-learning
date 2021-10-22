@@ -106,3 +106,4 @@ venv.bak/
 .vscode/
 *.code-workspace
 proto/
+.model/

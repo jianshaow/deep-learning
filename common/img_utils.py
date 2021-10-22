@@ -1,14 +1,14 @@
-import os
 import random
+from os import path
 
 import matplotlib.patches as ptchs
 import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow import image as tfimg
 
-TRAIN_DATA_SIZE = 5000
-TEST_DATA_SIZE = 500
-TRAIN_EPOCH = 10
+TRAIN_DATA_SIZE = 10000
+TEST_DATA_SIZE = 1000
+TRAIN_EPOCH = 40
 CIRCLES_MAX = 6
 
 SIDE_LIMIT = 100
@@ -17,8 +17,8 @@ SPACE = 2
 CENTER_LOWER = RADIUS + SPACE
 CENTER_UPPER = SIDE_LIMIT - RADIUS - SPACE
 
-CIRCLE_COUNT_DATA_FILE = os.path.join(
-    os.path.expanduser('~'), '.dataset/circle_count')
+CIRCLE_COUNT_DATA_FILE = path.join(
+    path.expanduser('~'), '.dataset/circle_count')
 
 
 def random_circles_data(size=1):
@@ -157,7 +157,7 @@ def show_image(x, y, class_mapping=None):
     plt.show()
 
 
-def __test():
+def __show_data():
     (train_data, train_reg_label, train_cls_label), (test_data,
                                                      test_reg_label, test_cls_label) = load_data()
     print(train_data.shape, train_data.dtype)
@@ -173,4 +173,4 @@ def __test():
 
 if __name__ == '__main__':
     # save_circle_count_dataset()
-    __test()
+    __show_data()
