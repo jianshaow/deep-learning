@@ -21,22 +21,33 @@ CIRCLE_COUNT_DATA_FILE = os.path.join(
     os.path.expanduser('~'), '.dataset/circle_count')
 
 
+def random_circles_data(size=1):
+    images = np.zeros((size, 100, 100), dtype=np.uint8)
+    circle_nums = np.zeros((size), dtype=np.uint8)
+
+    def handle(index, image, circle_num):
+        images[index] = image
+        circle_nums[index] = circle_num
+    random_circles_images(handle, size)
+    return images, circle_nums
+
+
 def random_circles_images(handle, size=1):
     fig = plt.figure(figsize=(1, 1))
     for i in range(size):
-        circles = random.randint(0, CIRCLES_MAX - 1)
-        data = random_circles_image(fig, circles)
-        handle(i, data, circles)
+        circle_num = random.randint(0, CIRCLES_MAX - 1)
+        image = random_circles_image(fig, circle_num)
+        handle(i, image, circle_num)
     plt.close(fig)
 
 
-def random_circles_image(fig, circles):
+def random_circles_image(fig, circle_num):
     ax = fig.add_axes([0, 0, 1, 1], frameon=False)
     ax.set_xlim(0, SIDE_LIMIT)
     ax.set_ylim(0, SIDE_LIMIT)
 
     centers = []
-    for _i in range(circles):
+    for _i in range(circle_num):
         center = random_circle_center(
             centers, RADIUS, CENTER_LOWER, CENTER_UPPER)
         centers.append(center)
@@ -73,16 +84,16 @@ def random_circle_center(centers, radius, lower, upper):
 
 
 def gen_circle_count_data(size=1):
-    datas = np.zeros((size, 100, 100), dtype=np.uint8)
+    data = np.zeros((size, 100, 100), dtype=np.uint8)
     reg_labels = np.zeros((size), dtype=np.uint8)
     cls_labels = np.zeros((size, CIRCLES_MAX), dtype=np.uint8)
 
-    def handle(i, data, label):
-        datas[i] = data
-        reg_labels[i] = label
-        cls_labels[i][label] = 1
+    def handle(index, images, circles):
+        data[index] = images
+        reg_labels[index] = circles
+        cls_labels[index][circles] = 1
     random_circles_images(handle, size)
-    return datas, reg_labels, cls_labels
+    return data, reg_labels, cls_labels
 
 
 def save_circle_count_dataset():
@@ -115,24 +126,28 @@ def load_reg_data():
     return (train_data, train_label), (test_data, test_label)
 
 
-def show_data(x_train, y_train, class_mapping=None):
-    plt.figure(figsize=(10, 10))
-    start = random.randint(0, TRAIN_DATA_SIZE - 25 - 1)
+def show_images(images, labels, class_mapping=None, randomized=False):
+    plt.figure(figsize=(8, 8))
+    if randomized:
+        start = random.randint(0, len(images) - 25 - 1)
+    else:
+        start = 0
     plt.suptitle('data[' + str(start) + ' - ' + str(start + 25) + ']')
     for i in range(25):
-        plt.subplot(5, 5, i+1)
+        plt.subplot(5, 5, i + 1)
         plt.xticks([])
         plt.yticks([])
         plt.grid(False)
-        plt.imshow(x_train[start+i], cmap=plt.cm.binary)
-        xlabel = y_train[start +
-                         i] if class_mapping == None else class_mapping[y_train[start+i]]
+        plt.imshow(images[start + i], cmap=plt.cm.binary)
+        label = labels[start + i]
+        print(str(i) + ': ', label)
+        xlabel = label if class_mapping == None else class_mapping[label]
         plt.xlabel(xlabel)
     plt.show()
 
 
-def show_one(x, y, class_mapping=None):
-    plt.figure(figsize=(10, 10))
+def show_image(x, y, class_mapping=None):
+    plt.figure(figsize=(8, 8))
     plt.xticks([])
     plt.yticks([])
     plt.grid(False)
@@ -150,8 +165,10 @@ def __test():
     print(test_data.shape, test_data.dtype)
     print(test_reg_label[0], test_cls_label[0])
 
-    show_data(train_data, train_reg_label)
-    show_one(train_data[1], train_reg_label[1])
+    show_images(train_data, train_reg_label, randomized=True)
+    show_images(test_data, test_reg_label, randomized=True)
+    show_image(train_data[0], train_reg_label[0])
+    show_image(test_data[0], test_reg_label[0])
 
 
 if __name__ == '__main__':
