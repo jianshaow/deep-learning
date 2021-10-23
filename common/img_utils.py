@@ -1,3 +1,4 @@
+import os
 import random
 from os import path
 
@@ -17,8 +18,8 @@ SPACE = 2
 CENTER_LOWER = RADIUS + SPACE
 CENTER_UPPER = SIDE_LIMIT - RADIUS - SPACE
 
-CIRCLE_COUNT_DATA_FILE = path.join(
-    path.expanduser('~'), '.dataset/circle_count')
+DATA_SET_PATH = path.join(path.expanduser('~'), '.dataset')
+CIRCLE_COUNT_DATA_FILE = path.join(DATA_SET_PATH, 'circle_count')
 
 
 def random_circles_data(size=1):
@@ -58,7 +59,6 @@ def random_circles_image(fig, circle_num):
     canvas.draw()
     fig_size = fig.get_size_inches()
     fig_dpi = fig.get_dpi()
-    # print(fig_size, fig_dpi)
     width, height = fig_size * fig_dpi
     data = np.fromstring(canvas.tostring_rgb(), np.uint8).reshape(
         (int(height), int(width), 3))
@@ -84,61 +84,63 @@ def random_circle_center(centers, radius, lower, upper):
 
 
 def gen_circle_count_data(size=1):
-    data = np.zeros((size, 100, 100), dtype=np.uint8)
-    reg_labels = np.zeros((size), dtype=np.uint8)
-    cls_labels = np.zeros((size, CIRCLES_MAX), dtype=np.uint8)
+    x = np.zeros((size, 100, 100), dtype=np.uint8)
+    reg_y = np.zeros((size), dtype=np.uint8)
+    cls_y = np.zeros((size, CIRCLES_MAX), dtype=np.uint8)
 
     def handle(index, images, circles):
-        data[index] = images
-        reg_labels[index] = circles
-        cls_labels[index][circles] = 1
-        if size > 1000 and index % 1000 == 0:
-            print(index, 'data generated...')
+        x[index] = images
+        reg_y[index] = circles
+        cls_y[index][circles] = 1
+        if size >= 1000 and (index + 1) % 1000 == 0:
+            print(index + 1, 'data generated...')
     random_circles_images(handle, size)
-    return data, reg_labels, cls_labels
+    return x, reg_y, cls_y
 
 
 def save_circle_count_dataset():
     print('start to generate train data')
-    train_data, train_reg_label, train_cls_label = gen_circle_count_data(
+    train_x, train_reg_y, train_cls_y = gen_circle_count_data(
         TRAIN_DATA_SIZE)
     print('start to generate test data')
-    test_data, test_reg_label, test_cls_label = gen_circle_count_data(
+    test_x, test_reg_y, test_cls_y = gen_circle_count_data(
         TEST_DATA_SIZE)
-    np.savez(CIRCLE_COUNT_DATA_FILE, train_data=train_data,
-             train_reg_label=train_reg_label, train_cls_label=train_cls_label, test_data=test_data, test_reg_label=test_reg_label, test_cls_label=test_cls_label)
+    if not path.exists(DATA_SET_PATH):
+        os.makedirs(DATA_SET_PATH)
+    np.savez(CIRCLE_COUNT_DATA_FILE, train_x=train_x,
+             train_reg_y=train_reg_y, train_cls_y=train_cls_y, test_x=test_x, test_reg_y=test_reg_y, test_cls_y=test_cls_y)
 
 
 def load_data():
     with np.load(CIRCLE_COUNT_DATA_FILE + '.npz') as f:
-        train_data = f['train_data']
-        train_reg_label = f['train_reg_label']
-        train_cls_label = f['train_cls_label']
-        test_data = f['test_data']
-        test_reg_label = f['test_reg_label']
-        test_cls_label = f['test_cls_label']
-        return (train_data, train_reg_label, train_cls_label), (test_data, test_reg_label, test_cls_label)
+        train_x = f['train_x']
+        train_reg_y = f['train_reg_y']
+        train_cls_y = f['train_cls_y']
+        test_x = f['test_x']
+        test_reg_y = f['test_reg_y']
+        test_cls_y = f['test_cls_y']
+        return (train_x, train_reg_y, train_cls_y), (test_x, test_reg_y, test_cls_y)
 
 
 def load_cls_data():
-    (train_data, _, train_label), (test_data, _, test_label) = load_data()
-    return (train_data, train_label), (test_data, test_label)
+    (train_x, _, train_y), (test_x, _, test_y) = load_data()
+    return (train_x, train_y), (test_x, test_y)
 
 
 def load_reg_data():
-    (train_data, train_label, _), (test_data, test_label, _) = load_data()
-    return (train_data, train_label), (test_data, test_label)
+    (train_x, train_y, _), (test_x, test_y, _) = load_data()
+    return (train_x, train_y), (test_x, test_y)
 
 
 def show_images(images, labels, class_mapping=None, randomized=False):
-    plt.figure(figsize=(8, 8))
+    plt.figure(figsize=(8, 10))
     if randomized:
-        start = random.randint(0, len(images) - 25 - 1)
+        start = random.randint(0, len(images) - 20 - 1)
     else:
         start = 0
-    plt.suptitle('data[' + str(start) + ' - ' + str(start + 25) + ']')
-    for i in range(25):
-        plt.subplot(5, 5, i + 1)
+    plt.suptitle('data[' + str(start) + ' - ' + str(start + 20) + ']')
+    for i in range(20):
+        plt.subplot(4, 5, i + 1)
         plt.xticks([])
         plt.yticks([])
         plt.grid(False)
@@ -150,29 +152,29 @@ def show_images(images, labels, class_mapping=None, randomized=False):
     plt.show()
 
 
-def show_image(x, y, class_mapping=None):
-    plt.figure(figsize=(8, 8))
+def show_image(image, label, class_mapping=None):
+    plt.figure(figsize=(5, 5))
     plt.xticks([])
     plt.yticks([])
     plt.grid(False)
-    plt.imshow(x, cmap=plt.cm.binary)
-    xlabel = y if class_mapping == None else class_mapping[y]
+    plt.imshow(image, cmap=plt.cm.binary)
+    xlabel = label if class_mapping == None else class_mapping[label]
     plt.xlabel(xlabel)
     plt.show()
 
 
 def __show_data():
-    (train_data, train_reg_label, train_cls_label), (test_data,
-                                                     test_reg_label, test_cls_label) = load_data()
-    print(train_data.shape, train_data.dtype)
-    print(train_reg_label[0], train_cls_label[0])
-    print(test_data.shape, test_data.dtype)
-    print(test_reg_label[0], test_cls_label[0])
+    (train_x, train_reg_y, train_cls_y), (test_x,
+                                          test_reg_y, test_cls_y) = load_data()
+    print(train_x.shape, train_x.dtype)
+    print(train_reg_y[0], train_cls_y[0])
+    print(test_x.shape, test_x.dtype)
+    print(test_reg_y[0], test_cls_y[0])
 
-    show_images(train_data, train_reg_label, randomized=True)
-    show_images(test_data, test_reg_label, randomized=True)
-    show_image(train_data[0], train_reg_label[0])
-    show_image(test_data[0], test_reg_label[0])
+    show_images(train_x, train_reg_y, randomized=True)
+    show_images(test_x, test_reg_y, randomized=True)
+    show_image(train_x[0], train_reg_y[0])
+    show_image(test_x[0], test_reg_y[0])
 
 
 if __name__ == '__main__':
