@@ -132,34 +132,37 @@ def load_reg_data():
     return (train_x, train_y), (test_x, test_y)
 
 
-def show_images(images, labels, class_mapping=None, randomized=False):
-    plt.figure(figsize=(8, 10))
+def show_images(images, labels, title='data', class_mapping=None, randomized=False):
+    fig = plt.figure(figsize=(8, 10))
+    fig.subplots_adjust(0.05, 0.05, 0.95, 0.95)
     if randomized:
         start = random.randint(0, len(images) - 20 - 1)
     else:
         start = 0
-    plt.suptitle('data[' + str(start) + ' - ' + str(start + 20) + ']')
+    fig.suptitle(title + ' [' + str(start) + ' - ' + str(start + 20) + ']')
     for i in range(20):
-        plt.subplot(4, 5, i + 1)
-        plt.xticks([])
-        plt.yticks([])
-        plt.grid(False)
-        plt.imshow(images[start + i], cmap=plt.cm.binary)
+        ax = fig.add_subplot(4, 5, i + 1)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.grid(False)
+        ax.imshow(images[start + i], cmap=plt.cm.binary)
         label = labels[start + i]
         print(str(i) + ': ', label)
         xlabel = label if class_mapping == None else class_mapping[label]
-        plt.xlabel(xlabel)
+        ax.set_xlabel(xlabel)
     plt.show()
 
 
-def show_image(image, label, class_mapping=None):
-    plt.figure(figsize=(5, 5))
-    plt.xticks([])
-    plt.yticks([])
-    plt.grid(False)
-    plt.imshow(image, cmap=plt.cm.binary)
+def show_image(image, label, title='image', class_mapping=None):
+    fig = plt.figure(figsize=(5, 6))
+    fig.suptitle(title)
+    ax = fig.add_axes([.05, .05, .9, .9])
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.grid(False)
+    ax.imshow(image, cmap=plt.cm.binary)
     xlabel = label if class_mapping == None else class_mapping[label]
-    plt.xlabel(xlabel)
+    ax.set_xlabel(xlabel)
     plt.show()
 
 
@@ -171,10 +174,12 @@ def __show_data():
     print(test_x.shape, test_x.dtype)
     print(test_reg_y[0], test_cls_y[0])
 
-    show_images(train_x, train_reg_y, randomized=True)
-    show_images(test_x, test_reg_y, randomized=True)
-    show_image(train_x[0], train_reg_y[0])
-    show_image(test_x[0], test_reg_y[0])
+    show_images(train_x, train_reg_y, title='train data', randomized=True)
+    show_images(test_x, test_reg_y, title='test data', randomized=True)
+    index = random.randint(0, len(train_x) - 1)
+    show_image(train_x[index], train_reg_y[index])
+    index = random.randint(0, len(test_x) - 1)
+    show_image(test_x[index], test_reg_y[index])
 
 
 if __name__ == '__main__':
