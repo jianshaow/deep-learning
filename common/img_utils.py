@@ -29,6 +29,7 @@ def data_config(r_lower=RADIUS, r_upper=None):
         data_name = data_name + '-' + str(r_upper)
     config['name'] = data_name
     config['path'] = path.join(DATA_SET_PATH, data_name + '.npz')
+    config['error_path'] = path.join(DATA_SET_PATH, data_name + '_error.npz')
 
     def get_config(key='radius'):
         if key == 'radius':
@@ -107,10 +108,15 @@ def random_center(circle_params, radius):
     return x, y
 
 
-def gen_circles_data(get_config=RANDOM_R_CONFIG, size=1):
+def zero_data(size=1):
     x = np.zeros((size, 100, 100), dtype=np.uint8)
     reg_y = np.zeros((size), dtype=np.uint8)
     cls_y = np.zeros((size, CIRCLES_MAX), dtype=np.uint8)
+    return x, reg_y, cls_y
+
+
+def gen_circles_data(get_config=RANDOM_R_CONFIG, size=1):
+    x, reg_y, cls_y = zero_data(size)
 
     def handle(index, images, circles):
         x[index] = images
@@ -136,24 +142,42 @@ def save_data(get_config=RANDOM_R_CONFIG):
              test_x=test_x, test_reg_y=test_reg_y, test_cls_y=test_cls_y)
 
 
-def load_data(get_config=RANDOM_R_CONFIG):
-    with np.load(get_config('path')) as f:
+def save_error_data(error_data, get_config=RANDOM_R_CONFIG):
+    train_x, train_reg_y, train_cls_y = error_data
+    np.savez(get_config('error_path'), train_x=train_x,
+             train_reg_y=train_reg_y, train_cls_y=train_cls_y)
+
+
+def load_data(path, test_data=True):
+    with np.load(path) as f:
         train_x = f['train_x']
         train_reg_y = f['train_reg_y']
         train_cls_y = f['train_cls_y']
-        test_x = f['test_x']
-        test_reg_y = f['test_reg_y']
-        test_cls_y = f['test_cls_y']
-        return (train_x, train_reg_y, train_cls_y), (test_x, test_reg_y, test_cls_y)
+        if test_data:
+            test_x = f['test_x']
+            test_reg_y = f['test_reg_y']
+            test_cls_y = f['test_cls_y']
+            return (train_x, train_reg_y, train_cls_y), (test_x, test_reg_y, test_cls_y)
+        return (train_x, train_reg_y, train_cls_y)
+
+
+def load_cls_error_data(get_config=RANDOM_R_CONFIG):
+    (train_x, _, train_y) = load_data(get_config('error_path'), test_data=False)
+    return train_x, train_y
+
+
+def load_reg_error_data(get_config=RANDOM_R_CONFIG):
+    (train_x, train_y, _) = load_data(get_config('error_path'), test_data=False)
+    return train_x, train_y
 
 
 def load_cls_data(get_config=RANDOM_R_CONFIG):
-    (train_x, _, train_y), (test_x, _, test_y) = load_data(get_config)
+    (train_x, _, train_y), (test_x, _, test_y) = load_data(get_config('path'))
     return (train_x, train_y), (test_x, test_y)
 
 
 def load_reg_data(get_config=RANDOM_R_CONFIG):
-    (train_x, train_y, _), (test_x, test_y, _) = load_data(get_config)
+    (train_x, train_y, _), (test_x, test_y, _) = load_data(get_config('path'))
     return (train_x, train_y), (test_x, test_y)
 
 
@@ -193,7 +217,7 @@ def show_image(image, label, title='image', class_mapping=None):
 
 def show_data(get_config=RANDOM_R_CONFIG):
     (train_x, train_reg_y, train_cls_y), \
-        (test_x, test_reg_y, test_cls_y) = load_data(get_config)
+        (test_x, test_reg_y, test_cls_y) = load_data(get_config('path'))
     print(train_x.shape, train_x.dtype)
     print(train_reg_y[0], train_cls_y[0])
     print(test_x.shape, test_x.dtype)
