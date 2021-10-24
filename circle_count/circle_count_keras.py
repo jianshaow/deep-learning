@@ -10,9 +10,11 @@ from tensorflow import keras
 MODEL_PATH = path.join(path.expanduser('~'), '.model/circle_count')
 MODEL_PATH_OLD = MODEL_PATH + '.old'
 
+DATA_CONFIG = img.data_config(9)
+
 
 def prepare_data():
-    (train_x, train_y), (test_x, test_y) = img.load_cls_data()
+    (train_x, train_y), (test_x, test_y) = img.load_cls_data(DATA_CONFIG)
     train_x, test_x = train_x/255.0, test_x/255.0
     return train_x, train_y, (test_x, test_y)
 
@@ -20,8 +22,9 @@ def prepare_data():
 def build_model():
     model = keras.Sequential([
         keras.layers.Flatten(input_shape=(100, 100)),
-        keras.layers.Dense(128, activation='relu'),
-        keras.layers.Dense(128, activation='relu'),
+        keras.layers.Dense(64, activation='relu'),
+        keras.layers.Dropout(0.2),
+        keras.layers.Dense(64, activation='relu'),
         keras.layers.Dense(CIRCLES_MAX, activation='softmax')
     ])
 
@@ -41,7 +44,7 @@ def train_model(model, train_x, train_y, epochs=TRAIN_EPOCH, validation_data=Non
 
 
 def verify_model(model):
-    images, _ = img.random_circles_data(20)
+    images, _ = img.random_circles_data(DATA_CONFIG, size=20)
     circle_nums_estimation = model.predict(images)
     img.show_images(images, circle_nums_estimation)
 
@@ -68,13 +71,14 @@ def first_run(save=False):
         save_model(model)
 
 
-def re_run():
+def re_run(learning_rate=0.0001, epochs=100):
     train_x, train_y, validation_data = prepare_data()
     model = load_model()
-    model.compile(optimizer=keras.optimizers.Adam(0.0001),
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate),
                   loss='binary_crossentropy',
                   metrics=['binary_accuracy'])
-    train_model(model, train_x, train_y, validation_data=validation_data)
+    train_model(model, train_x, train_y, epochs=epochs,
+                validation_data=validation_data)
     verify_model(model)
 
     save = input('save model? (y|n): ')
@@ -88,4 +92,6 @@ def demo_model():
 
 
 if __name__ == '__main__':
-    demo_model()
+    # first_run(save=True)
+    re_run()
+    # demo_model()

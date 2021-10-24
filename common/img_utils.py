@@ -13,46 +13,68 @@ TRAIN_EPOCH = 40
 CIRCLES_MAX = 6
 
 SIDE_LIMIT = 100
-RADIUS = 10
+RADIUS = 9
+RADIUS_LOWER = 6
+RADIUS_UPPER = 12
 SPACE = 2
-CENTER_LOWER = RADIUS + SPACE
-CENTER_UPPER = SIDE_LIMIT - RADIUS - SPACE
 
 DATA_SET_PATH = path.join(path.expanduser('~'), '.dataset')
-CIRCLE_COUNT_DATA_FILE = path.join(DATA_SET_PATH, 'circle_count')
+DATA_NAME_PREFIX = 'circle_count'
 
 
-def random_circles_data(size=1):
+def data_config(r_lower=RADIUS, r_upper=None):
+    config = {}
+    data_name = DATA_NAME_PREFIX + '_r' + str(r_lower)
+    if r_upper:
+        data_name = data_name + '-' + str(r_upper)
+    config['name'] = data_name
+    config['path'] = path.join(DATA_SET_PATH, data_name + '.npz')
+
+    def get_config(key='radius'):
+        if key == 'radius':
+            if r_lower and r_upper:
+                return random.randint(r_lower, r_upper)
+            else:
+                return r_lower
+        return config[key]
+    return get_config
+
+
+RANDOM_R_CONFIG = data_config(RADIUS_LOWER, RADIUS_UPPER)
+
+
+def random_circles_data(get_config=RANDOM_R_CONFIG, size=1):
     images = np.zeros((size, 100, 100), dtype=np.uint8)
     circle_nums = np.zeros((size), dtype=np.uint8)
 
     def handle(index, image, circle_num):
         images[index] = image
         circle_nums[index] = circle_num
-    random_circles_images(handle, size)
+    random_circles_images(handle, get_config, size)
     return images, circle_nums
 
 
-def random_circles_images(handle, size=1):
+def random_circles_images(handle, get_config=RANDOM_R_CONFIG, size=1):
     fig = plt.figure(figsize=(1, 1))
     for i in range(size):
         circle_num = random.randint(0, CIRCLES_MAX - 1)
-        image = random_circles_image(fig, circle_num)
+        image = random_circles_image(fig, circle_num, get_config)
         handle(i, image, circle_num)
     plt.close(fig)
 
 
-def random_circles_image(fig, circle_num):
+def random_circles_image(fig, circle_num, get_config=RANDOM_R_CONFIG):
     ax = fig.add_axes([0, 0, 1, 1], frameon=False)
     ax.set_xlim(0, SIDE_LIMIT)
     ax.set_ylim(0, SIDE_LIMIT)
 
-    centers = []
+    circle_params = []
     for _i in range(circle_num):
-        center = random_circle_center(
-            centers, RADIUS, CENTER_LOWER, CENTER_UPPER)
-        centers.append(center)
-        circle = ptchs.Circle(center, RADIUS, fill=False)
+        radius = get_config('radius')
+        center = random_center(circle_params, radius)
+        circle_param = {'r': radius, 'c': center}
+        circle_params.append(circle_param)
+        circle = ptchs.Circle(center, radius, fill=False)
         ax.add_artist(circle)
 
     canvas = fig.canvas
@@ -68,14 +90,16 @@ def random_circles_image(fig, circle_num):
     return data
 
 
-def random_circle_center(centers, radius, lower, upper):
+def random_center(circle_params, radius):
+    center_lower = radius + SPACE
+    center_upper = SIDE_LIMIT - radius - SPACE
     x, y = 0, 0
     while(True):
-        x = random.randint(lower, upper)
-        y = random.randint(lower, upper)
+        x = random.randint(center_lower, center_upper)
+        y = random.randint(center_lower, center_upper)
         success = True
-        for center in centers:
-            if np.sqrt(np.square(x-center[0]) + np.square(y-center[1])) <= 2 * radius + SPACE:
+        for circle_param in circle_params:
+            if np.sqrt(np.square(x-circle_param['c'][0]) + np.square(y-circle_param['c'][1])) <= radius + circle_param['r'] + SPACE:
                 success = False
                 break
         if success:
@@ -83,7 +107,7 @@ def random_circle_center(centers, radius, lower, upper):
     return x, y
 
 
-def gen_circle_count_data(size=1):
+def gen_circles_data(get_config=RANDOM_R_CONFIG, size=1):
     x = np.zeros((size, 100, 100), dtype=np.uint8)
     reg_y = np.zeros((size), dtype=np.uint8)
     cls_y = np.zeros((size, CIRCLES_MAX), dtype=np.uint8)
@@ -94,25 +118,26 @@ def gen_circle_count_data(size=1):
         cls_y[index][circles] = 1
         if size >= 1000 and (index + 1) % 1000 == 0:
             print(index + 1, 'data generated...')
-    random_circles_images(handle, size)
+    random_circles_images(handle, get_config, size)
     return x, reg_y, cls_y
 
 
-def save_circle_count_dataset():
+def save_data(get_config=RANDOM_R_CONFIG):
     print('start to generate train data')
-    train_x, train_reg_y, train_cls_y = gen_circle_count_data(
-        TRAIN_DATA_SIZE)
+    train_x, train_reg_y, train_cls_y = gen_circles_data(
+        get_config, TRAIN_DATA_SIZE)
     print('start to generate test data')
-    test_x, test_reg_y, test_cls_y = gen_circle_count_data(
-        TEST_DATA_SIZE)
+    test_x, test_reg_y, test_cls_y = gen_circles_data(
+        get_config, TEST_DATA_SIZE)
     if not path.exists(DATA_SET_PATH):
         os.makedirs(DATA_SET_PATH)
-    np.savez(CIRCLE_COUNT_DATA_FILE, train_x=train_x,
-             train_reg_y=train_reg_y, train_cls_y=train_cls_y, test_x=test_x, test_reg_y=test_reg_y, test_cls_y=test_cls_y)
+    np.savez(get_config('path'), train_x=train_x,
+             train_reg_y=train_reg_y, train_cls_y=train_cls_y,
+             test_x=test_x, test_reg_y=test_reg_y, test_cls_y=test_cls_y)
 
 
-def load_data():
-    with np.load(CIRCLE_COUNT_DATA_FILE + '.npz') as f:
+def load_data(get_config=RANDOM_R_CONFIG):
+    with np.load(get_config('path')) as f:
         train_x = f['train_x']
         train_reg_y = f['train_reg_y']
         train_cls_y = f['train_cls_y']
@@ -122,20 +147,20 @@ def load_data():
         return (train_x, train_reg_y, train_cls_y), (test_x, test_reg_y, test_cls_y)
 
 
-def load_cls_data():
-    (train_x, _, train_y), (test_x, _, test_y) = load_data()
+def load_cls_data(get_config=RANDOM_R_CONFIG):
+    (train_x, _, train_y), (test_x, _, test_y) = load_data(get_config)
     return (train_x, train_y), (test_x, test_y)
 
 
-def load_reg_data():
-    (train_x, train_y, _), (test_x, test_y, _) = load_data()
+def load_reg_data(get_config=RANDOM_R_CONFIG):
+    (train_x, train_y, _), (test_x, test_y, _) = load_data(get_config)
     return (train_x, train_y), (test_x, test_y)
 
 
-def show_images(images, labels, title='data', class_mapping=None, randomized=False):
+def show_images(images, labels, title='data', class_mapping=None, random_sample=False):
     fig = plt.figure(figsize=(8, 10))
     fig.subplots_adjust(0.05, 0.05, 0.95, 0.95)
-    if randomized:
+    if random_sample:
         start = random.randint(0, len(images) - 20 - 1)
     else:
         start = 0
@@ -166,22 +191,23 @@ def show_image(image, label, title='image', class_mapping=None):
     plt.show()
 
 
-def __show_data():
-    (train_x, train_reg_y, train_cls_y), (test_x,
-                                          test_reg_y, test_cls_y) = load_data()
+def show_data(get_config=RANDOM_R_CONFIG):
+    (train_x, train_reg_y, train_cls_y), \
+        (test_x, test_reg_y, test_cls_y) = load_data(get_config)
     print(train_x.shape, train_x.dtype)
     print(train_reg_y[0], train_cls_y[0])
     print(test_x.shape, test_x.dtype)
     print(test_reg_y[0], test_cls_y[0])
 
-    show_images(train_x, train_reg_y, title='train data', randomized=True)
-    show_images(test_x, test_reg_y, title='test data', randomized=True)
-    index = random.randint(0, len(train_x) - 1)
-    show_image(train_x[index], train_reg_y[index])
-    index = random.randint(0, len(test_x) - 1)
-    show_image(test_x[index], test_reg_y[index])
+    show_images(train_x, train_reg_y, title='train data', random_sample=True)
+    show_images(test_x, test_reg_y, title='test data', random_sample=True)
+    i = random.randint(0, len(train_x) - 1)
+    show_image(train_x[i], train_reg_y[i],
+               title='train image [' + str(i) + ']')
+    i = random.randint(0, len(test_x) - 1)
+    show_image(test_x[i], test_reg_y[i], title='test image [' + str(i) + ']')
 
 
 if __name__ == '__main__':
-    # save_circle_count_dataset()
-    __show_data()
+    # save_data()
+    show_data(RANDOM_R_CONFIG)
