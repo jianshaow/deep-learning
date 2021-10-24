@@ -1,7 +1,6 @@
+from common import vis_utils as vis
 from tensorflow import keras
 from tensorflow.keras.datasets import mnist
-
-from common import vis_utils as vis
 
 
 def run():
