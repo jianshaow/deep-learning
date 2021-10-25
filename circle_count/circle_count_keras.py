@@ -21,15 +21,15 @@ def get_model_path(name):
 
 
 def prepare_data():
-    (train_x, train_y), (test_x, test_y) = img.load_cls_data(DATA_CONFIG)
-    train_x, test_x = train_x/255.0, test_x/255.0
-    return train_x, train_y, (test_x, test_y)
+    (x_train, y_train), (x_test, y_test) = img.load_cls_data(DATA_CONFIG)
+    x_train, x_test = x_train/255.0, x_test/255.0
+    return x_train, y_train, (x_test, y_test)
 
 
 def prepare_error_data():
-    train_x, train_y = img.load_cls_error_data(DATA_CONFIG)
-    train_x = train_x/255.0
-    return train_x, train_y, None
+    x_train, y_train = img.load_cls_error_data(DATA_CONFIG)
+    x_train = x_train/255.0
+    return x_train, y_train, None
 
 
 def build_model():
@@ -47,10 +47,10 @@ def build_model():
     return model
 
 
-def train_model(model, train_x, train_y, epochs=TRAIN_EPOCH, validation_data=None):
+def train_model(model, x_train, y_train, epochs=TRAIN_EPOCH, validation_data=None):
     callback = vis.VisualizationCallback(
         show_model=True, show_metrics=True, dynamic_plot=True)
-    model.fit(train_x, train_y, epochs=epochs,
+    model.fit(x_train, y_train, epochs=epochs,
               validation_data=validation_data,
               callbacks=[callback])
 
@@ -76,9 +76,9 @@ def load_model(name=MODEL_NAME):
 
 
 def first_run(model_name=MODEL_NAME, data=prepare_data(), dry_run=True):
-    train_x, train_y, validation_data = data
+    x_train, y_train, validation_data = data
     model = build_model()
-    train_model(model, train_x, train_y, validation_data=validation_data)
+    train_model(model, x_train, y_train, validation_data=validation_data)
     verify_model(model)
 
     if not dry_run:
@@ -88,12 +88,12 @@ def first_run(model_name=MODEL_NAME, data=prepare_data(), dry_run=True):
 
 
 def re_run(model_name=MODEL_NAME, model_save_as=None, data=prepare_data(), learning_rate=0.0001, epochs=100):
-    train_x, train_y, validation_data = data
+    x_train, y_train, validation_data = data
     model = load_model(model_name)
     model.compile(optimizer=keras.optimizers.Adam(learning_rate),
                   loss='binary_crossentropy',
                   metrics=['binary_accuracy'])
-    train_model(model, train_x, train_y, epochs=epochs,
+    train_model(model, x_train, y_train, epochs=epochs,
                 validation_data=validation_data)
     verify_model(model)
 
@@ -149,11 +149,12 @@ def load_sample_error_data():
 
 
 if __name__ == '__main__':
-    first_run(model_name='circle_count.h2-64', dry_run=False)
+    # first_run(model_name='circle_count.h2-64', dry_run=False)
     # re_run(data=prepare_error_data())
-    # re_run(model_name='circle_count.h2-64')
+    re_run(model_name='circle_count.h2-64')
     # re_run(model_name='circle_count.h2-64', data=prepare_error_data())
     # demo_model(model_name='circle_count.h2-64')
     # demo_model(model_name='circle_count.h2-64', data=load_sample_error_data())
     # build_error_data(model_name='circle_count.h2-64', dry_run=True)
+    # build_error_data(model_name='circle_count.h2-64')
     # build_error_data(dry_run=True)

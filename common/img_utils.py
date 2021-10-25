@@ -29,7 +29,7 @@ def data_config(r_lower=RADIUS, r_upper=None):
         data_name = data_name + '-' + str(r_upper)
     config['name'] = data_name
     config['path'] = path.join(DATA_SET_PATH, data_name + '.npz')
-    config['error_path'] = path.join(DATA_SET_PATH, data_name + '_error.npz')
+    config['error_path'] = path.join(DATA_SET_PATH, data_name + '.error.npz')
 
     def get_config(key='radius'):
         if key == 'radius':
@@ -139,55 +139,55 @@ def gen_circles_data(get_config=RANDOM_R_CONFIG, size=1):
 
 def save_data(get_config=RANDOM_R_CONFIG):
     print('start to generate train data')
-    train_x, train_reg_y, train_cls_y = gen_circles_data(
+    x_train, y_reg_train, y_cls_train = gen_circles_data(
         get_config, TRAIN_DATA_SIZE)
     print('start to generate test data')
-    test_x, test_reg_y, test_cls_y = gen_circles_data(
+    x_test, y_reg_test, y_cls_test = gen_circles_data(
         get_config, TEST_DATA_SIZE)
     if not path.exists(DATA_SET_PATH):
         os.makedirs(DATA_SET_PATH)
-    np.savez(get_config('path'), train_x=train_x,
-             train_reg_y=train_reg_y, train_cls_y=train_cls_y,
-             test_x=test_x, test_reg_y=test_reg_y, test_cls_y=test_cls_y)
+    np.savez(get_config('path'), x_train=x_train,
+             y_reg_train=y_reg_train, y_cls_train=y_cls_train,
+             x_test=x_test, y_reg_test=y_reg_test, y_cls_test=y_cls_test)
 
 
 def save_error_data(error_data, get_config=RANDOM_R_CONFIG):
-    train_x, train_reg_y, train_cls_y = error_data
-    np.savez(get_config('error_path'), train_x=train_x,
-             train_reg_y=train_reg_y, train_cls_y=train_cls_y)
+    x_train, y_reg_train, y_cls_train = error_data
+    np.savez(get_config('error_path'), x_train=x_train,
+             y_reg_train=y_reg_train, y_cls_train=y_cls_train)
 
 
 def load_data(path, test_data=True):
     with np.load(path) as data:
-        train_x = data['train_x']
-        train_reg_y = data['train_reg_y']
-        train_cls_y = data['train_cls_y']
+        x_train = data['x_train']
+        y_reg_train = data['y_reg_train']
+        y_cls_train = data['y_cls_train']
         if test_data:
-            test_x = data['test_x']
-            test_reg_y = data['test_reg_y']
-            test_cls_y = data['test_cls_y']
-            return (train_x, train_reg_y, train_cls_y), (test_x, test_reg_y, test_cls_y)
-        return (train_x, train_reg_y, train_cls_y)
+            x_test = data['x_test']
+            y_reg_test = data['y_reg_test']
+            y_cls_test = data['y_cls_test']
+            return (x_train, y_reg_train, y_cls_train), (x_test, y_reg_test, y_cls_test)
+        return (x_train, y_reg_train, y_cls_train)
 
 
 def load_cls_error_data(get_config=RANDOM_R_CONFIG):
-    (train_x, _, train_y) = load_data(get_config('error_path'), test_data=False)
-    return train_x, train_y
+    (x_train, _, y_train) = load_data(get_config('error_path'), test_data=False)
+    return x_train, y_train
 
 
 def load_reg_error_data(get_config=RANDOM_R_CONFIG):
-    (train_x, train_y, _) = load_data(get_config('error_path'), test_data=False)
-    return train_x, train_y
+    (x_train, y_train, _) = load_data(get_config('error_path'), test_data=False)
+    return x_train, y_train
 
 
 def load_cls_data(get_config=RANDOM_R_CONFIG):
-    (train_x, _, train_y), (test_x, _, test_y) = load_data(get_config('path'))
-    return (train_x, train_y), (test_x, test_y)
+    (x_train, _, y_train), (x_test, _, y_test) = load_data(get_config('path'))
+    return (x_train, y_train), (x_test, y_test)
 
 
 def load_reg_data(get_config=RANDOM_R_CONFIG):
-    (train_x, train_y, _), (test_x, test_y, _) = load_data(get_config('path'))
-    return (train_x, train_y), (test_x, test_y)
+    (x_train, y_train, _), (x_test, y_test, _) = load_data(get_config('path'))
+    return (x_train, y_train), (x_test, y_test)
 
 
 def show_images(images, labels, estimations=None, title='data', random_sample=False):
@@ -252,20 +252,20 @@ def show_image(image, label, estimation=None, title='image'):
 
 
 def show_data(get_config=RANDOM_R_CONFIG):
-    (train_x, train_reg_y, train_cls_y), \
-        (test_x, test_reg_y, test_cls_y) = load_data(get_config('path'))
-    print(train_x.shape, train_x.dtype)
-    print(train_reg_y[0], train_cls_y[0])
-    print(test_x.shape, test_x.dtype)
-    print(test_reg_y[0], test_cls_y[0])
+    (x_train, y_reg_train, y_cls_train), \
+        (x_test, y_reg_test, y_cls_test) = load_data(get_config('path'))
+    print(x_train.shape, x_train.dtype)
+    print(y_reg_train[0], y_cls_train[0])
+    print(x_test.shape, x_test.dtype)
+    print(y_reg_test[0], y_cls_test[0])
 
-    show_images(train_x, train_reg_y, title='train data', random_sample=True)
-    show_images(test_x, test_reg_y, title='test data', random_sample=True)
-    i = random.randint(0, len(train_x) - 1)
-    show_image(train_x[i], train_reg_y[i],
+    show_images(x_train, y_reg_train, title='train data', random_sample=True)
+    show_images(x_test, y_reg_test, title='test data', random_sample=True)
+    i = random.randint(0, len(x_train) - 1)
+    show_image(x_train[i], y_reg_train[i],
                title='train image [' + str(i) + ']')
-    i = random.randint(0, len(test_x) - 1)
-    show_image(test_x[i], test_reg_y[i], title='test image [' + str(i) + ']')
+    i = random.randint(0, len(x_test) - 1)
+    show_image(x_test[i], y_reg_test[i], title='test image [' + str(i) + ']')
 
 
 if __name__ == '__main__':
