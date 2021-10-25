@@ -115,6 +115,14 @@ def zero_data(size=1):
     return x, reg_y, cls_y
 
 
+def cls_to_num(labels):
+    num = 0
+    for i in range(len(labels)):
+        if labels[i] == 1:
+            num = i
+    return num
+
+
 def gen_circles_data(get_config=RANDOM_R_CONFIG, size=1):
     x, reg_y, cls_y = zero_data(size)
 
@@ -149,14 +157,14 @@ def save_error_data(error_data, get_config=RANDOM_R_CONFIG):
 
 
 def load_data(path, test_data=True):
-    with np.load(path) as f:
-        train_x = f['train_x']
-        train_reg_y = f['train_reg_y']
-        train_cls_y = f['train_cls_y']
+    with np.load(path) as data:
+        train_x = data['train_x']
+        train_reg_y = data['train_reg_y']
+        train_cls_y = data['train_cls_y']
         if test_data:
-            test_x = f['test_x']
-            test_reg_y = f['test_reg_y']
-            test_cls_y = f['test_cls_y']
+            test_x = data['test_x']
+            test_reg_y = data['test_reg_y']
+            test_cls_y = data['test_cls_y']
             return (train_x, train_reg_y, train_cls_y), (test_x, test_reg_y, test_cls_y)
         return (train_x, train_reg_y, train_cls_y)
 
@@ -234,4 +242,4 @@ def show_data(get_config=RANDOM_R_CONFIG):
 
 if __name__ == '__main__':
     # save_data()
-    show_data(RANDOM_R_CONFIG)
+    show_data(data_config(10))
