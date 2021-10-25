@@ -13,7 +13,7 @@ MODEL_BASE_DIR = path.join(path.expanduser('~'), '.model')
 ERROR_BATCH_SIZE = 100
 ERROR_DATA_SIZE = 1000
 
-DATA_CONFIG = img.data_config(10)
+DATA_CONFIG = img.data_config(6)
 
 
 def get_model_path(name):
@@ -36,6 +36,7 @@ def build_model():
     model = keras.Sequential([
         keras.layers.Flatten(input_shape=(100, 100)),
         keras.layers.Dense(64, activation='relu'),
+        keras.layers.Dense(64, activation='relu'),
         keras.layers.Dense(CIRCLES_MAX, activation='softmax')
     ])
 
@@ -56,15 +57,8 @@ def train_model(model, train_x, train_y, epochs=TRAIN_EPOCH, validation_data=Non
 
 def verify_model(model, data=img.random_circles_data(DATA_CONFIG, size=20)):
     images, nums = data
-    estimated_nums = model.predict(images)
-    labels = []
-    for i in range(len(estimated_nums)):
-        estimated_num = img.cls_to_num(estimated_nums[i])
-        if estimated_num == nums[i]:
-            labels.append(nums[i])
-        else:
-            labels.append('error[' + str(estimated_num) + ']')
-    img.show_images(images, labels)
+    estimations = model.predict(images)
+    img.show_images(images, nums, estimations, title='predict result')
 
 
 def save_model(model, name=MODEL_NAME):
@@ -139,9 +133,8 @@ def build_error_data(model_name=MODEL_NAME, dry_run=False):
         img.save_error_data((x, reg_y, cls_y), DATA_CONFIG)
 
 
-def demo_model(model_name=MODEL_NAME):
+def demo_model(model_name=MODEL_NAME, data=img.random_circles_data(DATA_CONFIG, size=20)):
     model = load_model(model_name)
-    data = load_sample_data()
     verify_model(model, data)
 
 
@@ -150,10 +143,17 @@ def load_sample_data():
     return x_train[:20], y_train[:20]
 
 
+def load_sample_error_data():
+    x_train, y_train = img.load_reg_error_data(DATA_CONFIG)
+    return x_train[:20], y_train[:20]
+
+
 if __name__ == '__main__':
-    # first_run()
+    first_run(model_name='circle_count.h2-64', dry_run=False)
     # re_run(data=prepare_error_data())
-    # re_run()
-    demo_model(model_name='circle_count.r10')
-    # build_error_data()
+    # re_run(model_name='circle_count.h2-64')
+    # re_run(model_name='circle_count.h2-64', data=prepare_error_data())
+    # demo_model(model_name='circle_count.h2-64')
+    # demo_model(model_name='circle_count.h2-64', data=load_sample_error_data())
+    # build_error_data(model_name='circle_count.h2-64', dry_run=True)
     # build_error_data(dry_run=True)

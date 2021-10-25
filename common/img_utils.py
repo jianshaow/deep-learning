@@ -9,7 +9,7 @@ from tensorflow import image as tfimg
 
 TRAIN_DATA_SIZE = 10000
 TEST_DATA_SIZE = 1000
-TRAIN_EPOCH = 40
+TRAIN_EPOCH = 50
 CIRCLES_MAX = 6
 
 SIDE_LIMIT = 100
@@ -68,6 +68,7 @@ def random_circles_image(fig, circle_num, get_config=RANDOM_R_CONFIG):
     ax = fig.add_axes([0, 0, 1, 1], frameon=False)
     ax.set_xlim(0, SIDE_LIMIT)
     ax.set_ylim(0, SIDE_LIMIT)
+    ax.axis('off')
 
     circle_params = []
     for _i in range(circle_num):
@@ -189,37 +190,64 @@ def load_reg_data(get_config=RANDOM_R_CONFIG):
     return (train_x, train_y), (test_x, test_y)
 
 
-def show_images(images, labels, title='data', class_mapping=None, random_sample=False):
+def show_images(images, labels, estimations=None, title='data', random_sample=False):
     fig = plt.figure(figsize=(8, 10))
     fig.subplots_adjust(0.05, 0.05, 0.95, 0.95)
+
     if random_sample:
         start = random.randint(0, len(images) - 20 - 1)
     else:
         start = 0
+
     fig.suptitle(title + ' [' + str(start) + ' - ' + str(start + 20) + ']')
+
     for i in range(20):
         ax = fig.add_subplot(4, 5, i + 1)
         ax.set_xticks([])
         ax.set_yticks([])
         ax.grid(False)
-        ax.imshow(images[start + i], cmap=plt.cm.binary)
+        ax.imshow(images[start + i], cmap=plt.cm.binary, vmin=0, vmax=255)
+
         label = labels[start + i]
-        print(str(i) + ': ', label)
-        xlabel = label if class_mapping == None else class_mapping[label]
-        ax.set_xlabel(xlabel)
+        if label.shape == (CIRCLES_MAX,):
+            label = cls_to_num(label)
+        xlabel = label
+
+        estimation = None
+        if estimations is not None:
+            estimation = estimations[start + i]
+            if estimation.shape == (CIRCLES_MAX,):
+                estimation = cls_to_num(estimation)
+            xlabel = estimation
+
+        t = ax.set_xlabel(xlabel)
+        if estimation is not None and estimation != label:
+            print(str(i) + ': ', estimations[start + i])
+            t.set_color('r')
     plt.show()
 
 
-def show_image(image, label, title='image', class_mapping=None):
+def show_image(image, label, estimation=None, title='image'):
     fig = plt.figure(figsize=(5, 6))
     fig.suptitle(title)
     ax = fig.add_axes([.05, .05, .9, .9])
     ax.set_xticks([])
     ax.set_yticks([])
     ax.grid(False)
-    ax.imshow(image, cmap=plt.cm.binary)
-    xlabel = label if class_mapping == None else class_mapping[label]
-    ax.set_xlabel(xlabel)
+    ax.imshow(image, cmap=plt.cm.binary, vmin=0, vmax=255)
+
+    if label.shape == (CIRCLES_MAX,):
+            label = cls_to_num(label)
+    xlabel = label
+
+    if estimation is not None:
+        if estimation.shape == (CIRCLES_MAX,):
+            estimation = cls_to_num(estimation)
+        xlabel = estimation
+
+    t = ax.set_xlabel(xlabel)
+    if estimation is not None and estimation != label:
+        t.set_color('r')
     plt.show()
 
 
@@ -242,4 +270,4 @@ def show_data(get_config=RANDOM_R_CONFIG):
 
 if __name__ == '__main__':
     # save_data()
-    show_data(data_config(10))
+    show_data(data_config(6))
