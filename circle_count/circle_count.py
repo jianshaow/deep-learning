@@ -65,10 +65,14 @@ def train_model(model, x_train, y_train, epochs=TRAIN_EPOCH, validation_data=Non
               callbacks=[callback])
 
 
-def verify_model(model, data=img.random_circles_data(DATA_CONFIG, size=20)):
-    images, nums = data
-    estimations = model.predict(images)
-    img.show_images(images, nums, estimations, title='predict result')
+def verify_model(model, data=img.gen_circles_data(DATA_CONFIG, size=20)):
+    images, nums, num_labels = data
+
+    predictions = model.predict(images)
+    img.show_images(images, nums, predictions, title='predict result')
+
+    evaluation = model.evaluate(images, num_labels)
+    print('evaluation: ', evaluation)
 
 
 def save_model(model):
@@ -124,12 +128,12 @@ def re_run(model_params=MODEL_PARAMS, data=prepare_data(), learning_rate=None, e
 def build_error_data(model_params=MODEL_PARAMS, dry_run=False):
     model = load_model(model_params)
 
-    x, reg_y, cls_y = img.zero_data(ERROR_DATA_SIZE)
+    x, y_reg, y_cls = img.zero_data(ERROR_DATA_SIZE)
 
     added = 0
     handled = 0
     while(added < ERROR_DATA_SIZE):
-        images, circle_nums = img.random_circles_data(
+        images, circle_nums, _ = img.gen_circles_data(
             DATA_CONFIG, ERROR_BATCH_SIZE)
         estimation = model.predict(images)
         for i in range(ERROR_BATCH_SIZE):
@@ -137,8 +141,8 @@ def build_error_data(model_params=MODEL_PARAMS, dry_run=False):
                 if dry_run:
                     print(estimation[i], circle_nums[i])
                 x[added] = images[i]
-                reg_y[added] = circle_nums[i]
-                cls_y[added][circle_nums[i]] = 1
+                y_reg[added] = circle_nums[i]
+                y_cls[added][circle_nums[i]] = 1
                 added += 1
                 if added >= ERROR_DATA_SIZE:
                     break
@@ -146,30 +150,30 @@ def build_error_data(model_params=MODEL_PARAMS, dry_run=False):
         print(added, 'error data added per', handled)
 
     if not dry_run:
-        img.save_error_data((x, reg_y, cls_y), DATA_CONFIG)
+        img.save_error_data((x, y_reg, y_cls), DATA_CONFIG)
 
 
-def demo_model(model_params=MODEL_PARAMS, data=img.random_circles_data(DATA_CONFIG, size=20)):
+def demo_model(model_params=MODEL_PARAMS, data=img.gen_circles_data(DATA_CONFIG, size=20)):
     model = load_model(model_params)
     verify_model(model, data)
 
 
-def load_sample_data():
-    (x_train, y_train), _ = img.load_reg_data(DATA_CONFIG)
-    return x_train[:20], y_train[:20]
+def load_sample_data(size=20):
+    (x_train, y_reg_train, y_cls_train), _ = img.load_cls_data(DATA_CONFIG)
+    return x_train[:size], y_reg_train[:size], y_cls_train[:size]
 
 
-def load_sample_error_data():
-    x_train, y_train = img.load_reg_error_data(DATA_CONFIG)
-    return x_train[:20], y_train[:20]
+def load_sample_error_data(size=20):
+    x_train, y_reg_train, y_cls_train = img.load_error_data(DATA_CONFIG)
+    return x_train[:size], y_reg_train[:size], y_cls_train[:size]
 
 
 if __name__ == '__main__':
     # first_run()
     # first_run(dry_run=False)
-    re_run()
+    # re_run()
     # re_run(data=prepare_error_data())
     # demo_model()
-    # demo_model(data=load_sample_error_data())
-    # build_error_data()
+    # demo_model(data=load_sample_error_data(1000))
+    build_error_data()
     # build_error_data(dry_run=True)

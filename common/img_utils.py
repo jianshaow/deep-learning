@@ -44,17 +44,6 @@ def data_config(r_lower=RADIUS, r_upper=None):
 RANDOM_R_CONFIG = data_config(RADIUS_LOWER, RADIUS_UPPER)
 
 
-def random_circles_data(get_config=RANDOM_R_CONFIG, size=1):
-    images = np.zeros((size, 100, 100), dtype=np.uint8)
-    circle_nums = np.zeros((size), dtype=np.uint8)
-
-    def handle(index, image, circle_num):
-        images[index] = image
-        circle_nums[index] = circle_num
-    random_circles_images(handle, get_config, size)
-    return images, circle_nums
-
-
 def random_circles_images(handle, get_config=RANDOM_R_CONFIG, size=1):
     fig = plt.figure(figsize=(1, 1))
     for i in range(size):
@@ -170,27 +159,35 @@ def load_data(path, test_data=True):
         return (x_train, y_reg_train, y_cls_train)
 
 
+def load_error_data(get_config=RANDOM_R_CONFIG):
+    return load_data(get_config('error_path'), test_data=False)
+
+
 def load_cls_error_data(get_config=RANDOM_R_CONFIG):
-    (x_train, _, y_train) = load_data(get_config('error_path'), test_data=False)
+    (x_train, _, y_train) = load_error_data(get_config)
     return x_train, y_train
 
 
 def load_reg_error_data(get_config=RANDOM_R_CONFIG):
-    (x_train, y_train, _) = load_data(get_config('error_path'), test_data=False)
+    (x_train, y_train, _) = load_error_data(get_config)
     return x_train, y_train
 
 
+def load_normal_data(get_config=RANDOM_R_CONFIG):
+    return load_data(get_config('path'))
+
+
 def load_cls_data(get_config=RANDOM_R_CONFIG):
-    (x_train, _, y_train), (x_test, _, y_test) = load_data(get_config('path'))
+    (x_train, _, y_train), (x_test, _, y_test) = load_normal_data(get_config)
     return (x_train, y_train), (x_test, y_test)
 
 
 def load_reg_data(get_config=RANDOM_R_CONFIG):
-    (x_train, y_train, _), (x_test, y_test, _) = load_data(get_config('path'))
+    (x_train, y_train, _), (x_test, y_test, _) = load_normal_data(get_config)
     return (x_train, y_train), (x_test, y_test)
 
 
-def show_images(images, labels, estimations=None, title='data', random_sample=False):
+def show_images(images, labels, predictions=None, title='data', random_sample=False):
     fig = plt.figure(figsize=(8, 10))
     fig.subplots_adjust(0.05, 0.05, 0.95, 0.95)
 
@@ -213,16 +210,16 @@ def show_images(images, labels, estimations=None, title='data', random_sample=Fa
             label = cls_to_num(label)
         xlabel = label
 
-        estimation = None
-        if estimations is not None:
-            estimation = estimations[start + i]
-            if estimation.shape == (CIRCLES_MAX,):
-                estimation = cls_to_num(estimation)
-            xlabel = estimation
+        prediction = None
+        if predictions is not None:
+            prediction = predictions[start + i]
+            if prediction.shape == (CIRCLES_MAX,):
+                prediction = cls_to_num(prediction)
+            xlabel = prediction
 
         t = ax.set_xlabel(xlabel)
-        if estimation is not None and estimation != label:
-            print(str(i) + ': ', estimations[start + i])
+        if prediction is not None and prediction != label:
+            print(str(i) + ': ', predictions[start + i])
             t.set_color('r')
     plt.show()
 
