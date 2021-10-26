@@ -188,7 +188,7 @@ def load_reg_data(get_config=RANDOM_R_CONFIG):
 
 
 def show_images(images, labels, predictions=None, title='data'):
-    fig = plt.figure(figsize=(8, 10))
+    fig = plt.figure(figsize=(10, 8))
     fig.subplots_adjust(0.05, 0.05, 0.95, 0.95)
 
     if len(images) > 20:

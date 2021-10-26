@@ -35,8 +35,9 @@ def prepare_data():
 
 def prepare_error_data():
     x_train, y_train = img.load_cls_error_data(DATA_CONFIG)
+    _, (x_test, y_test) = img.load_cls_data(DATA_CONFIG)
     x_train = x_train/255.0
-    return x_train, y_train, None
+    return x_train, y_train, (x_test[:100], y_test[:100])
 
 
 def build_model(model_params=MODEL_PARAMS, learning_rate=LEARNING_RATE):
@@ -171,9 +172,9 @@ def load_sample_error_data(size=20):
 if __name__ == '__main__':
     # first_run()
     # first_run(dry_run=False)
-    # re_run()
-    # re_run(data=prepare_error_data())
+    # re_run(learning_rate=0.00001)
+    re_run(data=prepare_error_data(), learning_rate=0.00001)
     # demo_model()
-    demo_model(data=load_sample_error_data(1000))
+    # demo_model(data=load_sample_error_data(1000))
     # build_error_data()
     # build_error_data(dry_run=True)
