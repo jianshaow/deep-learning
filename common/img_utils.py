@@ -88,12 +88,14 @@ def random_center(circle_params, radius):
     while(True):
         x = random.randint(center_lower, center_upper)
         y = random.randint(center_lower, center_upper)
-        success = True
+        accepted = True
         for circle_param in circle_params:
-            if np.sqrt(np.square(x-circle_param['c'][0]) + np.square(y-circle_param['c'][1])) <= radius + circle_param['r'] + SPACE:
-                success = False
+            center_x, center_y = circle_param['c']
+            distance = np.sqrt(np.square(x-center_x) + np.square(y-center_y))
+            if distance <= radius + circle_param['r'] + SPACE:
+                accepted = False
                 break
-        if success:
+        if accepted:
             break
     return x, y
 
@@ -103,6 +105,10 @@ def zero_data(size=1):
     reg_y = np.zeros((size), dtype=np.uint8)
     cls_y = np.zeros((size, CIRCLES_MAX), dtype=np.uint8)
     return x, reg_y, cls_y
+
+
+def blank_image():
+    return np.full((100, 100), 255, dtype=np.uint8)
 
 
 def cls_to_num(labels):
@@ -208,23 +214,23 @@ def show_images(images, labels, predictions=None, title='data'):
         label = labels[start + i]
         if label.shape == (CIRCLES_MAX,):
             label = cls_to_num(label)
-        xlabel = label
 
-        prediction = None
         if predictions is not None:
             prediction = predictions[start + i]
             if prediction.shape == (CIRCLES_MAX,):
                 prediction = cls_to_num(prediction)
             xlabel = prediction
+        else:
+            xlabel = label
 
         t = ax.set_xlabel(xlabel)
-        if prediction is not None and prediction != label:
-            print(str(i) + ': ', predictions[start + i])
+        if xlabel != label:
+            print(str(i) + ': ', predictions[start + i], '!=', label)
             t.set_color('r')
     plt.show()
 
 
-def show_image(image, label, estimation=None, title='image'):
+def show_image(image, label, prediction=None, title='image'):
     fig = plt.figure(figsize=(5, 6))
     fig.suptitle(title)
     ax = fig.add_axes([.05, .05, .9, .9])
@@ -237,13 +243,13 @@ def show_image(image, label, estimation=None, title='image'):
         label = cls_to_num(label)
     xlabel = label
 
-    if estimation is not None:
-        if estimation.shape == (CIRCLES_MAX,):
-            estimation = cls_to_num(estimation)
-        xlabel = estimation
+    if prediction is not None:
+        if prediction.shape == (CIRCLES_MAX,):
+            prediction = cls_to_num(prediction)
+        xlabel = prediction
 
     t = ax.set_xlabel(xlabel)
-    if estimation is not None and estimation != label:
+    if prediction is not None and prediction != label:
         t.set_color('r')
     plt.show()
 
