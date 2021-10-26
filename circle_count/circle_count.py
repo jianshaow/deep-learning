@@ -174,6 +174,6 @@ if __name__ == '__main__':
     # re_run()
     # re_run(data=prepare_error_data())
     # demo_model()
-    # demo_model(data=load_sample_error_data(1000))
-    build_error_data()
+    demo_model(data=load_sample_error_data(1000))
+    # build_error_data()
     # build_error_data(dry_run=True)

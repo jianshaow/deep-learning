@@ -187,16 +187,16 @@ def load_reg_data(get_config=RANDOM_R_CONFIG):
     return (x_train, y_train), (x_test, y_test)
 
 
-def show_images(images, labels, predictions=None, title='data', random_sample=False):
+def show_images(images, labels, predictions=None, title='data'):
     fig = plt.figure(figsize=(8, 10))
     fig.subplots_adjust(0.05, 0.05, 0.95, 0.95)
 
-    if random_sample:
-        start = random.randint(0, len(images) - 20 - 1)
+    if len(images) > 20:
+        start = random.randint(0, len(images) - 20)
     else:
         start = 0
 
-    fig.suptitle(title + ' [' + str(start) + ' - ' + str(start + 20) + ']')
+    fig.suptitle(title + ' [' + str(start) + ' - ' + str(start + 20 - 1) + ']')
 
     for i in range(20):
         ax = fig.add_subplot(4, 5, i + 1)
@@ -256,8 +256,8 @@ def show_data(get_config=RANDOM_R_CONFIG):
     print(x_test.shape, x_test.dtype)
     print(y_reg_test[0], y_cls_test[0])
 
-    show_images(x_train, y_reg_train, title='train data', random_sample=True)
-    show_images(x_test, y_reg_test, title='test data', random_sample=True)
+    show_images(x_train, y_reg_train, title='train data')
+    show_images(x_test, y_reg_test, title='test data')
     i = random.randint(0, len(x_train) - 1)
     show_image(x_train[i], y_reg_train[i],
                title='train image [' + str(i) + ']')
