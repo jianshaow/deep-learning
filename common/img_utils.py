@@ -9,7 +9,7 @@ from tensorflow import image as tfimg
 
 TRAIN_DATA_SIZE = 10000
 TEST_DATA_SIZE = 1000
-TRAIN_EPOCH = 50
+TRAIN_EPOCH = 100
 CIRCLES_MAX = 6
 
 SIDE_LIMIT = 100
@@ -237,7 +237,7 @@ def show_image(image, label, estimation=None, title='image'):
     ax.imshow(image, cmap=plt.cm.binary, vmin=0, vmax=255)
 
     if label.shape == (CIRCLES_MAX,):
-            label = cls_to_num(label)
+        label = cls_to_num(label)
     xlabel = label
 
     if estimation is not None:

@@ -7,8 +7,11 @@ from common import vis_utils as vis
 from common.img_utils import CIRCLES_MAX, TRAIN_EPOCH
 from tensorflow import keras
 
-MODEL_NAME = 'circle_count'
+MODEL_NAME_PREFIX = 'circle_count'
 MODEL_BASE_DIR = path.join(path.expanduser('~'), '.model')
+
+MODEL_PARAMS = (2, 64)
+LEARNING_RATE = 0.0001
 
 ERROR_BATCH_SIZE = 100
 ERROR_DATA_SIZE = 1000
@@ -18,6 +21,10 @@ DATA_CONFIG = img.data_config(6)
 
 def get_model_path(name):
     return path.join(MODEL_BASE_DIR, name), path.join(MODEL_BASE_DIR, name + '.old')
+
+
+def get_model_name(hidden_layers, units):
+    return MODEL_NAME_PREFIX + '.' + str(hidden_layers) + '-' + str(units)
 
 
 def prepare_data():
@@ -32,15 +39,17 @@ def prepare_error_data():
     return x_train, y_train, None
 
 
-def build_model():
-    model = keras.Sequential([
-        keras.layers.Flatten(input_shape=(100, 100)),
-        keras.layers.Dense(64, activation='relu'),
-        keras.layers.Dense(64, activation='relu'),
-        keras.layers.Dense(CIRCLES_MAX, activation='softmax')
-    ])
+def build_model(model_params=MODEL_PARAMS, learning_rate=LEARNING_RATE):
+    hidden_layers, units = model_params
 
-    model.compile(optimizer='adam',
+    model_name = get_model_name(hidden_layers, units)
+    model = keras.Sequential([keras.layers.Flatten(
+        input_shape=(100, 100))], name=model_name)
+    for _ in range(hidden_layers):
+        model.add(keras.layers.Dense(units, activation='relu'))
+    model.add(keras.layers.Dense(CIRCLES_MAX, activation='softmax'))
+
+    model.compile(optimizer=keras.optimizers.Adam(learning_rate),
                   loss='binary_crossentropy',
                   metrics=['binary_accuracy'])
 
@@ -50,6 +59,7 @@ def build_model():
 def train_model(model, x_train, y_train, epochs=TRAIN_EPOCH, validation_data=None):
     callback = vis.VisualizationCallback(
         show_model=True, show_metrics=True, dynamic_plot=True)
+
     model.fit(x_train, y_train, epochs=epochs,
               validation_data=validation_data,
               callbacks=[callback])
@@ -61,52 +71,58 @@ def verify_model(model, data=img.random_circles_data(DATA_CONFIG, size=20)):
     img.show_images(images, nums, estimations, title='predict result')
 
 
-def save_model(model, name=MODEL_NAME):
-    model_path, model_old_path = get_model_path(name)
+def save_model(model):
+    model_path, model_old_path = get_model_path(model.name)
     if path.exists(model_path):
         if path.exists(model_old_path):
             shutil.rmtree(model_old_path)
         os.rename(model_path, model_old_path)
     model.save(model_path)
+    print('model[' + model.name + '] saved')
 
 
-def load_model(name=MODEL_NAME):
-    model_path, _ = get_model_path(name)
+def load_model(model_params=MODEL_PARAMS):
+    hidden_layers, units = model_params
+    model_path, _ = get_model_path(get_model_name(hidden_layers, units))
     return keras.models.load_model(model_path)
 
 
-def first_run(model_name=MODEL_NAME, data=prepare_data(), dry_run=True):
+def first_run(model_params=MODEL_PARAMS, data=prepare_data(), dry_run=False):
     x_train, y_train, validation_data = data
-    model = build_model()
+    model = build_model(model_params)
     train_model(model, x_train, y_train, validation_data=validation_data)
     verify_model(model)
 
     if not dry_run:
-        save_model(model, model_name)
+        save_model(model)
 
     return model
 
 
-def re_run(model_name=MODEL_NAME, model_save_as=None, data=prepare_data(), learning_rate=0.0001, epochs=100):
+def re_run(model_params=MODEL_PARAMS, data=prepare_data(), learning_rate=None, epochs=TRAIN_EPOCH):
     x_train, y_train, validation_data = data
-    model = load_model(model_name)
-    model.compile(optimizer=keras.optimizers.Adam(learning_rate),
-                  loss='binary_crossentropy',
-                  metrics=['binary_accuracy'])
+
+    model = load_model(model_params)
+
+    if learning_rate is not None:
+        model.compile(optimizer=keras.optimizers.Adam(learning_rate),
+                      loss='binary_crossentropy',
+                      metrics=['binary_accuracy'])
+
     train_model(model, x_train, y_train, epochs=epochs,
                 validation_data=validation_data)
+
     verify_model(model)
 
-    save = input('save model? (y|n): ')
+    save = input('save model[' + model.name + ']? (y|n): ')
     if save == 'y':
-        save_model_name = model_save_as if model_save_as else model_name
-        save_model(model, save_model_name)
+        save_model(model)
 
     return model
 
 
-def build_error_data(model_name=MODEL_NAME, dry_run=False):
-    model = load_model(model_name)
+def build_error_data(model_params=MODEL_PARAMS, dry_run=False):
+    model = load_model(model_params)
 
     x, reg_y, cls_y = img.zero_data(ERROR_DATA_SIZE)
 
@@ -133,8 +149,8 @@ def build_error_data(model_name=MODEL_NAME, dry_run=False):
         img.save_error_data((x, reg_y, cls_y), DATA_CONFIG)
 
 
-def demo_model(model_name=MODEL_NAME, data=img.random_circles_data(DATA_CONFIG, size=20)):
-    model = load_model(model_name)
+def demo_model(model_params=MODEL_PARAMS, data=img.random_circles_data(DATA_CONFIG, size=20)):
+    model = load_model(model_params)
     verify_model(model, data)
 
 
@@ -149,12 +165,11 @@ def load_sample_error_data():
 
 
 if __name__ == '__main__':
-    # first_run(model_name='circle_count.h2-64', dry_run=False)
+    # first_run()
+    # first_run(dry_run=False)
+    re_run()
     # re_run(data=prepare_error_data())
-    re_run(model_name='circle_count.h2-64')
-    # re_run(model_name='circle_count.h2-64', data=prepare_error_data())
-    # demo_model(model_name='circle_count.h2-64')
-    # demo_model(model_name='circle_count.h2-64', data=load_sample_error_data())
-    # build_error_data(model_name='circle_count.h2-64', dry_run=True)
-    # build_error_data(model_name='circle_count.h2-64')
+    # demo_model()
+    # demo_model(data=load_sample_error_data())
+    # build_error_data()
     # build_error_data(dry_run=True)
