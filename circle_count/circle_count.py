@@ -126,10 +126,11 @@ def re_run(model_params=MODEL_PARAMS, data=prepare_data(), learning_rate=None, e
     return model
 
 
-def build_error_data(model_params=MODEL_PARAMS, dry_run=False):
+def build_error_data(model_params=MODEL_PARAMS, append=False, dry_run=False):
     model = load_model(model_params)
 
-    x, y_reg, y_cls = img.zero_data(ERROR_DATA_SIZE)
+    if not dry_run:
+        x, y_reg, y_cls = img.zero_data(ERROR_DATA_SIZE)
 
     added = 0
     handled = 0
@@ -141,14 +142,18 @@ def build_error_data(model_params=MODEL_PARAMS, dry_run=False):
             if predictions[i][circle_nums[i]] == 0:
                 if dry_run:
                     print(predictions[i], circle_nums[i])
-                x[added] = images[i]
-                y_reg[added] = circle_nums[i]
-                y_cls[added][circle_nums[i]] = 1
+                else:
+                    x[added] = images[i]
+                    y_reg[added] = circle_nums[i]
+                    y_cls[added][circle_nums[i]] = 1
                 added += 1
                 if (added + 5) % 10 == 0:
-                    x[added] = img.blank_image()
-                    y_reg[added] = 0
-                    y_cls[added][0] = 1
+                    if dry_run:
+                        print('inject blank image')
+                    else:
+                        x[added] = img.blank_image()
+                        y_reg[added] = 0
+                        y_cls[added][0] = 1
                     added += 1
                 if added >= ERROR_DATA_SIZE:
                     break
@@ -156,7 +161,7 @@ def build_error_data(model_params=MODEL_PARAMS, dry_run=False):
         print(added, 'error data added per', handled)
 
     if not dry_run:
-        img.save_error_data((x, y_reg, y_cls), DATA_CONFIG)
+        img.save_error_dataset((x, y_reg, y_cls), DATA_CONFIG, append)
 
 
 def demo_model(model_params=MODEL_PARAMS, data=img.gen_circles_data(DATA_CONFIG, size=20)):
@@ -165,7 +170,7 @@ def demo_model(model_params=MODEL_PARAMS, data=img.gen_circles_data(DATA_CONFIG,
 
 
 def load_sample_data(size=20):
-    (x_train, y_reg_train, y_cls_train), _ = img.load_normal_data(DATA_CONFIG)
+    (x_train, y_reg_train, y_cls_train), _ = img.load_data(DATA_CONFIG)
     return x_train[:size], y_reg_train[:size], y_cls_train[:size]
 
 
@@ -178,9 +183,10 @@ if __name__ == '__main__':
     # first_run()
     # first_run(dry_run=False)
     # re_run(learning_rate=0.00001)
-    # re_run(data=prepare_error_data(), learning_rate=0.00001)
+    re_run(data=prepare_error_data(), learning_rate=0.00001)
     # demo_model()
     # demo_model(data=load_sample_data(1000))
-    demo_model(data=load_sample_error_data(1000))
+    # demo_model(data=load_sample_error_data(1000))
     # build_error_data()
+    # build_error_data(append=True)
     # build_error_data(dry_run=True)
