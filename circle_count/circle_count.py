@@ -51,8 +51,8 @@ def build_model(model_params=MODEL_PARAMS, learning_rate=LEARNING_RATE):
     model.add(keras.layers.Dense(CIRCLES_MAX, activation='softmax'))
 
     model.compile(optimizer=keras.optimizers.Adam(learning_rate),
-                  loss='binary_crossentropy',
-                  metrics=['binary_accuracy'])
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
 
     return model
 
@@ -92,10 +92,13 @@ def load_model(model_params=MODEL_PARAMS):
     return keras.models.load_model(model_path)
 
 
-def first_run(model_params=MODEL_PARAMS, data=prepare_data(), dry_run=False):
+def first_run(model_params=MODEL_PARAMS, data=prepare_data(), learning_rate=LEARNING_RATE, dry_run=False):
     x_train, y_train, validation_data = data
-    model = build_model(model_params)
+
+    model = build_model(model_params, learning_rate)
+
     train_model(model, x_train, y_train, validation_data=validation_data)
+
     verify_model(model)
 
     if not dry_run:
@@ -111,8 +114,8 @@ def re_run(model_params=MODEL_PARAMS, data=prepare_data(), learning_rate=None, e
 
     if learning_rate is not None:
         model.compile(optimizer=keras.optimizers.Adam(learning_rate),
-                      loss='binary_crossentropy',
-                      metrics=['binary_accuracy'])
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
 
     train_model(model, x_train, y_train, epochs=epochs,
                 validation_data=validation_data)
@@ -149,7 +152,7 @@ def build_error_data(model_params=MODEL_PARAMS, append=False, dry_run=False):
                 added += 1
                 if (added + 5) % 10 == 0:
                     if dry_run:
-                        print('inject blank image')
+                        print(img.num_to_cls(0), 0)
                     else:
                         x[added] = img.blank_image()
                         y_reg[added] = 0
@@ -181,12 +184,15 @@ def load_sample_error_data(size=20):
 
 if __name__ == '__main__':
     # first_run()
+    # first_run(learning_rate=0.00001)
     # first_run(dry_run=False)
+    # re_run()
+    # re_run(learning_rate=LEARNING_RATE)
     # re_run(learning_rate=0.00001)
-    re_run(data=prepare_error_data(), learning_rate=0.00001)
+    # re_run(data=prepare_error_data(), learning_rate=0.00001)
     # demo_model()
     # demo_model(data=load_sample_data(1000))
     # demo_model(data=load_sample_error_data(1000))
     # build_error_data()
     # build_error_data(append=True)
-    # build_error_data(dry_run=True)
+    build_error_data(dry_run=True)
