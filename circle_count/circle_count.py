@@ -1,6 +1,5 @@
 import os
 import shutil
-from os import path
 
 from common import img_utils as img
 from common import vis_utils as vis
@@ -8,7 +7,7 @@ from common.img_utils import CIRCLES_MAX, TRAIN_EPOCH
 from tensorflow import keras
 
 MODEL_NAME_PREFIX = 'circle_count'
-MODEL_BASE_DIR = path.join(path.expanduser('~'), '.model')
+MODEL_BASE_DIR = os.path.join(os.path.expanduser('~'), '.model')
 
 MODEL_PARAMS = (2, 64)
 LEARNING_RATE = 0.0001
@@ -20,7 +19,7 @@ DATA_CONFIG = img.data_config(6)
 
 
 def get_model_path(name):
-    return path.join(MODEL_BASE_DIR, name), path.join(MODEL_BASE_DIR, name + '.old')
+    return os.path.join(MODEL_BASE_DIR, name), os.path.join(MODEL_BASE_DIR, name + '.old')
 
 
 def get_model_name(hidden_layers, units):
@@ -50,11 +49,13 @@ def build_model(model_params=MODEL_PARAMS, learning_rate=LEARNING_RATE):
         model.add(keras.layers.Dense(units, activation='relu'))
     model.add(keras.layers.Dense(CIRCLES_MAX, activation='softmax'))
 
+    return model
+
+
+def compile_model(model, learning_rate=LEARNING_RATE):
     model.compile(optimizer=keras.optimizers.Adam(learning_rate),
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
-
-    return model
 
 
 def train_model(model, x_train, y_train, epochs=TRAIN_EPOCH, validation_data=None):
@@ -78,8 +79,8 @@ def verify_model(model, data=img.gen_circles_data(DATA_CONFIG, size=20)):
 
 def save_model(model):
     model_path, model_old_path = get_model_path(model.name)
-    if path.exists(model_path):
-        if path.exists(model_old_path):
+    if os.path.exists(model_path):
+        if os.path.exists(model_old_path):
             shutil.rmtree(model_old_path)
         os.rename(model_path, model_old_path)
     model.save(model_path)
@@ -97,6 +98,8 @@ def first_run(model_params=MODEL_PARAMS, data=prepare_data(), learning_rate=LEAR
 
     model = build_model(model_params, learning_rate)
 
+    compile_model(model, learning_rate)
+
     train_model(model, x_train, y_train, validation_data=validation_data)
 
     verify_model(model)
@@ -113,9 +116,7 @@ def re_run(model_params=MODEL_PARAMS, data=prepare_data(), learning_rate=None, e
     model = load_model(model_params)
 
     if learning_rate is not None:
-        model.compile(optimizer=keras.optimizers.Adam(learning_rate),
-                      loss='categorical_crossentropy',
-                      metrics=['accuracy'])
+        compile_model(model, learning_rate)
 
     train_model(model, x_train, y_train, epochs=epochs,
                 validation_data=validation_data)
@@ -189,10 +190,11 @@ if __name__ == '__main__':
     # re_run()
     # re_run(learning_rate=LEARNING_RATE)
     # re_run(learning_rate=0.00001)
-    # re_run(data=prepare_error_data(), learning_rate=0.00001)
+    # re_run(data=prepare_error_data(), learning_rate=0.000001, epochs=50)
     # demo_model()
+    demo_model(data=img.gen_circles_data(img.data_config(6), size=20))
     # demo_model(data=load_sample_data(1000))
     # demo_model(data=load_sample_error_data(1000))
     # build_error_data()
     # build_error_data(append=True)
-    build_error_data(dry_run=True)
+    # build_error_data(dry_run=True)

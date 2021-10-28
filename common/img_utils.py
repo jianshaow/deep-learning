@@ -1,6 +1,5 @@
 import os
 import random
-from os import path
 
 import matplotlib.patches as ptchs
 import matplotlib.pyplot as plt
@@ -18,7 +17,7 @@ RADIUS_LOWER = 6
 RADIUS_UPPER = 12
 SPACE = 2
 
-DATA_SET_PATH = path.join(path.expanduser('~'), '.dataset')
+DATA_SET_PATH = os.path.join(os.path.expanduser('~'), '.dataset')
 DATA_NAME_PREFIX = 'circle_count'
 
 
@@ -28,8 +27,8 @@ def data_config(r_lower=RADIUS, r_upper=None):
     if r_upper:
         data_name = data_name + '-' + str(r_upper)
     config['name'] = data_name
-    config['path'] = path.join(DATA_SET_PATH, data_name + '.npz')
-    config['error_path'] = path.join(DATA_SET_PATH, data_name + '.error.npz')
+    config['path'] = os.path.join(DATA_SET_PATH, data_name + '.npz')
+    config['error_path'] = os.path.join(DATA_SET_PATH, data_name + '.error.npz')
 
     def get_config(key='radius'):
         if key == 'radius':
@@ -140,11 +139,11 @@ def gen_circles_data(get_config=RANDOM_R_CONFIG, size=1):
 
 
 def gen_dataset(get_config=RANDOM_R_CONFIG):
-    print('start to generate train data')
+    print('generating train data...')
     x_train, y_reg_train, y_cls_train = gen_circles_data(
         get_config, TRAIN_DATA_SIZE)
 
-    print('start to generate test data')
+    print('generating test data...')
     x_test, y_reg_test, y_cls_test = gen_circles_data(
         get_config, TEST_DATA_SIZE)
 
@@ -155,7 +154,7 @@ def gen_dataset(get_config=RANDOM_R_CONFIG):
 def __save_dataset(path, train_data, test_data=None):
     x_train, y_reg_train, y_cls_train = train_data
 
-    if not path.exists(DATA_SET_PATH):
+    if not os.path.exists(DATA_SET_PATH):
         os.makedirs(DATA_SET_PATH)
 
     if test_data is not None:
@@ -172,11 +171,11 @@ def save_error_dataset(error_data, get_config=RANDOM_R_CONFIG, append=False):
 
     if append:
         x, y_reg, y_cls = load_error_data(get_config)
-        x_train = np.concatenate(x_train, x)
-        y_reg_train = np.concatenate(y_reg_train, y_reg)
-        y_cls_train = np.concatenate(y_cls_train, y_cls)
+        x_train = np.concatenate((x_train, x))
+        y_reg_train = np.concatenate((y_reg_train, y_reg))
+        y_cls_train = np.concatenate((y_cls_train, y_cls))
 
-    __save_dataset(get_config('error_path'), (x, y_reg, y_cls))
+    __save_dataset(get_config('error_path'), (x_train, y_reg_train, y_cls_train))
 
 
 def __load_dataset(path, test_data=False):
