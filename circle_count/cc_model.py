@@ -12,7 +12,7 @@ MODEL_BASE_DIR = os.path.join(os.path.expanduser('~'), '.model')
 MODEL_PARAMS = (2, 64)
 LEARNING_RATE = 0.00001
 
-TRAIN_EPOCH = 50
+TRAIN_EPOCHS = 50
 
 
 class Model():
@@ -55,7 +55,7 @@ class Model():
                            metrics=['accuracy'])
         self.__compiled = True
 
-    def train(self, x_train, y_train, epochs=TRAIN_EPOCH, validation_data=None):
+    def train(self, x_train, y_train, epochs=TRAIN_EPOCHS, validation_data=None):
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile')
 

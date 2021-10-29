@@ -151,7 +151,7 @@ def prepare_data(get_config=DEFAULT_CONFIG):
 def prepare_error_data(get_config=DEFAULT_CONFIG):
     x_train, y_train = load_cls_error_data(get_config)
     _, (x_test, y_test) = load_cls_data(get_config)
-    x_train = x_train/255.0
+    x_train, x_test = x_train/255.0, x_test/255.0
     return x_train, y_train, (x_test[:100], y_test[:100])
 
 
@@ -205,22 +205,24 @@ def build_error_data(model_params=MODEL_PARAMS, append=False, dry_run=False):
 
 
 def show_data(get_config=DEFAULT_CONFIG):
-    (x_train, y_reg_train, y_cls_train), \
-        (x_test, y_reg_test, y_cls_test) = __load_dataset(
-            get_config('path'), test_data=True)
+    train_data, test_data = load_data(get_config)
 
-    img.show_images(x_train, y_reg_train, title='train data')
-    img.show_images(x_test, y_reg_test, title='test data')
+    __show_data(train_data, 'train data')
+    __show_data(test_data, 'test data')
 
-    i = random.randint(0, len(x_train) - 1)
-    print(y_cls_train[i])
-    img.show_image(x_train[i], y_reg_train[i],
-                   title='train image [' + str(i) + ']')
 
-    i = random.randint(0, len(x_test) - 1)
-    print(y_cls_test[i])
-    img.show_image(x_test[i], y_reg_test[i],
-                   title='test image [' + str(i) + ']')
+def show_error_data(get_config=DEFAULT_CONFIG):
+    __show_data(load_error_data(get_config), 'train data')
+
+
+def __show_data(data, title='data'):
+    x, y_reg, y_cls = data
+
+    img.show_images(x, y_reg, title=title)
+
+    i = random.randint(0, len(x) - 1)
+    print(y_cls[i])
+    img.show_image(x[i], y_reg[i], title=title + ' [' + str(i) + ']')
 
 
 if __name__ == '__main__':
