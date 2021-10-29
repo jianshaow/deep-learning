@@ -3,7 +3,7 @@ import shutil
 
 from common import img_utils as img
 from common import vis_utils as vis
-from common.img_utils import CIRCLES_MAX, TRAIN_EPOCH
+from common.img_utils import CIRCLES_MAX
 from tensorflow import keras
 
 MODEL_NAME_PREFIX = 'circle_count'
@@ -11,6 +11,8 @@ MODEL_BASE_DIR = os.path.join(os.path.expanduser('~'), '.model')
 
 MODEL_PARAMS = (2, 64)
 LEARNING_RATE = 0.00001
+
+TRAIN_EPOCH = 50
 
 
 class Model():
@@ -65,9 +67,17 @@ class Model():
                        callbacks=[callback])
 
     def predict(self, x):
+        if self.model is None:
+            raise Exception(
+                'model is not initialized, call build or load method')
+
         return self.model.predict(x)
 
     def verify(self, data):
+        if self.model is None:
+            raise Exception(
+                'model is not initialized, call build or load method')
+
         x, y_reg, y_cls = data
 
         predictions = self.model.predict(x)

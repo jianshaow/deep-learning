@@ -1,4 +1,3 @@
-import os
 import random
 
 import matplotlib.patches as ptchs
@@ -8,51 +7,28 @@ from tensorflow import image as tfimg
 
 TRAIN_DATA_SIZE = 10000
 TEST_DATA_SIZE = 1000
-TRAIN_EPOCH = 100
 CIRCLES_MAX = 6
 
 SIDE_LIMIT = 100
-RADIUS = 9
-RADIUS_LOWER = 6
-RADIUS_UPPER = 12
+DEFAULT_RADIUS = 6
+RADIUS_LOWER, RADIUS_UPPER = 6, 7
 SPACE = 2
 
-DATA_SET_PATH = os.path.join(os.path.expanduser('~'), '.dataset')
-DATA_NAME_PREFIX = 'circle_count'
+
+def __get_radius():
+    return DEFAULT_RADIUS
 
 
-def data_config(r_lower=RADIUS, r_upper=None):
-    config = {}
-    data_name = DATA_NAME_PREFIX + '_r' + str(r_lower)
-    if r_upper:
-        data_name = data_name + '-' + str(r_upper)
-    config['name'] = data_name
-    config['path'] = os.path.join(DATA_SET_PATH, data_name + '.npz')
-    config['error_path'] = os.path.join(DATA_SET_PATH, data_name + '.error.npz')
-
-    def get_config(key='radius'):
-        if key == 'radius':
-            if r_lower and r_upper:
-                return random.randint(r_lower, r_upper)
-            else:
-                return r_lower
-        return config[key]
-    return get_config
-
-
-RANDOM_R_CONFIG = data_config(RADIUS_LOWER, RADIUS_UPPER)
-
-
-def __random_circles_images(handle, get_config=RANDOM_R_CONFIG, size=1):
+def random_circles_images(handle, get_radius=__get_radius, size=1):
     fig = plt.figure(figsize=(1, 1))
     for i in range(size):
         circle_num = random.randint(0, CIRCLES_MAX - 1)
-        image = __random_circles_image(fig, circle_num, get_config)
+        image = __random_circles_image(fig, circle_num, get_radius)
         handle(i, image, circle_num)
     plt.close(fig)
 
 
-def __random_circles_image(fig, circle_num, get_config=RANDOM_R_CONFIG):
+def __random_circles_image(fig, circle_num, get_radius=__get_radius):
     ax = fig.add_axes([0, 0, 1, 1], frameon=False)
     ax.set_xlim(0, SIDE_LIMIT)
     ax.set_ylim(0, SIDE_LIMIT)
@@ -60,7 +36,7 @@ def __random_circles_image(fig, circle_num, get_config=RANDOM_R_CONFIG):
 
     circle_params = []
     for _ in range(circle_num):
-        radius = get_config('radius')
+        radius = get_radius()
         center = __random_center(circle_params, radius)
         circle_param = {'r': radius, 'c': center}
         circle_params.append(circle_param)
@@ -124,103 +100,6 @@ def cls_to_num(label):
     return num
 
 
-def gen_circles_data(get_config=RANDOM_R_CONFIG, size=1):
-    x, reg_y, cls_y = zero_data(size)
-
-    def handle(index, images, circles):
-        x[index] = images
-        reg_y[index] = circles
-        cls_y[index][circles] = 1
-        if size >= 1000 and (index + 1) % 1000 == 0:
-            print(index + 1, 'data generated...')
-    __random_circles_images(handle, get_config, size)
-
-    return x, reg_y, cls_y
-
-
-def gen_dataset(get_config=RANDOM_R_CONFIG):
-    print('generating train data...')
-    x_train, y_reg_train, y_cls_train = gen_circles_data(
-        get_config, TRAIN_DATA_SIZE)
-
-    print('generating test data...')
-    x_test, y_reg_test, y_cls_test = gen_circles_data(
-        get_config, TEST_DATA_SIZE)
-
-    __save_dataset(get_config('path'), (x_train, y_reg_train, y_cls_train),
-                   (x_test, y_reg_test, y_cls_test))
-
-
-def __save_dataset(path, train_data, test_data=None):
-    x_train, y_reg_train, y_cls_train = train_data
-
-    if not os.path.exists(DATA_SET_PATH):
-        os.makedirs(DATA_SET_PATH)
-
-    if test_data is not None:
-        x_test, y_reg_test, y_cls_test = test_data
-        np.savez(path, x_train=x_train, y_reg_train=y_reg_train, y_cls_train=y_cls_train,
-                 x_test=x_test, y_reg_test=y_reg_test, y_cls_test=y_cls_test)
-    else:
-        np.savez(path, x_train=x_train, y_reg_train=y_reg_train,
-                 y_cls_train=y_cls_train)
-
-
-def save_error_dataset(error_data, get_config=RANDOM_R_CONFIG, append=False):
-    x_train, y_reg_train, y_cls_train = error_data
-
-    if append:
-        x, y_reg, y_cls = load_error_data(get_config)
-        x_train = np.concatenate((x_train, x))
-        y_reg_train = np.concatenate((y_reg_train, y_reg))
-        y_cls_train = np.concatenate((y_cls_train, y_cls))
-
-    __save_dataset(get_config('error_path'), (x_train, y_reg_train, y_cls_train))
-
-
-def __load_dataset(path, test_data=False):
-    with np.load(path) as dataset:
-        x_train = dataset['x_train']
-        y_reg_train = dataset['y_reg_train']
-        y_cls_train = dataset['y_cls_train']
-
-        if test_data:
-            x_test = dataset['x_test']
-            y_reg_test = dataset['y_reg_test']
-            y_cls_test = dataset['y_cls_test']
-            return (x_train, y_reg_train, y_cls_train), (x_test, y_reg_test, y_cls_test)
-
-        return (x_train, y_reg_train, y_cls_train)
-
-
-def load_error_data(get_config=RANDOM_R_CONFIG):
-    return __load_dataset(get_config('error_path'))
-
-
-def load_cls_error_data(get_config=RANDOM_R_CONFIG):
-    (x_train, _, y_train) = load_error_data(get_config)
-    return x_train, y_train
-
-
-def load_reg_error_data(get_config=RANDOM_R_CONFIG):
-    (x_train, y_train, _) = load_error_data(get_config)
-    return x_train, y_train
-
-
-def load_data(get_config=RANDOM_R_CONFIG):
-    return __load_dataset(get_config('path'), test_data=True)
-
-
-def load_cls_data(get_config=RANDOM_R_CONFIG):
-    (x_train, _, y_train), (x_test, _, y_test) = load_data(get_config)
-    return (x_train, y_train), (x_test, y_test)
-
-
-def load_reg_data(get_config=RANDOM_R_CONFIG):
-    (x_train, y_train, _), (x_test, y_test, _) = load_data(get_config)
-    return (x_train, y_train), (x_test, y_test)
-
-
 def show_images(images, labels, predictions=None, title='data'):
     fig = plt.figure(figsize=(8, 7))
     fig.subplots_adjust(.05, .05, .95, .9)
@@ -282,24 +161,12 @@ def show_image(image, label, prediction=None, title='image'):
     plt.show()
 
 
-def show_data(get_config=RANDOM_R_CONFIG):
-    (x_train, y_reg_train, y_cls_train), \
-        (x_test, y_reg_test, y_cls_test) = __load_dataset(
-            get_config('path'), test_data=True)
-
-    show_images(x_train, y_reg_train, title='train data')
-    show_images(x_test, y_reg_test, title='test data')
-
-    i = random.randint(0, len(x_train) - 1)
-    print(y_cls_train[i])
-    show_image(x_train[i], y_reg_train[i],
-               title='train image [' + str(i) + ']')
-
-    i = random.randint(0, len(x_test) - 1)
-    print(y_cls_test[i])
-    show_image(x_test[i], y_reg_test[i], title='test image [' + str(i) + ']')
-
-
 if __name__ == '__main__':
-    # save_dataset()
-    show_data(data_config(6))
+    images, nums, _ = zero_data(20)
+
+    def handle(i, image, num):
+        images[i] = image
+        nums[i] = num
+    random_circles_images(handle, size=20)
+    show_images(images, nums)
+    show_image(images[0], nums[0])
