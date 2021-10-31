@@ -11,7 +11,6 @@ CIRCLES_MAX = 6
 
 SIDE_LIMIT = 100
 DEFAULT_RADIUS = 6
-RADIUS_LOWER, RADIUS_UPPER = 6, 7
 SPACE = 2
 
 
@@ -93,11 +92,7 @@ def num_to_cls(num):
 
 
 def cls_to_num(label):
-    num = 0
-    for i in range(len(label)):
-        if label[i] == 1:
-            num = i
-    return num
+    return np.argmax(label)
 
 
 def show_images(images, labels, predictions=None, title='data'):
@@ -132,7 +127,7 @@ def show_images(images, labels, predictions=None, title='data'):
 
         t = ax.set_xlabel(xlabel)
         if xlabel != label:
-            print(str(i) + ': ', predictions[start + i], '!=', label)
+            print(xlabel, predictions[start + i], '!=', label)
             t.set_color('r')
     plt.show()
 

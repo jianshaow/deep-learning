@@ -9,7 +9,7 @@ from tensorflow import keras
 MODEL_NAME_PREFIX = 'circle_count'
 MODEL_BASE_DIR = os.path.join(os.path.expanduser('~'), '.model')
 
-MODEL_PARAMS = (2, 64)
+MODEL_PARAMS = (2, 128)
 LEARNING_RATE = 0.00001
 
 TRAIN_EPOCHS = 50
@@ -20,6 +20,7 @@ class Model():
     def __init__(self, params):
         self.__params = params
         self.__compiled = False
+        self.__sparse = False
         self.model = None
 
     def build(self):
@@ -35,32 +36,50 @@ class Model():
             self.model.add(keras.layers.Dense(units, activation='relu'))
         self.model.add(keras.layers.Dense(CIRCLES_MAX, activation='softmax'))
 
-    def load(self):
+    def load(self, compile=False):
         if self.model is not None:
             raise Exception('model is initialized')
 
         hidden_layers, units = self.__params
         model_path, _ = _get_model_path(
             _get_model_name(hidden_layers, units))
-        self.model = keras.models.load_model(model_path)
-        self.__compiled = True
+        self.model = keras.models.load_model(model_path, compile=compile)
+        self.__compiled = compile
 
-    def compile(self, learning_rate=LEARNING_RATE):
+    def compile(self, learning_rate=LEARNING_RATE, sparse=True):
         if self.model is None:
             raise Exception(
                 'model is not initialized, call build or load method')
 
+        self.__sparse = sparse
+        if sparse:
+            loss = 'sparse_categorical_crossentropy'
+            # loss = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        else:
+            loss = 'categorical_crossentropy'
+
         self.model.compile(optimizer=keras.optimizers.Adam(learning_rate),
-                           loss='categorical_crossentropy',
-                           metrics=['accuracy'])
+                           loss=loss, metrics=['accuracy'])
         self.__compiled = True
 
-    def train(self, x_train, y_train, epochs=TRAIN_EPOCHS, validation_data=None):
+    def train(self, data, epochs=TRAIN_EPOCHS, test_data=None):
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile')
 
         callback = vis.VisualizationCallback(
             show_model=True, show_metrics=True, dynamic_plot=True)
+
+        validation_data = None
+        if test_data is not None:
+            x_test, y_reg_test, y_cls_test = test_data
+        if self.__sparse:
+            x_train, y_train, _ = data
+            if test_data is not None:
+                validation_data = (x_test, y_reg_test)
+        else:
+            x_train, _, y_train = data
+            if test_data is not None:
+                validation_data = (x_test, y_cls_test)
 
         self.model.fit(x_train, y_train, epochs=epochs,
                        validation_data=validation_data,
@@ -78,12 +97,20 @@ class Model():
             raise Exception(
                 'model is not initialized, call build or load method')
 
+        if not self.__compiled:
+            raise Exception('model is not compiled yet, call compile')
+
         x, y_reg, y_cls = data
 
         predictions = self.model.predict(x)
         img.show_images(x, y_reg, predictions, title='predict result')
 
-        evaluation = self.model.evaluate(x, y_cls)
+        if self.__sparse:
+            y = y_reg
+        else:
+            y = y_cls
+
+        evaluation = self.model.evaluate(x / 255.0, y)
         print('evaluation: ', evaluation)
 
     def save(self, ask=False):
@@ -108,3 +135,17 @@ def _get_model_path(name):
 
 def _get_model_name(hidden_layers, units):
     return MODEL_NAME_PREFIX + '.' + str(hidden_layers) + '-' + str(units)
+
+
+if __name__ == '__main__':
+    images, nums, _ = img.zero_data(20)
+
+    def handle(i, image, num):
+        images[i] = image
+        nums[i] = num
+    img.random_circles_images(handle, size=20)
+
+    model = Model(MODEL_PARAMS)
+    model.load()
+    predictions = model.predict(images)
+    img.show_images(images, nums, predictions)

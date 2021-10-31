@@ -44,19 +44,6 @@ def data_config(r_lower, r_upper=None):
 DEFAULT_CONFIG = data_config(6, 7)
 
 
-def gen_dataset(get_config=DEFAULT_CONFIG):
-    print('generating train data...')
-    x_train, y_reg_train, y_cls_train = gen_circles_data(
-        get_config, TRAIN_DATA_SIZE)
-
-    print('generating test data...')
-    x_test, y_reg_test, y_cls_test = gen_circles_data(
-        get_config, TEST_DATA_SIZE)
-
-    __save_dataset(get_config('path'), (x_train, y_reg_train, y_cls_train),
-                   (x_test, y_reg_test, y_cls_test))
-
-
 def __save_dataset(path, train_data, test_data=None):
     x_train, y_reg_train, y_cls_train = train_data
 
@@ -72,7 +59,7 @@ def __save_dataset(path, train_data, test_data=None):
                  y_cls_train=y_cls_train)
 
 
-def save_error_dataset(error_data, get_config=DEFAULT_CONFIG, append=False):
+def __save_error_dataset(error_data, get_config=DEFAULT_CONFIG, append=False):
     x_train, y_reg_train, y_cls_train = error_data
 
     if append:
@@ -104,28 +91,8 @@ def load_error_data(get_config=DEFAULT_CONFIG):
     return __load_dataset(get_config('error_path'))
 
 
-def load_cls_error_data(get_config=DEFAULT_CONFIG):
-    (x_train, _, y_train) = load_error_data(get_config)
-    return x_train, y_train
-
-
-def load_reg_error_data(get_config=DEFAULT_CONFIG):
-    (x_train, y_train, _) = load_error_data(get_config)
-    return x_train, y_train
-
-
 def load_data(get_config=DEFAULT_CONFIG):
     return __load_dataset(get_config('path'), test_data=True)
-
-
-def load_cls_data(get_config=DEFAULT_CONFIG):
-    (x_train, _, y_train), (x_test, _, y_test) = load_data(get_config)
-    return (x_train, y_train), (x_test, y_test)
-
-
-def load_reg_data(get_config=DEFAULT_CONFIG):
-    (x_train, y_train, _), (x_test, y_test, _) = load_data(get_config)
-    return (x_train, y_train), (x_test, y_test)
 
 
 def gen_circles_data(get_config=DEFAULT_CONFIG, size=1):
@@ -143,16 +110,17 @@ def gen_circles_data(get_config=DEFAULT_CONFIG, size=1):
 
 
 def prepare_data(get_config=DEFAULT_CONFIG):
-    (x_train, y_train), (x_test, y_test) = load_cls_data(get_config)
-    x_train, x_test = x_train/255.0, x_test/255.0
-    return x_train, y_train, (x_test, y_test)
+    (x_train, y_reg_train, y_cls_train), \
+        (x_test, y_reg_test, y_cls_test) = load_data(get_config)
+    x_train, x_test = x_train / 255.0, x_test / 255.0
+    return (x_train, y_reg_train, y_cls_train), (x_test, y_reg_test, y_cls_test)
 
 
 def prepare_error_data(get_config=DEFAULT_CONFIG):
-    x_train, y_train = load_cls_error_data(get_config)
-    _, (x_test, y_test) = load_cls_data(get_config)
-    x_train, x_test = x_train/255.0, x_test/255.0
-    return x_train, y_train, (x_test[:100], y_test[:100])
+    x_train, y_reg_train, y_cls_train = load_error_data(get_config)
+    _, (x_test, y_reg_test, y_cls_test) = load_data(get_config)
+    x_train, x_test = x_train / 255.0, x_test / 255.0
+    return (x_train, y_reg_train, y_cls_train), (x_test[:100], y_reg_test[:100], y_cls_test[:100])
 
 
 def load_sample_data(get_config=DEFAULT_CONFIG, size=20):
@@ -163,6 +131,19 @@ def load_sample_data(get_config=DEFAULT_CONFIG, size=20):
 def load_sample_error_data(get_config=DEFAULT_CONFIG, size=20):
     x_train, y_reg_train, y_cls_train = load_error_data(get_config)
     return x_train[:size], y_reg_train[:size], y_cls_train[:size]
+
+
+def build_data(get_config=DEFAULT_CONFIG):
+    print('generating train data...')
+    x_train, y_reg_train, y_cls_train = gen_circles_data(
+        get_config, TRAIN_DATA_SIZE)
+
+    print('generating test data...')
+    x_test, y_reg_test, y_cls_test = gen_circles_data(
+        get_config, TEST_DATA_SIZE)
+
+    __save_dataset(get_config('path'), (x_train, y_reg_train, y_cls_train),
+                   (x_test, y_reg_test, y_cls_test))
 
 
 def build_error_data(model_params=MODEL_PARAMS, append=False, dry_run=False):
@@ -201,7 +182,7 @@ def build_error_data(model_params=MODEL_PARAMS, append=False, dry_run=False):
         print(added, 'error data added per', handled)
 
     if not dry_run:
-        save_error_dataset((x, y_reg, y_cls), DEFAULT_CONFIG, append)
+        __save_error_dataset((x, y_reg, y_cls), DEFAULT_CONFIG, append)
 
 
 def show_data(get_config=DEFAULT_CONFIG):
@@ -233,6 +214,5 @@ if __name__ == '__main__':
             func = getattr(mod, cmd)
             func()
             exit(0)
-    build_error_data()
     # build_error_data(append=True)
     # build_error_data(dry_run=True)
