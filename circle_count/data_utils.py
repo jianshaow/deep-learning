@@ -41,7 +41,7 @@ def data_config(r_lower, r_upper=None):
     return get_config
 
 
-DEFAULT_CONFIG = data_config(6, 7)
+DEFAULT_CONFIG = data_config(6, 8)
 
 
 def __save_dataset(path, train_data, test_data=None):
@@ -95,7 +95,7 @@ def load_data(get_config=DEFAULT_CONFIG):
     return __load_dataset(get_config('path'), test_data=True)
 
 
-def gen_circles_data(get_config=DEFAULT_CONFIG, size=1):
+def gen_sample_data(get_config=DEFAULT_CONFIG, size=1):
     x, reg_y, cls_y = img.zero_data(size)
 
     def handle(index, images, circles):
@@ -135,18 +135,19 @@ def load_sample_error_data(get_config=DEFAULT_CONFIG, size=20):
 
 def build_data(get_config=DEFAULT_CONFIG):
     print('generating train data...')
-    x_train, y_reg_train, y_cls_train = gen_circles_data(
+    x_train, y_reg_train, y_cls_train = gen_sample_data(
         get_config, TRAIN_DATA_SIZE)
 
     print('generating test data...')
-    x_test, y_reg_test, y_cls_test = gen_circles_data(
+    x_test, y_reg_test, y_cls_test = gen_sample_data(
         get_config, TEST_DATA_SIZE)
 
     __save_dataset(get_config('path'), (x_train, y_reg_train, y_cls_train),
                    (x_test, y_reg_test, y_cls_test))
+    print('data [' + get_config('name') + '] saved')
 
 
-def build_error_data(model_params=MODEL_PARAMS, append=False, dry_run=False):
+def build_error_data(model_params=MODEL_PARAMS, get_config=DEFAULT_CONFIG, append=False, dry_run=False):
     model = cc_model.Model(model_params)
     model.load()
 
@@ -156,7 +157,7 @@ def build_error_data(model_params=MODEL_PARAMS, append=False, dry_run=False):
     added = 0
     handled = 0
     while(added < ERROR_DATA_SIZE):
-        images, circle_nums, _ = gen_circles_data(
+        images, circle_nums, _ = gen_sample_data(
             DEFAULT_CONFIG, ERROR_BATCH_SIZE)
         predictions = model.predict(images)
         for i in range(ERROR_BATCH_SIZE):
@@ -182,7 +183,8 @@ def build_error_data(model_params=MODEL_PARAMS, append=False, dry_run=False):
         print(added, 'error data added per', handled)
 
     if not dry_run:
-        __save_error_dataset((x, y_reg, y_cls), DEFAULT_CONFIG, append)
+        __save_error_dataset((x, y_reg, y_cls), get_config, append)
+        print('error data [' + get_config('name') + '] saved')
 
 
 def show_data(get_config=DEFAULT_CONFIG):
@@ -214,5 +216,7 @@ if __name__ == '__main__':
             func = getattr(mod, cmd)
             func()
             exit(0)
+    show_data()
+    show_error_data()
     # build_error_data(append=True)
-    # build_error_data(dry_run=True)
+    build_error_data(dry_run=True)

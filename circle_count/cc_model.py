@@ -9,7 +9,7 @@ from tensorflow import keras
 MODEL_NAME_PREFIX = 'circle_count'
 MODEL_BASE_DIR = os.path.join(os.path.expanduser('~'), '.model')
 
-MODEL_PARAMS = (2, 128)
+MODEL_PARAMS = (2, 64)
 LEARNING_RATE = 0.00001
 
 TRAIN_EPOCHS = 50
@@ -115,9 +115,9 @@ class Model():
 
     def save(self, ask=False):
         if ask:
-            save = input('save model[' + self.model.name + ']? (y|n): ')
+            save = input('save model [' + self.model.name + ']? (y|n): ')
             if save != 'y':
-                print('model[' + self.model.name + '] not saved')
+                print('model [' + self.model.name + '] not saved')
                 return
 
         model_path, model_old_path = _get_model_path(self.model.name)
@@ -126,7 +126,7 @@ class Model():
                 shutil.rmtree(model_old_path)
             os.rename(model_path, model_old_path)
         self.model.save(model_path)
-        print('model[' + self.model.name + '] saved')
+        print('model [' + self.model.name + '] saved')
 
 
 def _get_model_path(name):
