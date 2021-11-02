@@ -194,6 +194,7 @@ def matplotlib_callback(show_model=True, show_metrics=True, dynamic_plot=True):
         show_model=show_model, show_metrics=show_metrics, dynamic_plot=dynamic_plot)
 
 
-def tensorboard_callback():
-    logdir = path.join("logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+def tensorboard_callback(name):
+    logdir = path.join(path.join("logs", name),
+                       datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
     return keras.callbacks.TensorBoard(logdir, histogram_freq=1)

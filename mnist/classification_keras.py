@@ -18,10 +18,9 @@ def run():
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
 
-    callback = vis.matplotlib_callback()
     model.fit(x_train, y_train,
               validation_data=(x_test, y_test),
-              callbacks=[callback],
+              callbacks=[vis.matplotlib_callback()],
               epochs=10)
 
 

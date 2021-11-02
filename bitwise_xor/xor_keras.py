@@ -23,7 +23,7 @@ def run():
     model.fit(train_data, train_labels,
               validation_data=test_data,
               epochs=TRAIN_EPOCH,
-              callbacks=[vis.matplotlib_callback(), vis.tensorboard_callback()])
+              callbacks=[vis.matplotlib_callback(), vis.tensorboard_callback('bitwise_xor')])
 
     example_data = utils.random_seq_pairs(1)
     example_result = model.predict(example_data)

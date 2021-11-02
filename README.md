@@ -27,3 +27,9 @@ pip install matplotlib
 # for show the model graph, it depends on Graphviz
 pip install pydot_ng
 ~~~
+
+Run Tensorboard
+
+~~~ shell
+tensorboard --logdir logs
+~~~

@@ -66,8 +66,6 @@ class Model():
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile')
 
-        callback = vis.matplotlib_callback()
-
         validation_data = None
         if test_data is not None:
             x_test, y_reg_test, y_cls_test = test_data
@@ -82,7 +80,7 @@ class Model():
 
         self.model.fit(x_train, y_train, epochs=epochs,
                        validation_data=validation_data,
-                       callbacks=[callback])
+                       callbacks=[vis.matplotlib_callback(), vis.tensorboard_callback('circle_count')])
 
     def predict(self, x):
         if self.model is None:
