@@ -1,8 +1,7 @@
-from tensorflow import keras
-
 from common import data_utils as utils
 from common import vis_utils as vis
 from common.data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
+from tensorflow import keras
 
 
 def run():
@@ -21,12 +20,10 @@ def run():
                   loss=keras.losses.BinaryCrossentropy(),
                   metrics=[keras.metrics.BinaryAccuracy()])
 
-    callback = vis.VisualizationCallback(
-        show_model=True, show_metrics=True, dynamic_plot=True)
     model.fit(train_data, train_labels,
               validation_data=test_data,
               epochs=TRAIN_EPOCH,
-              callbacks=[callback])
+              callbacks=[vis.matplotlib_callback(), vis.tensorboard_callback()])
 
     example_data = utils.random_seq_pairs(1)
     example_result = model.predict(example_data)

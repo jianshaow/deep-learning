@@ -66,8 +66,7 @@ class Model():
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile')
 
-        callback = vis.VisualizationCallback(
-            show_model=True, show_metrics=True, dynamic_plot=True)
+        callback = vis.matplotlib_callback()
 
         validation_data = None
         if test_data is not None:

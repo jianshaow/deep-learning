@@ -1,10 +1,9 @@
 import tensorflow as tf
-from tensorflow import keras
-
 from common import data_utils as utils
 from common import layers, models
 from common import vis_utils as vis
 from common.data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
+from tensorflow import keras
 
 
 def run():
@@ -23,8 +22,7 @@ def run():
                   loss=keras.losses.BinaryCrossentropy(),
                   metrics=[keras.metrics.BinaryAccuracy()])
 
-    callback = vis.VisualizationCallback(
-        show_model=True, show_metrics=True, dynamic_plot=True)
+    callback = vis.matplotlib_callback()
     model.fit(dataset=dataset,
               epochs=TRAIN_EPOCH,
               validation_data=(test_seq_pairs, test_labels),

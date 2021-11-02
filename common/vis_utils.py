@@ -1,3 +1,4 @@
+import datetime
 import tempfile
 from os import path
 
@@ -6,8 +7,8 @@ import matplotlib.pyplot as plt
 from tensorflow import keras
 
 
-class VisualizationCallback(keras.callbacks.Callback):
-    def __init__(self, show_model=False, show_metrics=False, dynamic_plot=False):
+class MatplotlibCallback(keras.callbacks.Callback):
+    def __init__(self, show_model=True, show_metrics=True, dynamic_plot=True):
         super().__init__()
         self.metrics = dict()
         self.show_model = show_model
@@ -186,3 +187,13 @@ def __annotate(ax, text, xy, xytext, c='green'):
                 xytext=xytext, c=c,
                 textcoords='offset points', ha='right',
                 arrowprops=dict(facecolor='black', arrowstyle='-|>'))
+
+
+def matplotlib_callback(show_model=True, show_metrics=True, dynamic_plot=True):
+    return MatplotlibCallback(
+        show_model=show_model, show_metrics=show_metrics, dynamic_plot=dynamic_plot)
+
+
+def tensorboard_callback():
+    logdir = path.join("logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    return keras.callbacks.TensorBoard(logdir, histogram_freq=1)

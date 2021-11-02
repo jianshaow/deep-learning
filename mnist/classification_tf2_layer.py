@@ -1,8 +1,7 @@
 import tensorflow as tf
-from tensorflow import keras
-
 from common import layers, models
 from common import vis_utils as vis
+from tensorflow import keras
 
 
 def run():
@@ -24,8 +23,7 @@ def run():
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
 
-    callback = vis.VisualizationCallback(
-        show_model=True, show_metrics=True, dynamic_plot=True)
+    callback = vis.matplotlib_callback()
     model.fit(dataset,
               validation_data=(x_test, y_test),
               callbacks=[callback],

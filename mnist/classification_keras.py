@@ -18,8 +18,7 @@ def run():
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
 
-    callback = vis.VisualizationCallback(
-        show_model=True, show_metrics=True, dynamic_plot=True)
+    callback = vis.matplotlib_callback()
     model.fit(x_train, y_train,
               validation_data=(x_test, y_test),
               callbacks=[callback],
