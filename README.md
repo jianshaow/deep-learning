@@ -3,6 +3,9 @@
 Install python > 3.5
 
 ~~~ shell
+# install venv
+sudo apt-get install python3-venv
+
 # install tkinter
 sudo apt-get install python3-tk
 
