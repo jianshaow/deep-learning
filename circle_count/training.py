@@ -6,10 +6,10 @@ RERUN_EPOCHS = 100
 SPARSE = False
 
 
-def first_run(model_params=MODEL_PARAMS, data=utils.prepare_data(), learning_rate=LEARNING_RATE, dry_run=False):
+def first_run(data=utils.prepare_data(), learning_rate=LEARNING_RATE, dry_run=False):
     train_data, test_data = data
 
-    model = cc_model.Model(model_params)
+    model = __new_model()
     model.build()
     model.compile(learning_rate, sparse=SPARSE)
     model.train(train_data, test_data=test_data)
@@ -21,10 +21,10 @@ def first_run(model_params=MODEL_PARAMS, data=utils.prepare_data(), learning_rat
     return model
 
 
-def re_run(model_params=MODEL_PARAMS, data=utils.prepare_data(), learning_rate=LEARNING_RATE, epochs=RERUN_EPOCHS):
+def re_run(data=utils.prepare_data(), learning_rate=LEARNING_RATE, epochs=RERUN_EPOCHS):
     train_data, test_data = data
 
-    model = cc_model.Model(model_params)
+    model = __new_model()
     model.load()
     model.compile(learning_rate, sparse=SPARSE)
     model.train(train_data, epochs=epochs, test_data=test_data)
@@ -34,16 +34,20 @@ def re_run(model_params=MODEL_PARAMS, data=utils.prepare_data(), learning_rate=L
     return model
 
 
-def demo_model(model_params=MODEL_PARAMS, data=utils.gen_sample_data(size=100)):
-    model = cc_model.Model(model_params)
+def demo_model(data=utils.gen_sample_data(size=100)):
+    model = __new_model()
     model.load()
     model.compile(LEARNING_RATE, sparse=SPARSE)
     model.verify(data)
 
 
+def __new_model():
+    return cc_model.RegressionModel(MODEL_PARAMS)
+
+
 if __name__ == '__main__':
     # first_run()
-    first_run(dry_run=True)
+    # first_run(dry_run=True)
     # first_run(learning_rate=0.0001)
     # first_run(dry_run=True, learning_rate=0.000001)
     # re_run()
@@ -52,7 +56,7 @@ if __name__ == '__main__':
     # re_run(data=utils.prepare_error_data())
     # re_run(data=utils.prepare_error_data(), learning_rate=0.0001)
     # re_run(data=utils.prepare_error_data(), learning_rate=0.000001)
-    # demo_model()
+    demo_model()
     # demo_model(data=utils.gen_sample_data(size=100))
     # demo_model(data=utils.load_sample_data(size=1000))
     # demo_model(data=utils.load_sample_error_data(size=1000))
