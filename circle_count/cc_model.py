@@ -1,10 +1,12 @@
 import os
 import shutil
 
+import tensorflow as tf
+from tensorflow import keras
+
 from common import img_utils as img
 from common import vis_utils as vis
 from common.img_utils import CIRCLES_MAX
-from tensorflow import keras
 
 MODEL_NAME_PREFIX = 'circle_count'
 MODEL_BASE_DIR = os.path.join(os.path.expanduser('~'), '.model')
@@ -15,10 +17,27 @@ LEARNING_RATE = 0.00001
 TRAIN_EPOCHS = 50
 
 
+def new_model(type, params):
+    model_class = globals()[type]
+    if model_class and issubclass(model_class, Model):
+        return model_class(params)
+    else:
+        raise Exception('no such model' + type)
+
+
+def load_model(type, compile=False):
+    model_class = globals()[type]
+    if model_class and issubclass(model_class, Model):
+        model = model_class()
+        model.load(compile=compile)
+        return model
+    else:
+        raise Exception('no such model' + type)
+
+
 class Model:
-    def __init__(self, params):
+    def __init__(self, params=None):
         self.__compiled = False
-        self.__sparse = False
         self._params = params
         self.model = None
 
@@ -30,6 +49,7 @@ class Model:
         self._construct_input_layer()
         self._construct_hidden_layer()
         self._construct_output_layer()
+        self.model.summary()
 
     def load(self, compile=False):
         if self.model is not None:
@@ -37,13 +57,13 @@ class Model:
 
         model_path, _ = self.__get_model_path()
         self.model = keras.models.load_model(model_path, compile=compile)
+        self.model.summary()
         self.__compiled = compile
 
-    def compile(self, learning_rate=LEARNING_RATE, sparse=False):
+    def compile(self, learning_rate=LEARNING_RATE):
         if self.model is None:
             raise Exception('model is not initialized, call build or load method')
 
-        self.__sparse = sparse
         self.model.compile(
             optimizer=keras.optimizers.Adam(learning_rate),
             loss=self._get_loss(),
@@ -55,13 +75,13 @@ class Model:
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile first')
 
-        validation_data, x_train, y_train = self._extract_date(data, test_data)
+        x_train, y_train = data
 
         self.model.fit(
             x_train,
             y_train,
             epochs=epochs,
-            validation_data=validation_data,
+            validation_data=test_data,
             callbacks=[
                 vis.matplotlib_callback(),
                 vis.tensorboard_callback('circle_count'),
@@ -81,10 +101,10 @@ class Model:
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile')
 
-        x, y_reg, y = self._extract_verification_data(data)
+        x, y = data
 
         predictions = self.model.predict(x)
-        img.show_images(x, y_reg, predictions, title='predict result')
+        img.show_images(x, y, predictions, title='predict result')
 
         evaluation = self.model.evaluate(x / 255.0, y)
         print('evaluation: ', evaluation)
@@ -105,7 +125,7 @@ class Model:
         print('model [' + self.model.name + '] saved')
 
     def _construct_model(self):
-        self.model = keras.Sequential([], name=self._get_model_name())
+        self.model = keras.Sequential(name=self._get_model_name())
 
     def _construct_input_layer(self):
         input_shape = self._params['input_shape']
@@ -126,37 +146,10 @@ class Model:
         return '{}.{}-{}'.format(MODEL_NAME_PREFIX, layers, units)
 
     def _get_loss(self):
-        if self.__sparse:
-            loss = 'sparse_categorical_crossentropy'
-        else:
-            loss = 'categorical_crossentropy'
-        return loss
+        return 'sparse_categorical_crossentropy'
 
     def _get_metrics(self):
         return ['accuracy']
-
-    def _extract_date(self, data, test_data):
-        validation_data = None
-        if test_data is not None:
-            x_test, y_reg_test, y_cls_test = test_data
-        if self.__sparse:
-            x_train, y_train, _ = data
-            if test_data is not None:
-                validation_data = (x_test, y_reg_test)
-        else:
-            x_train, _, y_train = data
-            if test_data is not None:
-                validation_data = (x_test, y_cls_test)
-        return validation_data, x_train, y_train
-
-    def _extract_verification_data(self, data):
-        x, y_reg, y_cls = data
-
-        if self.__sparse:
-            y = y_reg
-        else:
-            y = y_cls
-        return x, y_reg, y
 
     def __get_model_path(self):
         if self.model:
@@ -178,6 +171,14 @@ class ClassificationModel(Model):
         return '{}.cls.{}-{}'.format(MODEL_NAME_PREFIX, layers, units)
 
 
+class IntegerOutput(keras.layers.Dense):
+    def __init__(self, units, **kwargs):
+        super(IntegerOutput, self).__init__(units, **kwargs)
+
+    def call(self, inputs):
+        return tf.cast(tf.round(super(IntegerOutput, self).call(inputs)), 'int32')
+
+
 class RegressionModel(Model):
     def __init__(self, params):
         super().__init__(params)
@@ -191,26 +192,20 @@ class RegressionModel(Model):
         return 'mean_squared_error'
 
     def _get_metrics(self):
-        return ['accuracy']
+        return ['mae']
+
+    def _construct_hidden_layer(self):
+        layers = self._params['hidden_layers']
+        units = self._params['hidden_layer_units']
+        for _ in range(layers):
+            self.model.add(keras.layers.Dense(units, activation='relu'))
 
     def _construct_output_layer(self):
-        self.model.add(keras.layers.Dense(1))
-
-    def _extract_date(self, data, test_data):
-        validation_data = None
-        if test_data is not None:
-            x_test, y_test, _ = test_data
-            validation_data = (x_test, y_test)
-        x_train, y_train, _ = data
-        return validation_data, x_train, y_train
-
-    def _extract_verification_data(self, data):
-        x, y, _ = data
-        return x, y, y
+        self.model.add(keras.layers.Dense(1, activation='linear'))
 
 
 if __name__ == '__main__':
-    images, nums, _ = img.zero_data(20)
+    images, nums = img.zero_data(20)
 
     def handle(i, image, num):
         images[i] = image
@@ -218,7 +213,7 @@ if __name__ == '__main__':
 
     img.random_circles_images(handle, size=20)
 
-    model = Model(MODEL_PARAMS)
+    model = RegressionModel(MODEL_PARAMS)
     model.load()
     predictions = model.predict(images)
     img.show_images(images, nums, predictions)

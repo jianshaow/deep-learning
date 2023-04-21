@@ -18,10 +18,12 @@ def __get_radius():
     return DEFAULT_RADIUS
 
 
-def random_circles_images(handle, get_radius=__get_radius, size=1):
+def random_circles_images(
+    handle, get_radius=__get_radius, circle_max=CIRCLES_MAX, size=1
+):
     fig = plt.figure(figsize=(1, 1))
     for i in range(size):
-        circle_num = random.randint(0, CIRCLES_MAX - 1)
+        circle_num = random.randint(0, circle_max - 1)
         image = __random_circles_image(fig, circle_num, get_radius)
         handle(i, image, circle_num)
     plt.close(fig)
@@ -48,7 +50,8 @@ def __random_circles_image(fig, circle_num, get_radius=__get_radius):
     fig_dpi = fig.get_dpi()
     width, height = fig_size * fig_dpi
     data = np.fromstring(canvas.tostring_rgb(), np.uint8).reshape(
-        (int(height), int(width), 3))
+        (int(height), int(width), 3)
+    )
     data = tfimg.rgb_to_grayscale(data)
     data = np.squeeze(data)
     fig.clf()
@@ -59,13 +62,13 @@ def __random_center(circle_params, radius):
     center_lower = radius + SPACE
     center_upper = SIDE_LIMIT - radius - SPACE
     x, y = 0, 0
-    while(True):
+    while True:
         x = random.randint(center_lower, center_upper)
         y = random.randint(center_lower, center_upper)
         accepted = True
         for circle_param in circle_params:
             center_x, center_y = circle_param['c']
-            distance = np.sqrt(np.square(x-center_x) + np.square(y-center_y))
+            distance = np.sqrt(np.square(x - center_x) + np.square(y - center_y))
             if distance <= radius + circle_param['r'] + SPACE:
                 accepted = False
                 break
@@ -76,17 +79,16 @@ def __random_center(circle_params, radius):
 
 def zero_data(size=1):
     x = np.zeros((size, 100, 100), dtype=np.uint8)
-    reg_y = np.zeros((size), dtype=np.uint8)
-    cls_y = np.zeros((size, CIRCLES_MAX), dtype=np.uint8)
-    return x, reg_y, cls_y
+    y = np.zeros((size), dtype=np.uint8)
+    return x, y
 
 
 def blank_image():
     return np.full((100, 100), 255, dtype=np.uint8)
 
 
-def num_to_cls(num):
-    label = np.zeros((CIRCLES_MAX), dtype=np.uint8)
+def num_to_cls(num, shape=CIRCLES_MAX):
+    label = np.zeros(shape, dtype=np.uint8)
     label[num] = 1
     return label
 
@@ -97,7 +99,7 @@ def cls_to_num(label):
 
 def show_images(images, labels, predictions=None, title='data'):
     fig = plt.figure(figsize=(8, 7))
-    fig.subplots_adjust(.05, .05, .95, .9)
+    fig.subplots_adjust(0.05, 0.05, 0.95, 0.9)
 
     if len(images) > 20:
         start = random.randint(0, len(images) - 20)
@@ -135,7 +137,7 @@ def show_images(images, labels, predictions=None, title='data'):
 def show_image(image, label, prediction=None, title='image'):
     fig = plt.figure(figsize=(5, 6))
     fig.suptitle(title)
-    ax = fig.add_axes([.05, .05, .9, .9])
+    ax = fig.add_axes([0.05, 0.05, 0.9, 0.9])
     ax.set_xticks([])
     ax.set_yticks([])
     ax.grid(False)
@@ -157,11 +159,12 @@ def show_image(image, label, prediction=None, title='image'):
 
 
 if __name__ == '__main__':
-    images, nums, _ = zero_data(20)
+    images, nums = zero_data(20)
 
     def handle(i, image, num):
         images[i] = image
         nums[i] = num
+
     random_circles_images(handle, size=20)
     show_images(images, nums)
     show_image(images[0], nums[0])

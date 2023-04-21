@@ -19,7 +19,7 @@ ERROR_DATA_SIZE = 1000
 MODEL_PARAMS = (2, 64)
 
 
-def data_config(r_lower, r_upper=None):
+def data_config(r_lower, r_upper=None, circles_max=img.CIRCLES_MAX):
     config = {}
     config['r_lower'] = r_lower
     data_name = DATA_NAME_PREFIX + '.' + '%02d' % r_lower
@@ -28,8 +28,7 @@ def data_config(r_lower, r_upper=None):
         config['r_upper'] = r_upper
     config['name'] = data_name
     config['path'] = os.path.join(DATA_SET_PATH, data_name + '.npz')
-    config['error_path'] = os.path.join(
-        DATA_SET_PATH, data_name + '.error.npz')
+    config['error_path'] = os.path.join(DATA_SET_PATH, data_name + '.error.npz')
 
     def get_config(key='radius'):
         if key == 'radius':
@@ -38,6 +37,7 @@ def data_config(r_lower, r_upper=None):
             else:
                 return r_lower
         return config[key]
+
     return get_config
 
 
@@ -45,46 +45,40 @@ DEFAULT_CONFIG = data_config(6, 8)
 
 
 def __save_dataset(path, train_data, test_data=None):
-    x_train, y_reg_train, y_cls_train = train_data
+    x_train, y_train = train_data
 
     if not os.path.exists(DATA_SET_PATH):
         os.makedirs(DATA_SET_PATH)
 
     if test_data is not None:
-        x_test, y_reg_test, y_cls_test = test_data
-        np.savez(path, x_train=x_train, y_reg_train=y_reg_train, y_cls_train=y_cls_train,
-                 x_test=x_test, y_reg_test=y_reg_test, y_cls_test=y_cls_test)
+        x_test, y_test = test_data
+        np.savez(path, x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test)
     else:
-        np.savez(path, x_train=x_train, y_reg_train=y_reg_train,
-                 y_cls_train=y_cls_train)
+        np.savez(path, x_train=x_train, y_train=y_train)
 
 
 def __save_error_dataset(error_data, get_config=DEFAULT_CONFIG, append=False):
-    x_train, y_reg_train, y_cls_train = error_data
+    x_train, y_train = error_data
 
     if append:
-        x, y_reg, y_cls = load_error_data(get_config)
+        x, y = load_error_data(get_config)
         x_train = np.concatenate((x_train, x))
-        y_reg_train = np.concatenate((y_reg_train, y_reg))
-        y_cls_train = np.concatenate((y_cls_train, y_cls))
+        y_train = np.concatenate((y_train, y))
 
-    __save_dataset(get_config('error_path'),
-                   (x_train, y_reg_train, y_cls_train))
+    __save_dataset(get_config('error_path'), (x_train, y_train))
 
 
 def __load_dataset(path, test_data=False):
     with np.load(path) as dataset:
         x_train = dataset['x_train']
-        y_reg_train = dataset['y_reg_train']
-        y_cls_train = dataset['y_cls_train']
+        y_train = dataset['y_train']
 
         if test_data:
             x_test = dataset['x_test']
-            y_reg_test = dataset['y_reg_test']
-            y_cls_test = dataset['y_cls_test']
-            return (x_train, y_reg_train, y_cls_train), (x_test, y_reg_test, y_cls_test)
+            y_test = dataset['y_test']
+            return (x_train, y_train), (x_test, y_test)
 
-        return (x_train, y_reg_train, y_cls_train)
+        return (x_train, y_train)
 
 
 def load_error_data(get_config=DEFAULT_CONFIG):
@@ -96,86 +90,81 @@ def load_data(get_config=DEFAULT_CONFIG):
 
 
 def gen_sample_data(get_config=DEFAULT_CONFIG, size=1):
-    x, reg_y, cls_y = img.zero_data(size)
+    x, y = img.zero_data(size)
 
     def handle(index, images, circles):
         x[index] = images
-        reg_y[index] = circles
-        cls_y[index][circles] = 1
+        y[index] = circles
         if size >= 1000 and (index + 1) % 1000 == 0:
             print(index + 1, 'data generated...')
+
     img.random_circles_images(handle, get_config, size)
 
-    return x, reg_y, cls_y
+    return x, y
 
 
 def prepare_data(get_config=DEFAULT_CONFIG):
-    (x_train, y_reg_train, y_cls_train), \
-        (x_test, y_reg_test, y_cls_test) = load_data(get_config)
+    (x_train, y_train), (x_test, y_test) = load_data(get_config)
     x_train, x_test = x_train / 255.0, x_test / 255.0
-    return (x_train, y_reg_train, y_cls_train), (x_test, y_reg_test, y_cls_test)
+    return (x_train, y_train), (x_test, y_test)
 
 
 def prepare_error_data(get_config=DEFAULT_CONFIG):
-    x_train, y_reg_train, y_cls_train = load_error_data(get_config)
-    _, (x_test, y_reg_test, y_cls_test) = load_data(get_config)
+    x_train, y_train = load_error_data(get_config)
+    _, (x_test, y_test) = load_data(get_config)
     x_train, x_test = x_train / 255.0, x_test / 255.0
-    return (x_train, y_reg_train, y_cls_train), (x_test[:100], y_reg_test[:100], y_cls_test[:100])
+    return (x_train, y_train), (x_test[:100], y_test[:100])
 
 
 def load_sample_data(get_config=DEFAULT_CONFIG, size=20):
-    (x_train, y_reg_train, y_cls_train), _ = load_data(get_config)
-    return x_train[:size], y_reg_train[:size], y_cls_train[:size]
+    (x_train, y_train), _ = load_data(get_config)
+    return x_train[:size], y_train[:size]
 
 
 def load_sample_error_data(get_config=DEFAULT_CONFIG, size=20):
-    x_train, y_reg_train, y_cls_train = load_error_data(get_config)
-    return x_train[:size], y_reg_train[:size], y_cls_train[:size]
+    x_train, y_train = load_error_data(get_config)
+    return x_train[:size], y_train[:size]
 
 
 def build_data(get_config=DEFAULT_CONFIG):
     print('generating train data...')
-    x_train, y_reg_train, y_cls_train = gen_sample_data(
-        get_config, TRAIN_DATA_SIZE)
+    x_train, y_train = gen_sample_data(get_config, TRAIN_DATA_SIZE)
 
     print('generating test data...')
-    x_test, y_reg_test, y_cls_test = gen_sample_data(
-        get_config, TEST_DATA_SIZE)
+    x_test, y_test = gen_sample_data(get_config, TEST_DATA_SIZE)
 
-    __save_dataset(get_config('path'), (x_train, y_reg_train, y_cls_train),
-                   (x_test, y_reg_test, y_cls_test))
+    __save_dataset(get_config('path'), (x_train, y_train), (x_test, y_test))
     print('data [' + get_config('name') + '] saved')
 
 
-def build_error_data(model_params=MODEL_PARAMS, get_config=DEFAULT_CONFIG, append=False, dry_run=False):
-    model = cc_model.Model(model_params)
-    model.load()
-
+def build_error_data(model, get_config=DEFAULT_CONFIG, append=False, dry_run=False):
     if not dry_run:
-        x, y_reg, y_cls = img.zero_data(ERROR_DATA_SIZE)
+        x, y = img.zero_data(ERROR_DATA_SIZE)
 
     added = 0
     handled = 0
-    while(added < ERROR_DATA_SIZE):
-        images, circle_nums, _ = gen_sample_data(
-            DEFAULT_CONFIG, ERROR_BATCH_SIZE)
+    while added < ERROR_DATA_SIZE:
+        images, circle_nums = gen_sample_data(DEFAULT_CONFIG, ERROR_BATCH_SIZE)
         predictions = model.predict(images)
         for i in range(ERROR_BATCH_SIZE):
-            if predictions[i][circle_nums[i]] == 0:
+            prediction = predictions[i]
+            if prediction.shape == (1):
+                pred_circle_num = prediction
+            else:
+                pred_circle_num = img.cls_to_num(prediction)
+            if pred_circle_num != circle_nums[i]:
                 if dry_run:
-                    print(predictions[i], circle_nums[i])
+                    print(pred_circle_num, circle_nums[i])
                 else:
                     x[added] = images[i]
-                    y_reg[added] = circle_nums[i]
-                    y_cls[added][circle_nums[i]] = 1
+                    y[added] = circle_nums[i]
                 added += 1
                 if (added + 5) % 10 == 0:
                     if dry_run:
-                        print(img.num_to_cls(0), 0)
+                        print(0, 0)
                     else:
                         x[added] = img.blank_image()
-                        y_reg[added] = 0
-                        y_cls[added][0] = 1
+                        y[added] = 0
                     added += 1
                 if added >= ERROR_DATA_SIZE:
                     break
@@ -183,7 +172,7 @@ def build_error_data(model_params=MODEL_PARAMS, get_config=DEFAULT_CONFIG, appen
         print(added, 'error data added per', handled)
 
     if not dry_run:
-        __save_error_dataset((x, y_reg, y_cls), get_config, append)
+        __save_error_dataset((x, y), get_config, append)
         print('error data [' + get_config('name') + '] saved')
 
 
@@ -199,13 +188,12 @@ def show_error_data(get_config=DEFAULT_CONFIG):
 
 
 def __show_data(data, title='data'):
-    x, y_reg, y_cls = data
+    x, y = data
 
-    img.show_images(x, y_reg, title=title)
+    img.show_images(x, y, title=title)
 
     i = random.randint(0, len(x) - 1)
-    print(y_cls[i])
-    img.show_image(x[i], y_reg[i], title=title + ' [' + str(i) + ']')
+    img.show_image(x[i], y[i], title=title + ' [' + str(i) + ']')
 
 
 if __name__ == '__main__':

@@ -59,8 +59,7 @@ class MatplotlibCallback(keras.callbacks.Callback):
 def build_model_figure(model, dpi=100):
     with tempfile.TemporaryDirectory() as tmpdirname:
         model_image_file = path.join(tmpdirname, 'model.png')
-        keras.utils.plot_model(model, show_shapes=True,
-                               to_file=model_image_file)
+        keras.utils.plot_model(model, show_shapes=True, to_file=model_image_file)
         img = mpimg.imread(model_image_file)
 
         figsize = (img.shape[1] * (1.25) / dpi, img.shape[0] / dpi)
@@ -107,15 +106,13 @@ def show_all():
 
 def _plot_history(figure, epochs, metrics):
     left_ax = figure.gca()
-    left_ax.set_title('Training Accuracy & Loss')
+    left_ax.set_title('Training Metrics & Loss')
     left_ax.set_xlabel('Epoch')
-    left_ax.set_ylabel('Accuracy', c='blue')
+    left_ax.set_ylabel('Metrics', c='blue')
 
     left_ax.set_xlim(-0.5, epochs - 0.5)
-    left_ax.set_xticks(
-        range(epochs // 10 - 1, epochs, max(1, epochs // 10)))
-    left_ax.set_xticklabels(
-        range(epochs // 10, epochs + 1, max(1, epochs // 10)))
+    left_ax.set_xticks(range(epochs // 10 - 1, epochs, max(1, epochs // 10)))
+    left_ax.set_xticklabels(range(epochs // 10, epochs + 1, max(1, epochs // 10)))
     left_ax.tick_params(axis='y', colors='blue')
 
     right_ax = left_ax.twinx()
@@ -130,9 +127,9 @@ def _plot_history(figure, epochs, metrics):
 def _plot_metrics(ax, metrics, legend_loc='center right', c='black'):
     offsets = __get_offsets(metrics)
     for metric_name, metric in metrics.items():
-        __plot_metric(ax, metric_name, metric,
-                      __get_style(metric_name), c,
-                      offsets[metric_name])
+        __plot_metric(
+            ax, metric_name, metric, __get_style(metric_name), c, offsets[metric_name]
+        )
     ax.legend(metrics.keys(), loc=legend_loc)
 
 
@@ -149,9 +146,13 @@ def __split_metrics(metrics):
 
 def __plot_metric(ax, metric_name, metric, style='.b-', c='black', offset=1):
     ax.plot(metric, style, c=c)
-    __annotate(ax, metric_name + ': %f' % metric[-1],
-               (len(metric) - 1, metric[-1]),
-               (20, offset*40), c=c)
+    __annotate(
+        ax,
+        metric_name + ': %f' % metric[-1],
+        (len(metric) - 1, metric[-1]),
+        (20, offset * 40),
+        c=c,
+    )
 
 
 def __get_style(metric_name):
@@ -183,18 +184,25 @@ def __get_offsets(metrics):
 
 
 def __annotate(ax, text, xy, xytext, c='green'):
-    ax.annotate(text, xy=xy,
-                xytext=xytext, c=c,
-                textcoords='offset points', ha='right',
-                arrowprops=dict(facecolor='black', arrowstyle='-|>'))
+    ax.annotate(
+        text,
+        xy=xy,
+        xytext=xytext,
+        c=c,
+        textcoords='offset points',
+        ha='right',
+        arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+    )
 
 
 def matplotlib_callback(show_model=True, show_metrics=True, dynamic_plot=True):
     return MatplotlibCallback(
-        show_model=show_model, show_metrics=show_metrics, dynamic_plot=dynamic_plot)
+        show_model=show_model, show_metrics=show_metrics, dynamic_plot=dynamic_plot
+    )
 
 
 def tensorboard_callback(name):
-    logdir = path.join(path.join("logs", name),
-                       datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    logdir = path.join(
+        path.join("logs", name), datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    )
     return keras.callbacks.TensorBoard(logdir, histogram_freq=1)
