@@ -1,34 +1,43 @@
 import os
 import shutil
 
-import tensorflow as tf
 from tensorflow import keras
 
 from common import img_utils as img
 from common import vis_utils as vis
-from common.img_utils import CIRCLES_MAX
 
 MODEL_NAME_PREFIX = 'circle_count'
 MODEL_BASE_DIR = os.path.join(os.path.expanduser('~'), '.model')
 
-MODEL_PARAMS = {'input_shape': (100, 100), 'hidden_layers': 2, 'hidden_layer_units': 64}
+MODEL_PARAMS = {
+    'input_shape': (100, 100),
+    'hidden_layers': 2,
+    'hidden_layer_units': 64,
+    'output_units': 6,
+}
 LEARNING_RATE = 0.00001
 
-TRAIN_EPOCHS = 50
+TRAIN_EPOCHS = 10
 
 
 def new_model(type, params):
-    model_class = globals()[type]
+    if isinstance(type, str):
+        model_class = globals()[type]
+    else:
+        model_class = type
     if model_class and issubclass(model_class, Model):
         return model_class(params)
     else:
         raise Exception('no such model' + type)
 
 
-def load_model(type, compile=False):
-    model_class = globals()[type]
+def load_model(type, params, compile=False):
+    if isinstance(type, str):
+        model_class = globals()[type]
+    else:
+        model_class = type
     if model_class and issubclass(model_class, Model):
-        model = model_class()
+        model = model_class(params)
         model.load(compile=compile)
         return model
     else:
@@ -36,7 +45,7 @@ def load_model(type, compile=False):
 
 
 class Model:
-    def __init__(self, params=None):
+    def __init__(self, params):
         self.__compiled = False
         self._params = params
         self.model = None
@@ -75,6 +84,9 @@ class Model:
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile first')
 
+        data = self._normalize(data)
+        test_data = self._normalize(test_data)
+
         x_train, y_train = data
 
         self.model.fit(
@@ -90,23 +102,34 @@ class Model:
 
     def predict(self, x):
         if self.model is None:
-            raise Exception('model is not initialized, call build or load method')
+            raise Exception('model is not initialized, call build or load method first')
 
-        return self.model.predict(x)
+        _, prediction = self._denormalize((None, self.model.predict(x)))
+
+        return prediction
+
+    def evaluate(self, data):
+        if self.model is None:
+            raise Exception('model is not initialized, call build or load method first')
+
+        data = self._normalize(data)
+
+        x, y = data
+        return self.model.evaluate(x / 255.0, y)
 
     def verify(self, data):
         if self.model is None:
-            raise Exception('model is not initialized, call build or load method')
+            raise Exception('model is not initialized, call build or load method first')
 
         if not self.__compiled:
-            raise Exception('model is not compiled yet, call compile')
+            raise Exception('model is not compiled yet, call compile first')
 
         x, y = data
 
-        predictions = self.model.predict(x)
+        predictions = self.predict(x)
         img.show_images(x, y, predictions, title='predict result')
 
-        evaluation = self.model.evaluate(x / 255.0, y)
+        evaluation = self.evaluate(data)
         print('evaluation: ', evaluation)
 
     def save(self, ask=False):
@@ -138,7 +161,8 @@ class Model:
             self.model.add(keras.layers.Dense(units, activation='relu'))
 
     def _construct_output_layer(self):
-        self.model.add(keras.layers.Dense(CIRCLES_MAX, activation='softmax'))
+        output_units = self._params['output_units']
+        self.model.add(keras.layers.Dense(output_units, activation='softmax'))
 
     def _get_model_name(self):
         layers = self._params['hidden_layers']
@@ -150,6 +174,12 @@ class Model:
 
     def _get_metrics(self):
         return ['accuracy']
+
+    def _normalize(self, data):
+        return data
+
+    def _denormalize(self, data):
+        return data
 
     def __get_model_path(self):
         if self.model:
@@ -168,15 +198,8 @@ class ClassificationModel(Model):
     def _get_model_name(self):
         layers = self._params['hidden_layers']
         units = self._params['hidden_layer_units']
-        return '{}.cls.{}-{}'.format(MODEL_NAME_PREFIX, layers, units)
-
-
-class IntegerOutput(keras.layers.Dense):
-    def __init__(self, units, **kwargs):
-        super(IntegerOutput, self).__init__(units, **kwargs)
-
-    def call(self, inputs):
-        return tf.cast(tf.round(super(IntegerOutput, self).call(inputs)), 'int32')
+        output_units = self._params['output_units']
+        return '{}.cls.{}-{}.{}'.format(MODEL_NAME_PREFIX, layers, units, output_units)
 
 
 class RegressionModel(Model):
@@ -186,7 +209,8 @@ class RegressionModel(Model):
     def _get_model_name(self):
         layers = self._params['hidden_layers']
         units = self._params['hidden_layer_units']
-        return '{}.reg.{}-{}'.format(MODEL_NAME_PREFIX, layers, units)
+        output_units = self._params['output_units']
+        return '{}.reg.{}-{}.{}'.format(MODEL_NAME_PREFIX, layers, units, output_units)
 
     def _get_loss(self):
         return 'mean_squared_error'
@@ -201,7 +225,13 @@ class RegressionModel(Model):
             self.model.add(keras.layers.Dense(units, activation='relu'))
 
     def _construct_output_layer(self):
-        self.model.add(keras.layers.Dense(1, activation='linear'))
+        self.model.add(keras.layers.Dense(1))
+
+    def _normalize(self, data):
+        return (data[0], data[1] * 10)
+
+    def _denormalize(self, data):
+        return (data[0], data[1] / 10)
 
 
 if __name__ == '__main__':

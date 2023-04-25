@@ -2,8 +2,8 @@ import cc_model
 import data_utils as utils
 from cc_model import LEARNING_RATE, MODEL_PARAMS
 
-RERUN_EPOCHS = 100
-SPARSE = False
+TRAIN_EPOCHS = 10
+RERUN_EPOCHS = 10
 
 
 def first_run(data=utils.prepare_data(), learning_rate=LEARNING_RATE, dry_run=False):
@@ -11,8 +11,8 @@ def first_run(data=utils.prepare_data(), learning_rate=LEARNING_RATE, dry_run=Fa
 
     model = __new_model()
     model.build()
-    model.compile(learning_rate, sparse=SPARSE)
-    model.train(train_data, test_data=test_data)
+    model.compile(learning_rate)
+    model.train(train_data, epochs=TRAIN_EPOCHS, test_data=test_data)
     model.verify(utils.gen_sample_data(size=100))
 
     if not dry_run:
@@ -37,7 +37,7 @@ def re_run(data=utils.prepare_data(), learning_rate=LEARNING_RATE, epochs=RERUN_
 def demo_model(data=utils.gen_sample_data(size=100)):
     model = __new_model()
     model.load()
-    model.compile(LEARNING_RATE, sparse=SPARSE)
+    model.compile(LEARNING_RATE)
     model.verify(data)
 
 

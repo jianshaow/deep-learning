@@ -5,10 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow import image as tfimg
 
-TRAIN_DATA_SIZE = 10000
-TEST_DATA_SIZE = 1000
-CIRCLES_MAX = 6
-
 SIDE_LIMIT = 100
 DEFAULT_RADIUS = 6
 SPACE = 2
@@ -18,9 +14,7 @@ def __get_radius():
     return DEFAULT_RADIUS
 
 
-def random_circles_images(
-    handle, get_radius=__get_radius, circle_max=CIRCLES_MAX, size=1
-):
+def random_circles_images(handle, get_radius=__get_radius, size=1, circle_max=6):
     fig = plt.figure(figsize=(1, 1))
     for i in range(size):
         circle_num = random.randint(0, circle_max - 1)
@@ -49,7 +43,7 @@ def __random_circles_image(fig, circle_num, get_radius=__get_radius):
     fig_size = fig.get_size_inches()
     fig_dpi = fig.get_dpi()
     width, height = fig_size * fig_dpi
-    data = np.fromstring(canvas.tostring_rgb(), np.uint8).reshape(
+    data = np.frombuffer(canvas.tostring_rgb(), np.uint8).reshape(
         (int(height), int(width), 3)
     )
     data = tfimg.rgb_to_grayscale(data)
@@ -87,12 +81,6 @@ def blank_image():
     return np.full((100, 100), 255, dtype=np.uint8)
 
 
-def num_to_cls(num, shape=CIRCLES_MAX):
-    label = np.zeros(shape, dtype=np.uint8)
-    label[num] = 1
-    return label
-
-
 def cls_to_num(label):
     return np.argmax(label)
 
@@ -116,12 +104,12 @@ def show_images(images, labels, predictions=None, title='data'):
         ax.imshow(images[start + i], cmap=plt.cm.binary, vmin=0, vmax=255)
 
         label = labels[start + i]
-        if label.shape == (CIRCLES_MAX,):
+        if label.shape != ():
             label = cls_to_num(label)
 
         if predictions is not None:
             prediction = predictions[start + i]
-            if prediction.shape == (CIRCLES_MAX,):
+            if prediction.shape != (1,):
                 prediction = cls_to_num(prediction)
             xlabel = prediction
         else:
@@ -143,17 +131,18 @@ def show_image(image, label, prediction=None, title='image'):
     ax.grid(False)
     ax.imshow(image, cmap=plt.cm.binary, vmin=0, vmax=255)
 
-    if label.shape == (CIRCLES_MAX,):
+    if label.shape != ():
         label = cls_to_num(label)
     xlabel = label
 
     if prediction is not None:
-        if prediction.shape == (CIRCLES_MAX,):
+        if prediction.shape != (1,):
             prediction = cls_to_num(prediction)
         xlabel = prediction
 
     t = ax.set_xlabel(xlabel)
     if xlabel != label:
+        print(xlabel, prediction, '!=', label)
         t.set_color('r')
     plt.show()
 

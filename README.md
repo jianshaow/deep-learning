@@ -3,6 +3,9 @@
 Install python > 3.5
 
 ~~~ shell
+# install pip
+sudo apt-get install python3-pip
+
 # install venv
 sudo apt-get install python3-venv
 

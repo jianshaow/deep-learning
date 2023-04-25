@@ -2,30 +2,33 @@ import os.path
 import random
 import sys
 
-import numpy as np
-from common import img_utils as img
-
 import cc_model
+import numpy as np
+
+from common import img_utils as img
 
 DATA_SET_PATH = os.path.join(os.path.expanduser('~'), '.dataset')
 DATA_NAME_PREFIX = 'circle_count'
 
-TRAIN_DATA_SIZE = 10000
-TEST_DATA_SIZE = 1000
+TRAIN_DATA_SIZE = 100000
+TEST_DATA_SIZE = 10000
 
 ERROR_BATCH_SIZE = 100
 ERROR_DATA_SIZE = 1000
 
-MODEL_PARAMS = (2, 64)
+CIRCLES_MAX = 6
 
 
-def data_config(r_lower, r_upper=None, circles_max=img.CIRCLES_MAX):
+def data_config(r_lower, r_upper=None, circles_max=CIRCLES_MAX):
     config = {}
     config['r_lower'] = r_lower
-    data_name = DATA_NAME_PREFIX + '.' + '%02d' % r_lower
+    config['circles_max'] = circles_max
+
+    data_name = '%s.%02d' % (DATA_NAME_PREFIX, r_lower)
     if r_upper is not None:
-        data_name = data_name + '-' + '%02d' % r_upper
         config['r_upper'] = r_upper
+        data_name = '%s-%02d' % (data_name, r_upper)
+    data_name = '%s.%02d' % (data_name, circles_max)
     config['name'] = data_name
     config['path'] = os.path.join(DATA_SET_PATH, data_name + '.npz')
     config['error_path'] = os.path.join(DATA_SET_PATH, data_name + '.error.npz')
@@ -69,7 +72,7 @@ def __save_error_dataset(error_data, get_config=DEFAULT_CONFIG, append=False):
 
 
 def __load_dataset(path, test_data=False):
-    with np.load(path) as dataset:
+    with np.load(path, mmap_mode='r') as dataset:
         x_train = dataset['x_train']
         y_train = dataset['y_train']
 
@@ -205,6 +208,7 @@ if __name__ == '__main__':
             func()
             exit(0)
     show_data()
+    # build_error_data(cc_model.load_model(cc_model.RegressionModel, cc_model.MODEL_PARAMS))
     # show_error_data()
     # build_error_data(append=True)
     # build_error_data(dry_run=True)
