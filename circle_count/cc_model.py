@@ -84,10 +84,8 @@ class Model:
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile first')
 
-        data = self._normalize(data)
+        x_train, y_train = self._normalize(data)
         test_data = self._normalize(test_data)
-
-        x_train, y_train = data
 
         self.model.fit(
             x_train,
@@ -104,7 +102,8 @@ class Model:
         if self.model is None:
             raise Exception('model is not initialized, call build or load method first')
 
-        _, prediction = self._denormalize((None, self.model.predict(x)))
+        x, _ = self._normalize((x, None))
+        prediction = self.model.predict(x)
 
         return prediction
 
@@ -112,10 +111,9 @@ class Model:
         if self.model is None:
             raise Exception('model is not initialized, call build or load method first')
 
-        data = self._normalize(data)
+        x, y = self._normalize(data)
 
-        x, y = data
-        return self.model.evaluate(x / 255.0, y)
+        return self.model.evaluate(x, y)
 
     def verify(self, data):
         if self.model is None:
@@ -124,12 +122,12 @@ class Model:
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile first')
 
-        x, y = data
+        x, y = self._normalize(data)
 
-        predictions = self.predict(x)
-        img.show_images(x, y, predictions, title='predict result')
+        predictions = self.model.predict(x)
+        img.show_images(data, predictions, title='predict result')
 
-        evaluation = self.evaluate(data)
+        evaluation = self.model.evaluate(x, y)
         print('evaluation: ', evaluation)
 
     def save(self, ask=False):
@@ -176,7 +174,10 @@ class Model:
         return ['accuracy']
 
     def _normalize(self, data):
-        return data
+        x, y = data
+        if x is not None:
+            x = x / 255.0
+        return (x, y)
 
     def _denormalize(self, data):
         return data
@@ -215,9 +216,6 @@ class RegressionModel(Model):
     def _get_loss(self):
         return 'mean_squared_error'
 
-    def _get_metrics(self):
-        return ['mae']
-
     def _construct_hidden_layer(self):
         layers = self._params['hidden_layers']
         units = self._params['hidden_layer_units']
@@ -226,12 +224,6 @@ class RegressionModel(Model):
 
     def _construct_output_layer(self):
         self.model.add(keras.layers.Dense(1))
-
-    def _normalize(self, data):
-        return (data[0], data[1] * 10)
-
-    def _denormalize(self, data):
-        return (data[0], data[1] / 10)
 
 
 if __name__ == '__main__':
@@ -246,4 +238,4 @@ if __name__ == '__main__':
     model = RegressionModel(MODEL_PARAMS)
     model.load()
     predictions = model.predict(images)
-    img.show_images(images, nums, predictions)
+    img.show_images((images, nums), predictions)

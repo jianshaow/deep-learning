@@ -85,7 +85,8 @@ def cls_to_num(label):
     return np.argmax(label)
 
 
-def show_images(images, labels, predictions=None, title='data'):
+def show_images(data, predictions=None, title='data'):
+    images, labels = data
     fig = plt.figure(figsize=(8, 7))
     fig.subplots_adjust(0.05, 0.05, 0.95, 0.9)
 
@@ -155,5 +156,5 @@ if __name__ == '__main__':
         nums[i] = num
 
     random_circles_images(handle, size=20)
-    show_images(images, nums)
+    show_images((images, nums))
     show_image(images[0], nums[0])

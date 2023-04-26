@@ -2,7 +2,6 @@ import os.path
 import random
 import sys
 
-import cc_model
 import numpy as np
 
 from common import img_utils as img
@@ -108,14 +107,12 @@ def gen_sample_data(get_config=DEFAULT_CONFIG, size=1):
 
 def prepare_data(get_config=DEFAULT_CONFIG):
     (x_train, y_train), (x_test, y_test) = load_data(get_config)
-    x_train, x_test = x_train / 255.0, x_test / 255.0
     return (x_train, y_train), (x_test, y_test)
 
 
 def prepare_error_data(get_config=DEFAULT_CONFIG):
     x_train, y_train = load_error_data(get_config)
     _, (x_test, y_test) = load_data(get_config)
-    x_train, x_test = x_train / 255.0, x_test / 255.0
     return (x_train, y_train), (x_test[:100], y_test[:100])
 
 
@@ -193,7 +190,7 @@ def show_error_data(get_config=DEFAULT_CONFIG):
 def __show_data(data, title='data'):
     x, y = data
 
-    img.show_images(x, y, title=title)
+    img.show_images(data, title=title)
 
     i = random.randint(0, len(x) - 1)
     img.show_image(x[i], y[i], title=title + ' [' + str(i) + ']')
