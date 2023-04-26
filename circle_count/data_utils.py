@@ -71,7 +71,7 @@ def __save_error_dataset(error_data, get_config=DEFAULT_CONFIG, append=False):
 
 
 def __load_dataset(path, test_data=False):
-    with np.load(path, mmap_mode='r') as dataset:
+    with np.load(path) as dataset:
         x_train = dataset['x_train']
         y_train = dataset['y_train']
 

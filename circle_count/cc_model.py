@@ -11,7 +11,7 @@ MODEL_BASE_DIR = os.path.join(os.path.expanduser('~'), '.model')
 
 MODEL_PARAMS = {
     'input_shape': (100, 100),
-    'hidden_layers': 2,
+    'hidden_layers': 3,
     'hidden_layer_units': 64,
     'output_units': 6,
 }
@@ -84,8 +84,8 @@ class Model:
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile first')
 
-        x_train, y_train = self._normalize(data)
-        test_data = self._normalize(test_data)
+        x_train, y_train = self._pre_process(data)
+        test_data = self._pre_process(test_data)
 
         self.model.fit(
             x_train,
@@ -102,7 +102,7 @@ class Model:
         if self.model is None:
             raise Exception('model is not initialized, call build or load method first')
 
-        x, _ = self._normalize((x, None))
+        x, _ = self._pre_process((x, None))
         prediction = self.model.predict(x)
 
         return prediction
@@ -111,7 +111,7 @@ class Model:
         if self.model is None:
             raise Exception('model is not initialized, call build or load method first')
 
-        x, y = self._normalize(data)
+        x, y = self._pre_process(data)
 
         return self.model.evaluate(x, y)
 
@@ -122,7 +122,7 @@ class Model:
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile first')
 
-        x, y = self._normalize(data)
+        x, y = self._pre_process(data)
 
         predictions = self.model.predict(x)
         img.show_images(data, predictions, title='predict result')
@@ -173,13 +173,13 @@ class Model:
     def _get_metrics(self):
         return ['accuracy']
 
-    def _normalize(self, data):
+    def _pre_process(self, data):
         x, y = data
         if x is not None:
             x = x / 255.0
         return (x, y)
 
-    def _denormalize(self, data):
+    def _post_process(self, data):
         return data
 
     def __get_model_path(self):

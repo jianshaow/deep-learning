@@ -3,7 +3,7 @@ import data_utils as utils
 from cc_model import LEARNING_RATE, MODEL_PARAMS
 
 TRAIN_EPOCHS = 10
-RERUN_EPOCHS = 10
+RERUN_EPOCHS = 20
 
 
 def first_run(data=utils.prepare_data(), learning_rate=LEARNING_RATE, dry_run=False):
@@ -46,11 +46,11 @@ def __new_model():
 
 
 if __name__ == '__main__':
-    # first_run()
+    first_run()
     # first_run(dry_run=True)
     # first_run(learning_rate=0.0001)
     # first_run(dry_run=True, learning_rate=0.000001)
-    re_run()
+    # re_run()
     # re_run(learning_rate=0.0001)
     # re_run(learning_rate=0.000001)
     # re_run(data=utils.prepare_error_data())
