@@ -86,11 +86,11 @@ class Model:
             raise Exception('model is not compiled yet, call compile first')
 
         # data = self._pre_process(data)
-     
+
         dataset = tf.data.Dataset.from_tensor_slices(data)
         size = dataset.cardinality().numpy()
         dataset = dataset.shuffle(size, reshuffle_each_iteration=True).batch(32)
-        dataset = dataset.map(lambda x, y: (tf.cast(x, tf.float32)/255.0, y))
+        dataset = dataset.map(lambda x, y: (tf.cast(x, tf.float32) / 255.0, y))
 
         if test_data is None:
             train_data = dataset.take(size * 0.9)
