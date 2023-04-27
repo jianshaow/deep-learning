@@ -1,5 +1,6 @@
 import os
 import shutil
+import tensorflow as tf
 
 from tensorflow import keras
 
@@ -84,12 +85,20 @@ class Model:
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile first')
 
-        x_train, y_train = self._pre_process(data)
-        test_data = self._pre_process(test_data)
+        data = self._pre_process(data)
+     
+        train_data = tf.data.Dataset.from_tensor_slices(data)
+        size = train_data.cardinality().numpy()
+        train_data = train_data.shuffle(size)
+
+        if test_data is None:
+            test_data = train_data.skip(size * 0.9)
+            train_data = train_data.take(size * 0.9)
+
+        train_data.batch(32)
 
         self.model.fit(
-            x_train,
-            y_train,
+            train_data,
             epochs=epochs,
             validation_data=test_data,
             callbacks=[

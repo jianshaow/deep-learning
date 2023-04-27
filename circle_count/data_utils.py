@@ -9,8 +9,7 @@ from common import img_utils as img
 DATA_SET_PATH = os.path.join(os.path.expanduser('~'), '.dataset')
 DATA_NAME_PREFIX = 'circle_count'
 
-TRAIN_DATA_SIZE = 100000
-TEST_DATA_SIZE = 10000
+DATA_SIZE = 100000
 
 ERROR_BATCH_SIZE = 100
 ERROR_DATA_SIZE = 1000
@@ -18,7 +17,7 @@ ERROR_DATA_SIZE = 1000
 CIRCLES_MAX = 6
 
 
-def data_config(r_lower, r_upper=None, circles_max=CIRCLES_MAX):
+def data_config(r_lower, r_upper=None, circles_max=CIRCLES_MAX, error_of='error'):
     config = {}
     config['r_lower'] = r_lower
     config['circles_max'] = circles_max
@@ -30,7 +29,9 @@ def data_config(r_lower, r_upper=None, circles_max=CIRCLES_MAX):
     data_name = '%s.%02d' % (data_name, circles_max)
     config['name'] = data_name
     config['path'] = os.path.join(DATA_SET_PATH, data_name + '.npz')
-    config['error_path'] = os.path.join(DATA_SET_PATH, data_name + '.error.npz')
+    config['error_path'] = os.path.join(
+        DATA_SET_PATH, data_name + '.' + error_of + '.npz'
+    )
 
     def get_config(key='radius'):
         if key == 'radius':
@@ -46,41 +47,21 @@ def data_config(r_lower, r_upper=None, circles_max=CIRCLES_MAX):
 DEFAULT_CONFIG = data_config(6, 8)
 
 
-def __save_dataset(path, train_data, test_data=None):
-    x_train, y_train = train_data
+def __save_dataset(path, data):
+    x, y = data
 
     if not os.path.exists(DATA_SET_PATH):
         os.makedirs(DATA_SET_PATH)
 
-    if test_data is not None:
-        x_test, y_test = test_data
-        np.savez(path, x_train=x_train, y_train=y_train, x_test=x_test, y_test=y_test)
-    else:
-        np.savez(path, x_train=x_train, y_train=y_train)
+    np.savez(path, x=x, y=y)
 
 
-def __save_error_dataset(error_data, get_config=DEFAULT_CONFIG, append=False):
-    x_train, y_train = error_data
-
-    if append:
-        x, y = load_error_data(get_config)
-        x_train = np.concatenate((x_train, x))
-        y_train = np.concatenate((y_train, y))
-
-    __save_dataset(get_config('error_path'), (x_train, y_train))
-
-
-def __load_dataset(path, test_data=False):
+def __load_dataset(path):
     with np.load(path) as dataset:
-        x_train = dataset['x_train']
-        y_train = dataset['y_train']
+        x = dataset['x']
+        y = dataset['y']
 
-        if test_data:
-            x_test = dataset['x_test']
-            y_test = dataset['y_test']
-            return (x_train, y_train), (x_test, y_test)
-
-        return (x_train, y_train)
+        return (x, y)
 
 
 def load_error_data(get_config=DEFAULT_CONFIG):
@@ -88,7 +69,7 @@ def load_error_data(get_config=DEFAULT_CONFIG):
 
 
 def load_data(get_config=DEFAULT_CONFIG):
-    return __load_dataset(get_config('path'), test_data=True)
+    return __load_dataset(get_config('path'))
 
 
 def gen_sample_data(get_config=DEFAULT_CONFIG, size=1):
@@ -105,35 +86,21 @@ def gen_sample_data(get_config=DEFAULT_CONFIG, size=1):
     return x, y
 
 
-def prepare_data(get_config=DEFAULT_CONFIG):
-    (x_train, y_train), (x_test, y_test) = load_data(get_config)
-    return (x_train, y_train), (x_test, y_test)
-
-
-def prepare_error_data(get_config=DEFAULT_CONFIG):
-    x_train, y_train = load_error_data(get_config)
-    _, (x_test, y_test) = load_data(get_config)
-    return (x_train, y_train), (x_test[:100], y_test[:100])
-
-
 def load_sample_data(get_config=DEFAULT_CONFIG, size=20):
-    (x_train, y_train), _ = load_data(get_config)
-    return x_train[:size], y_train[:size]
+    x, y = load_data(get_config)
+    return x[:size], y[:size]
 
 
 def load_sample_error_data(get_config=DEFAULT_CONFIG, size=20):
-    x_train, y_train = load_error_data(get_config)
-    return x_train[:size], y_train[:size]
+    x, y = load_error_data(get_config)
+    return x[:size], y[:size]
 
 
 def build_data(get_config=DEFAULT_CONFIG):
     print('generating train data...')
-    x_train, y_train = gen_sample_data(get_config, TRAIN_DATA_SIZE)
+    x, y = gen_sample_data(get_config, DATA_SIZE)
 
-    print('generating test data...')
-    x_test, y_test = gen_sample_data(get_config, TEST_DATA_SIZE)
-
-    __save_dataset(get_config('path'), (x_train, y_train), (x_test, y_test))
+    __save_dataset(get_config('path'), (x, y))
     print('data [' + get_config('name') + '] saved')
 
 
@@ -172,19 +139,21 @@ def build_error_data(model, get_config=DEFAULT_CONFIG, append=False, dry_run=Fal
         print(added, 'error data added per', handled)
 
     if not dry_run:
-        __save_error_dataset((x, y), get_config, append)
+        if append:
+            x_exist, y_exist = load_error_data(get_config)
+            x = np.concatenate((x, x_exist))
+            y = np.concatenate((y, y_exist))
+
+        __save_dataset(get_config('error_path'), (x, y))
         print('error data [' + get_config('name') + '] saved')
 
 
 def show_data(get_config=DEFAULT_CONFIG):
-    train_data, test_data = load_data(get_config)
-
-    __show_data(train_data, 'train data')
-    __show_data(test_data, 'test data')
+    __show_data(load_data(get_config), 'data')
 
 
 def show_error_data(get_config=DEFAULT_CONFIG):
-    __show_data(load_error_data(get_config), 'train data')
+    __show_data(load_error_data(get_config), 'data')
 
 
 def __show_data(data, title='data'):

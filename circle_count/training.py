@@ -6,13 +6,11 @@ TRAIN_EPOCHS = 10
 RERUN_EPOCHS = 20
 
 
-def first_run(data=utils.prepare_data(), learning_rate=LEARNING_RATE, dry_run=False):
-    train_data, test_data = data
-
+def first_run(data=utils.load_data(), learning_rate=LEARNING_RATE, dry_run=False):
     model = __new_model()
     model.build()
     model.compile(learning_rate)
-    model.train(train_data, epochs=TRAIN_EPOCHS, test_data=test_data)
+    model.train(data, epochs=TRAIN_EPOCHS)
     model.verify(utils.gen_sample_data(size=100))
 
     if not dry_run:
@@ -21,13 +19,11 @@ def first_run(data=utils.prepare_data(), learning_rate=LEARNING_RATE, dry_run=Fa
     return model
 
 
-def re_run(data=utils.prepare_data(), learning_rate=LEARNING_RATE, epochs=RERUN_EPOCHS):
-    train_data, test_data = data
-
+def re_run(data=utils.load_data(), learning_rate=LEARNING_RATE, epochs=RERUN_EPOCHS):
     model = __new_model()
     model.load()
     model.compile(learning_rate)
-    model.train(train_data, epochs=epochs, test_data=test_data)
+    model.train(data, epochs=epochs)
     model.verify(utils.gen_sample_data(size=100))
     model.save(ask=True)
 

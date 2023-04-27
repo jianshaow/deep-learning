@@ -85,12 +85,12 @@ def cls_to_num(label):
     return np.argmax(label)
 
 
-def show_images(data, predictions=None, title='data'):
+def show_images(data, predictions=None, title='data', random_sample=True):
     images, labels = data
     fig = plt.figure(figsize=(8, 7))
     fig.subplots_adjust(0.05, 0.05, 0.95, 0.9)
 
-    if len(images) > 20:
+    if len(images) > 20 and random_sample:
         start = random.randint(0, len(images) - 20)
     else:
         start = 0
