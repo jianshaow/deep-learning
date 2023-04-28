@@ -1,6 +1,7 @@
 import os
 import shutil
 import tensorflow as tf
+import numpy as np
 
 from tensorflow import keras
 
@@ -85,20 +86,22 @@ class Model:
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile first')
 
-        # data = self._pre_process(data)
+        size = len(data[0])
         dataset = tf.data.Dataset.from_tensor_slices(data)
-        size = dataset.cardinality().numpy()
-        dataset = dataset.shuffle(size, reshuffle_each_iteration=True).batch(32)
-        dataset = dataset.map(lambda x, y: (tf.cast(x, tf.float32) / 255.0, y))
+        dataset = dataset.shuffle(size, reshuffle_each_iteration=True)
+        dataset = dataset.map(self._pre_process)
 
         if test_data is None:
-            size = dataset.cardinality().numpy()
-            percentage = size * 0.9
-            train_data = dataset.take(percentage)
-            test_data = dataset.skip(percentage)
+            train_num = round(size * 0.9)
+            train_data = dataset.take(train_num).batch(32)
+            test_data = dataset.skip(train_num).batch(32)
         else:
             train_data = dataset
-        
+            test_size = len(test_data[0])
+            test_dataset = tf.data.Dataset.from_tensor_slices(test_data)
+            test_dataset = test_dataset.shuffle(test_size, reshuffle_each_iteration=True)
+            test_data = test_dataset.map(self._pre_process).batch(32)
+
         self.model.fit(
             train_data,
             epochs=epochs,
@@ -113,7 +116,7 @@ class Model:
         if self.model is None:
             raise Exception('model is not initialized, call build or load method first')
 
-        x, _ = self._pre_process((x, None))
+        x, _ = self._pre_process(x, None)
         prediction = self.model.predict(x)
 
         return prediction
@@ -122,7 +125,8 @@ class Model:
         if self.model is None:
             raise Exception('model is not initialized, call build or load method first')
 
-        x, y = self._pre_process(data)
+        x, y = data
+        x, y = self._pre_process(x, y)
 
         return self.model.evaluate(x, y)
 
@@ -133,7 +137,8 @@ class Model:
         if not self.__compiled:
             raise Exception('model is not compiled yet, call compile first')
 
-        x, y = self._pre_process(data)
+        x, y = data
+        x, y = self._pre_process(x, y)
 
         predictions = self.model.predict(x)
         img.show_images(data, predictions, title='predict result')
@@ -184,10 +189,8 @@ class Model:
     def _get_metrics(self):
         return ['accuracy']
 
-    def _pre_process(self, data):
-        x, y = data
-        if x is not None:
-            x = x / 255.0
+    def _pre_process(self, x, y):
+        x = tf.cast(x, tf.float32) / 255.0
         return (x, y)
 
     def _post_process(self, data):
