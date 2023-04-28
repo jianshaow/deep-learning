@@ -85,7 +85,7 @@ def cls_to_num(label):
     return np.argmax(label)
 
 
-def show_images(data, predictions=None, title='data', random_sample=True):
+def show_images(data, preds=None, title='data', tolerance=0.1, random_sample=True):
     images, labels = data
     fig = plt.figure(figsize=(8, 7))
     fig.subplots_adjust(0.05, 0.05, 0.95, 0.9)
@@ -97,6 +97,7 @@ def show_images(data, predictions=None, title='data', random_sample=True):
 
     fig.suptitle(title + ' [' + str(start) + ' - ' + str(start + 20 - 1) + ']')
 
+    errors = 0
     for i in range(20):
         ax = fig.add_subplot(4, 5, i + 1)
         ax.set_xticks([])
@@ -104,23 +105,28 @@ def show_images(data, predictions=None, title='data', random_sample=True):
         ax.grid(False)
         ax.imshow(images[start + i], cmap=plt.cm.binary, vmin=0, vmax=255)
 
-        label = labels[start + i]
+        index = start + i
+        label = labels[index]
         if label.shape != ():
             label = cls_to_num(label)
 
-        if predictions is not None:
-            prediction = predictions[start + i]
-            if prediction.shape != (1,):
-                prediction = cls_to_num(prediction)
-            xlabel = prediction
+        if preds is not None:
+            pred = preds[index]
+            if pred.shape != (1,):
+                pred = cls_to_num(pred)
+            xlabel = pred
         else:
             xlabel = label
-
         t = ax.set_xlabel(xlabel)
-        if xlabel != label:
-            print(xlabel, predictions[start + i], '!=', label)
+
+        if abs(xlabel - label) > tolerance:
+            errors += 1
+            print('image[', index, ']', xlabel, '!=', label)
             t.set_color('r')
     plt.show()
+
+    if preds is not None:
+        print('error rate is', errors / 20, 'with tolerance', tolerance)
 
 
 def show_image(image, label, prediction=None, title='image'):

@@ -1,8 +1,7 @@
 import os
 import shutil
-import tensorflow as tf
-import numpy as np
 
+import tensorflow as tf
 from tensorflow import keras
 
 from common import img_utils as img
@@ -96,11 +95,14 @@ class Model:
             train_data = dataset.take(train_num).batch(32)
             test_data = dataset.skip(train_num).batch(32)
         else:
-            train_data = dataset
+            train_data = dataset.batch(32)
             test_size = len(test_data[0])
             test_dataset = tf.data.Dataset.from_tensor_slices(test_data)
             test_dataset = test_dataset.shuffle(test_size, reshuffle_each_iteration=True)
             test_data = test_dataset.map(self._pre_process).batch(32)
+
+        train_data = train_data.prefetch(buffer_size=tf.data.AUTOTUNE)
+        test_data = test_data.prefetch(buffer_size=tf.data.AUTOTUNE)
 
         self.model.fit(
             train_data,
@@ -140,8 +142,8 @@ class Model:
         x, y = data
         x, y = self._pre_process(x, y)
 
-        predictions = self.model.predict(x)
-        img.show_images(data, predictions, title='predict result')
+        preds = self.model.predict(x)
+        img.show_images(data, preds, title='predict result')
 
         evaluation = self.model.evaluate(x, y)
         print('evaluation: ', evaluation)
@@ -241,15 +243,11 @@ class RegressionModel(Model):
 
 
 if __name__ == '__main__':
-    images, nums = img.zero_data(20)
-
-    def handle(i, image, num):
-        images[i] = image
-        nums[i] = num
-
-    img.random_circles_images(handle, size=20)
+    import data_utils as dutils
+    # data = dutils.gen_sample_data(size=100)
+    # data = dutils.load_data()
+    data = dutils.load_error_data()
 
     model = RegressionModel(MODEL_PARAMS)
-    model.load()
-    predictions = model.predict(images)
-    img.show_images((images, nums), predictions)
+    model.load(compile=True)
+    model.verify(data)

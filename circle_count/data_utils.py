@@ -11,8 +11,9 @@ DATA_NAME_PREFIX = 'circle_count'
 
 DATA_SIZE = 100000
 
+TOLERANCE = 0.1
 ERROR_BATCH_SIZE = 100
-ERROR_DATA_SIZE = 1000
+ERROR_DATA_SIZE = 10000
 
 CIRCLES_MAX = 6
 
@@ -112,21 +113,21 @@ def build_error_data(model, get_config=DEFAULT_CONFIG, append=False, dry_run=Fal
     handled = 0
     while added < ERROR_DATA_SIZE:
         images, circle_nums = gen_sample_data(DEFAULT_CONFIG, ERROR_BATCH_SIZE)
-        predictions = model.predict(images)
+        preds = model.predict(images)
         for i in range(ERROR_BATCH_SIZE):
-            prediction = predictions[i]
-            if prediction.shape == (1):
-                pred_circle_num = prediction
+            pred = preds[i]
+            if pred.shape == (1,):
+                pred_circle_num = pred
             else:
-                pred_circle_num = img.cls_to_num(prediction)
-            if pred_circle_num != circle_nums[i]:
+                pred_circle_num = img.cls_to_num(pred)
+            if abs(pred_circle_num - circle_nums[i]) > TOLERANCE:
                 if dry_run:
                     print(pred_circle_num, circle_nums[i])
                 else:
                     x[added] = images[i]
                     y[added] = circle_nums[i]
                 added += 1
-                if (added + 5) % 10 == 0:
+                if random.randint(0, get_config('circles_max') - 1) == 0:
                     if dry_run:
                         print(0, 0)
                     else:
@@ -173,8 +174,10 @@ if __name__ == '__main__':
             func = getattr(mod, cmd)
             func()
             exit(0)
-    show_data()
-    # build_error_data(cc_model.load_model(cc_model.RegressionModel, cc_model.MODEL_PARAMS))
-    # show_error_data()
-    # build_error_data(append=True)
+    # show_data()
+    import cc_model
+    model = cc_model.load_model(cc_model.RegressionModel, cc_model.MODEL_PARAMS)
+    build_error_data(model)
+    # build_error_data(model, append=True)
     # build_error_data(dry_run=True)
+    show_error_data()
