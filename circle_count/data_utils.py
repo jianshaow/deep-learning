@@ -105,7 +105,7 @@ def build_data(get_config=DEFAULT_CONFIG):
     print('data [' + get_config('name') + '] saved')
 
 
-def build_error_data(model, get_config=DEFAULT_CONFIG, append=False, dry_run=False):
+def build_error_data(model, get_config=DEFAULT_CONFIG, tolerance=TOLERANCE, append=False, dry_run=False):
     if not dry_run:
         x, y = img.zero_data(ERROR_DATA_SIZE)
 
@@ -120,7 +120,7 @@ def build_error_data(model, get_config=DEFAULT_CONFIG, append=False, dry_run=Fal
                 pred_circle_num = pred
             else:
                 pred_circle_num = img.cls_to_num(pred)
-            if abs(pred_circle_num - circle_nums[i]) > TOLERANCE:
+            if abs(pred_circle_num - circle_nums[i]) > tolerance:
                 if dry_run:
                     print(pred_circle_num, circle_nums[i])
                 else:
