@@ -45,6 +45,7 @@ docker push jianshao/tf-gpu-wsl:2.12.0
 docker run --name deep-learning --gpus all -it \
        -v /tmp/.X11-unix:/tmp/.X11-unix -v /mnt/wslg:/mnt/wslg \
        -v $PWD:/home/devel/workspace -v $HOME/.deep-learning:/home/devel/.deep-learning \
+       -e DISPLAY -e WAYLAND_DISPLAY -e XDG_RUNTIME_DIR -e PULSE_SERVER \
        jianshao/tf-gpu-wsl:2.12.0
 ~~~
 
