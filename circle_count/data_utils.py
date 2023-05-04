@@ -83,7 +83,7 @@ def gen_sample_data(get_config=DEFAULT_CONFIG, size=1):
         if size >= 1000 and (index + 1) % 1000 == 0:
             print(index + 1, 'data generated...')
 
-    img.random_circles_images(handle, get_config, size)
+    img.random_circles_images(handle, get_config, size, get_config('circles_max'))
 
     return x, y
 

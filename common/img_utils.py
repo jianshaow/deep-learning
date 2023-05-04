@@ -14,10 +14,10 @@ def __get_radius():
     return DEFAULT_RADIUS
 
 
-def random_circles_images(handle, get_radius=__get_radius, size=1, circle_max=6):
+def random_circles_images(handle, get_radius=__get_radius, size=1, circles_max=6):
     fig = plt.figure(figsize=(1, 1))
     for i in range(size):
-        circle_num = random.randint(0, circle_max - 1)
+        circle_num = random.randint(0, circles_max - 1)
         image = __random_circles_image(fig, circle_num, get_radius)
         handle(i, image, circle_num)
     plt.close(fig)
