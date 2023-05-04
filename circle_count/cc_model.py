@@ -4,11 +4,12 @@ import shutil
 import tensorflow as tf
 from tensorflow import keras
 
+from common import data_dir
 from common import img_utils as img
 from common import vis_utils as vis
 
 MODEL_NAME_PREFIX = 'circle_count'
-MODEL_BASE_DIR = os.path.join(os.path.expanduser('~'), '.model')
+MODEL_BASE_DIR = os.path.join(data_dir, 'model')
 
 MODEL_PARAMS = {
     'input_shape': (100, 100),
@@ -244,6 +245,7 @@ class RegressionModel(Model):
 
 if __name__ == '__main__':
     import data_utils as dutils
+
     # data = dutils.gen_sample_data(size=100)
     # data = dutils.load_data()
     data = dutils.load_error_data()

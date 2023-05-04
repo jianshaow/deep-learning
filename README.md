@@ -1,6 +1,7 @@
 # deep-learning
 
-Install python > 3.5
+## prepare devel environment
+python > 3.5
 
 ~~~ shell
 # install pip
@@ -34,7 +35,20 @@ pip install matplotlib
 pip install pydot_ng
 ~~~
 
-Run Tensorboard
+## docker for wsl2 with GPU support
+~~~ shell
+# build docker image
+docker build -t jianshao/tf-gpu-wsl:2.12.0 docker/
+docker push jianshao/tf-gpu-wsl:2.12.0
+
+# run on wsl2 with GPU suport
+docker run --name deep-learning --gpus all -it \
+       -v /tmp/.X11-unix:/tmp/.X11-unix -v /mnt/wslg:/mnt/wslg \
+       -v .:/home/devel/workspace -v $HOME/.deep-learning:/home/devel/.deep-learning \
+       jianshao/tf-gpu-wsl:2.12.0
+~~~
+
+## Run Tensorboard
 
 ~~~ shell
 tensorboard --logdir logs

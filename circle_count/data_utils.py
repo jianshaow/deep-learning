@@ -4,9 +4,10 @@ import sys
 
 import numpy as np
 
+from common import data_dir
 from common import img_utils as img
 
-DATA_SET_PATH = os.path.join(os.path.expanduser('~'), '.dataset')
+DATA_SET_PATH = os.path.join(data_dir, 'dataset')
 DATA_NAME_PREFIX = 'circle_count'
 
 DATA_SIZE = 100000
@@ -105,7 +106,9 @@ def build_data(get_config=DEFAULT_CONFIG):
     print('data [' + get_config('name') + '] saved')
 
 
-def build_error_data(model, get_config=DEFAULT_CONFIG, tolerance=TOLERANCE, append=False, dry_run=False):
+def build_error_data(
+    model, get_config=DEFAULT_CONFIG, tolerance=TOLERANCE, append=False, dry_run=False
+):
     if not dry_run:
         x, y = img.zero_data(ERROR_DATA_SIZE)
 
@@ -129,7 +132,7 @@ def build_error_data(model, get_config=DEFAULT_CONFIG, tolerance=TOLERANCE, appe
                 added += 1
                 if added >= ERROR_DATA_SIZE:
                     break
-                if  random.randint(0, get_config('circles_max') - 1) == 0:
+                if random.randint(0, get_config('circles_max') - 1) == 0:
                     if dry_run:
                         print(0, 0)
                     else:
@@ -177,9 +180,9 @@ if __name__ == '__main__':
             func()
             exit(0)
     # show_data()
-    import cc_model
-    model = cc_model.load_model(cc_model.RegressionModel, cc_model.MODEL_PARAMS)
-    build_error_data(model, tolerance=0.2)
+    # import cc_model
+    # model = cc_model.load_model(cc_model.RegressionModel, cc_model.MODEL_PARAMS)
+    # build_error_data(model, tolerance=0.2)
     # build_error_data(model, append=True)
     # build_error_data(dry_run=True)
     show_error_data()
