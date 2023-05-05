@@ -46,6 +46,7 @@ def __random_circles_image(fig, circle_num, get_radius=__get_radius):
         (int(height), int(width), 3)
     )
     from tensorflow import image as tfimg
+
     data = tfimg.rgb_to_grayscale(data)
     data = np.squeeze(data)
     fig.clf()

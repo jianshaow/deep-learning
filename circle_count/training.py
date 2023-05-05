@@ -1,6 +1,7 @@
 import cc_model
 import data_utils as utils
-from cc_model import LEARNING_RATE, MODEL_PARAMS
+
+from circle_count import DEFAULT_MODEL_PARAMS, LEARNING_RATE
 
 TRAIN_EPOCHS = 10
 RERUN_EPOCHS = 20
@@ -37,8 +38,8 @@ def demo_model(data=utils.gen_sample_data(size=100)):
     model.verify(data)
 
 
-def __new_model():
-    return cc_model.new_model('RegressionModel', MODEL_PARAMS)
+def __new_model(model_params=DEFAULT_MODEL_PARAMS):
+    return cc_model.new_model('RegressionModel', model_params)
 
 
 if __name__ == '__main__':

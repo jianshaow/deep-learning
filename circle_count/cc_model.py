@@ -4,20 +4,13 @@ import shutil
 import tensorflow as tf
 from tensorflow import keras
 
+from circle_count import DEFAULT_MODEL_PARAMS, LEARNING_RATE
 from common import data_dir
 from common import img_utils as img
 from common import vis_utils as vis
 
 MODEL_NAME_PREFIX = 'circle_count'
 MODEL_BASE_DIR = os.path.join(data_dir, 'model')
-
-MODEL_PARAMS = {
-    'input_shape': (100, 100),
-    'hidden_layers': 3,
-    'hidden_layer_units': 64,
-    'output_units': 6,
-}
-LEARNING_RATE = 0.00001
 
 TRAIN_EPOCHS = 10
 
@@ -252,6 +245,6 @@ if __name__ == '__main__':
     # data = dutils.load_data()
     # data = dutils.load_error_data()
 
-    model = RegressionModel(MODEL_PARAMS)
+    model = RegressionModel(DEFAULT_MODEL_PARAMS)
     model.load(compile=True)
     model.verify(data)
