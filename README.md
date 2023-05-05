@@ -38,7 +38,7 @@ pip install pydot_ng
 ## docker for wsl2 with GPU support
 ~~~ shell
 # build docker image
-docker build --build-arg HTTP_PROXY=$http_proxy -t jianshao/tf-gpu-wsl:2.12.0 docker/
+docker build -t jianshao/tf-gpu-wsl:2.12.0 docker/
 docker push jianshao/tf-gpu-wsl:2.12.0
 
 # run on wsl2 with GPU suport
