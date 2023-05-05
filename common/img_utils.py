@@ -3,7 +3,6 @@ import random
 import matplotlib.patches as ptchs
 import matplotlib.pyplot as plt
 import numpy as np
-from tensorflow import image as tfimg
 
 SIDE_LIMIT = 100
 DEFAULT_RADIUS = 6
@@ -46,6 +45,7 @@ def __random_circles_image(fig, circle_num, get_radius=__get_radius):
     data = np.frombuffer(canvas.tostring_rgb(), np.uint8).reshape(
         (int(height), int(width), 3)
     )
+    from tensorflow import image as tfimg
     data = tfimg.rgb_to_grayscale(data)
     data = np.squeeze(data)
     fig.clf()

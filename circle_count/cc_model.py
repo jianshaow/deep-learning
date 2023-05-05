@@ -99,7 +99,9 @@ class Model:
             train_data = dataset.batch(32)
             test_size = len(test_data[0])
             test_dataset = tf.data.Dataset.from_tensor_slices(test_data)
-            test_dataset = test_dataset.shuffle(test_size, reshuffle_each_iteration=True)
+            test_dataset = test_dataset.shuffle(
+                test_size, reshuffle_each_iteration=True
+            )
             test_data = test_dataset.map(self._pre_process).batch(32)
 
         train_data = train_data.prefetch(buffer_size=tf.data.AUTOTUNE)
@@ -246,9 +248,9 @@ class RegressionModel(Model):
 if __name__ == '__main__':
     import data_utils as dutils
 
-    # data = dutils.gen_sample_data(size=100)
+    data = dutils.gen_sample_data(size=100)
     # data = dutils.load_data()
-    data = dutils.load_error_data()
+    # data = dutils.load_error_data()
 
     model = RegressionModel(MODEL_PARAMS)
     model.load(compile=True)

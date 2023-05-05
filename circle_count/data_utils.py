@@ -179,10 +179,10 @@ if __name__ == '__main__':
             func = getattr(mod, cmd)
             func()
             exit(0)
-    # show_data()
+    show_data()
     # import cc_model
     # model = cc_model.load_model(cc_model.RegressionModel, cc_model.MODEL_PARAMS)
     # build_error_data(model, tolerance=0.2)
     # build_error_data(model, append=True)
     # build_error_data(dry_run=True)
-    show_error_data()
+    # show_error_data()
