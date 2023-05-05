@@ -2,10 +2,10 @@ import os.path
 import random
 import sys
 
+import img_utils as img
 import numpy as np
 
 from common import data_dir
-from common import img_utils as img
 
 DATA_SET_PATH = os.path.join(data_dir, 'dataset')
 DATA_NAME_PREFIX = 'circle_count'

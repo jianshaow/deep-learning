@@ -1,5 +1,3 @@
-import os
-
 DEFAULT_MODEL_PARAMS = {
     'input_shape': (100, 100),
     'hidden_layers': 3,

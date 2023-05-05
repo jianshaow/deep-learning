@@ -1,12 +1,12 @@
 import os
 import shutil
 
+import img_utils as img
 import tensorflow as tf
 from tensorflow import keras
 
 from circle_count import DEFAULT_MODEL_PARAMS, LEARNING_RATE
 from common import data_dir
-from common import img_utils as img
 from common import vis_utils as vis
 
 MODEL_NAME_PREFIX = 'circle_count'
