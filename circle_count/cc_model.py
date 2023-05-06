@@ -15,30 +15,6 @@ MODEL_BASE_DIR = os.path.join(data_dir, 'model')
 TRAIN_EPOCHS = 10
 
 
-def new_model(type, params):
-    if isinstance(type, str):
-        model_class = globals()[type]
-    else:
-        model_class = type
-    if model_class and issubclass(model_class, Model):
-        return model_class(params)
-    else:
-        raise Exception('no such model' + type)
-
-
-def load_model(type, params, compile=False):
-    if isinstance(type, str):
-        model_class = globals()[type]
-    else:
-        model_class = type
-    if model_class and issubclass(model_class, Model):
-        model = model_class(params)
-        model.load(compile=compile)
-        return model
-    else:
-        raise Exception('no such model' + type)
-
-
 class Model:
     def __init__(self, params):
         self.__compiled = False
@@ -238,12 +214,36 @@ class RegressionModel(Model):
         self.model.add(keras.layers.Dense(1))
 
 
+def new_model(type=RegressionModel, params=DEFAULT_MODEL_PARAMS):
+    if isinstance(type, str):
+        model_class = globals()[type]
+    else:
+        model_class = type
+    if model_class and issubclass(model_class, Model):
+        return model_class(params)
+    else:
+        raise Exception('no such model' + type)
+
+
+def load_model(type=RegressionModel, params=DEFAULT_MODEL_PARAMS, compile=False):
+    if isinstance(type, str):
+        model_class = globals()[type]
+    else:
+        model_class = type
+    if model_class and issubclass(model_class, Model):
+        model = model_class(params)
+        model.load(compile=compile)
+        return model
+    else:
+        raise Exception('no such model' + type)
+
+
 if __name__ == '__main__':
     import data_utils as dutils
 
-    # data = dutils.gen_sample_data(size=100)
+    data = dutils.gen_sample_data(size=100)
     # data = dutils.load_data()
-    data = dutils.load_error_data()
+    # data = dutils.load_error_data()
 
     model = RegressionModel(DEFAULT_MODEL_PARAMS)
     model.load(compile=True)
