@@ -11,14 +11,35 @@ DEFAULT_MODEL_PARAMS = {
 }
 
 DEFAULT_CIRCLES_MAX = 6
-DATA_NAME_PREFIX = 'circle_count'
+DATA_NAME_PREFIX = 'circles'
 DATA_SET_PATH = os.path.join(data_dir, 'dataset')
 LEARNING_RATE = 0.00001
 
 
-def data_config(
-    r_lower, r_upper=None, circles_max=DEFAULT_CIRCLES_MAX, error_of='error'
-):
+def data_config(r_lower, r_upper=None, circles_max=DEFAULT_CIRCLES_MAX):
+    config = __base_config(r_lower, r_upper, circles_max)
+
+    def get_config(key, **kwargs):
+        match key:
+            case 'radius':
+                if r_lower and r_upper:
+                    return random.randint(r_lower, r_upper)
+                else:
+                    return r_lower
+            case 'error_path':
+                if kwargs.get('tolerance'):
+                    tolerance = kwargs['tolerance']
+                else:
+                    tolerance = 'unknown'
+                error_data_file = '%s.tolerance-%s.npz' % (config['name'], tolerance)
+                return os.path.join(DATA_SET_PATH, error_data_file)
+
+        return config[key]
+
+    return get_config
+
+
+def __base_config(r_lower, r_upper, circles_max):
     config = {}
     config['r_lower'] = r_lower
     config['circles_max'] = circles_max
@@ -30,19 +51,8 @@ def data_config(
     data_name = '%s.%02d' % (data_name, circles_max)
     config['name'] = data_name
     config['path'] = os.path.join(DATA_SET_PATH, data_name + '.npz')
-    config['error_path'] = os.path.join(
-        DATA_SET_PATH, data_name + '.' + error_of + '.npz'
-    )
 
-    def get_config(key='radius'):
-        if key == 'radius':
-            if r_lower and r_upper:
-                return random.randint(r_lower, r_upper)
-            else:
-                return r_lower
-        return config[key]
-
-    return get_config
+    return config
 
 
 DEFAULT_DATA_CONFIG = data_config(6, 8)
