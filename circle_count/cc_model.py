@@ -222,7 +222,7 @@ def new_model(type=RegressionModel, params=DEFAULT_MODEL_PARAMS):
     if model_class and issubclass(model_class, Model):
         return model_class(params)
     else:
-        raise Exception('no such model' + type)
+        raise Exception('no such model %s' % type)
 
 
 def load_model(type=RegressionModel, params=DEFAULT_MODEL_PARAMS, compile=False):
@@ -235,13 +235,13 @@ def load_model(type=RegressionModel, params=DEFAULT_MODEL_PARAMS, compile=False)
         model.load(compile=compile)
         return model
     else:
-        raise Exception('no such model' + type)
+        raise Exception('no such model %s' % type)
 
 
 if __name__ == '__main__':
     import data_utils as dutils
 
-    data = dutils.gen_sample_data(size=100)
+    data = dutils.gen_sample_data(size=1000)
     # data = dutils.load_data()
     # data = dutils.load_error_data()
 

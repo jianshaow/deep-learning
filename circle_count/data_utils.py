@@ -7,7 +7,7 @@ import numpy as np
 
 from circle_count import DATA_SET_PATH, DEFAULT_DATA_CONFIG
 
-TOLERANCE = 0.2
+TOLERANCE = 0.1
 DATA_SIZE = 100000
 ERROR_BATCH_SIZE = 100
 ERROR_DATA_SIZE = 10000
@@ -20,12 +20,14 @@ def __save_dataset(path, data):
         os.makedirs(DATA_SET_PATH)
 
     np.savez(path, x=x, y=y)
+    print(path, 'saved')
 
 
 def __load_dataset(path):
     with np.load(path) as dataset:
         x = dataset['x']
         y = dataset['y']
+        print(path, 'loaded')
 
         return (x, y)
 
@@ -153,7 +155,7 @@ if __name__ == '__main__':
     show_data()
     # import cc_model
     # model = cc_model.load_model()
-    # build_error_data(model, tolerance=0.2)
+    # build_error_data(model)
     # build_error_data(model, append=True)
     # build_error_data(dry_run=True)
     # show_error_data()
