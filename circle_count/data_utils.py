@@ -7,7 +7,7 @@ import numpy as np
 
 from circle_count import DATA_SET_PATH, DEFAULT_DATA_CONFIG
 
-TOLERANCE = 0.1
+TOLERANCE = 0.2
 DATA_SIZE = 100000
 ERROR_BATCH_SIZE = 100
 ERROR_DATA_SIZE = 10000
@@ -30,8 +30,8 @@ def __load_dataset(path):
         return (x, y)
 
 
-def load_error_data(get_config=DEFAULT_DATA_CONFIG):
-    return __load_dataset(get_config('error_path'))
+def load_error_data(get_config=DEFAULT_DATA_CONFIG, error_gt=TOLERANCE):
+    return __load_dataset(get_config('error_path', error_gt=error_gt))
 
 
 def load_data(get_config=DEFAULT_DATA_CONFIG):
@@ -57,8 +57,10 @@ def load_sample_data(get_config=DEFAULT_DATA_CONFIG, size=20):
     return x[:size], y[:size]
 
 
-def load_sample_error_data(get_config=DEFAULT_DATA_CONFIG, size=20):
-    x, y = load_error_data(get_config)
+def load_sample_error_data(
+    get_config=DEFAULT_DATA_CONFIG, error_gt=TOLERANCE, size=20
+):
+    x, y = load_error_data(get_config, error_gt)
     return x[:size], y[:size]
 
 
@@ -91,7 +93,8 @@ def build_error_data(
                 pred_circle_num = pred
             else:
                 pred_circle_num = img.cls_to_num(pred)
-            if abs(pred_circle_num - circle_nums[i]) > tolerance:
+            error = abs(pred_circle_num - circle_nums[i])
+            if error > tolerance:
                 if dry_run:
                     print(pred_circle_num, circle_nums[i])
                 else:
@@ -114,11 +117,11 @@ def build_error_data(
 
     if not dry_run:
         if append:
-            x_exist, y_exist = load_error_data(get_config)
+            x_exist, y_exist = load_error_data(get_config, error_gt=tolerance)
             x = np.concatenate((x, x_exist))
             y = np.concatenate((y, y_exist))
 
-        __save_dataset(get_config('error_path'), (x, y))
+        __save_dataset(get_config('error_path', error_gt=tolerance), (x, y))
         print('error data [' + get_config('name') + '] saved')
 
 
@@ -126,17 +129,17 @@ def show_data(get_config=DEFAULT_DATA_CONFIG):
     __show_data(load_data(get_config), 'data')
 
 
-def show_error_data(get_config=DEFAULT_DATA_CONFIG):
-    __show_data(load_error_data(get_config), 'data')
+def show_error_data(get_config=DEFAULT_DATA_CONFIG, error_gt=TOLERANCE, tolerance=TOLERANCE):
+    __show_data(load_error_data(get_config, error_gt), 'error-data(%s)' % tolerance, tolerance=tolerance)
 
 
-def __show_data(data, title='data'):
+def __show_data(data, title='data', tolerance=TOLERANCE):
     x, y = data
 
-    img.show_images(data, title=title)
+    img.show_images(data, title=title, tolerance=tolerance)
 
     i = random.randint(0, len(x) - 1)
-    img.show_image(x[i], y[i], title=title + ' [' + str(i) + ']')
+    img.show_image(x[i], y[i], title=title + ' [' + str(i) + ']', tolerance=tolerance)
 
 
 if __name__ == '__main__':

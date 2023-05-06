@@ -9,7 +9,7 @@ from circle_count import DEFAULT_CIRCLES_MAX
 SIDE_LIMIT = 100
 DEFAULT_RADIUS = 6
 SPACE = 2
-
+TOLERANCE = 0.1
 
 def __get_radius():
     return DEFAULT_RADIUS
@@ -90,7 +90,7 @@ def cls_to_num(label):
     return np.argmax(label)
 
 
-def show_images(data, preds=None, title='data', tolerance=0.1, random_sample=True):
+def show_images(data, preds=None, title='data', tolerance=TOLERANCE, random_sample=True):
     images, labels = data
     fig = plt.figure(figsize=(8, 7))
     fig.subplots_adjust(0.05, 0.05, 0.95, 0.9)
@@ -115,18 +115,20 @@ def show_images(data, preds=None, title='data', tolerance=0.1, random_sample=Tru
         if label.shape != ():
             label = cls_to_num(label)
 
+        error = 0
         if preds is not None:
             pred = preds[index]
             if pred.shape != (1,):
                 pred = cls_to_num(pred)
+            error = abs(pred - label)
             xlabel = pred
         else:
             xlabel = label
         t = ax.set_xlabel(xlabel)
 
-        if abs(xlabel - label) > tolerance:
+        if error > tolerance:
             errors += 1
-            print('image[', index, ']', xlabel, '!=', label)
+            print('image[', index, ']', xlabel, '!=', label, 'error =', error)
             t.set_color('r')
     plt.show()
 
@@ -134,7 +136,7 @@ def show_images(data, preds=None, title='data', tolerance=0.1, random_sample=Tru
         print('error rate is', errors / 20, 'with tolerance', tolerance)
 
 
-def show_image(image, label, prediction=None, title='image'):
+def show_image(image, label, pred=None, title='image', tolerance=TOLERANCE):
     fig = plt.figure(figsize=(5, 6))
     fig.suptitle(title)
     ax = fig.add_axes([0.05, 0.05, 0.9, 0.9])
@@ -147,14 +149,16 @@ def show_image(image, label, prediction=None, title='image'):
         label = cls_to_num(label)
     xlabel = label
 
-    if prediction is not None:
-        if prediction.shape != (1,):
-            prediction = cls_to_num(prediction)
-        xlabel = prediction
+    error = 0
+    if pred is not None:
+        if pred.shape != (1,):
+            pred = cls_to_num(pred)
+        error = abs(pred - label)
+        xlabel = pred
 
     t = ax.set_xlabel(xlabel)
-    if xlabel != label:
-        print(xlabel, prediction, '!=', label)
+    if error > tolerance:
+        print(xlabel, '!=', label, 'error =', error)
         t.set_color('r')
     plt.show()
 

@@ -17,9 +17,9 @@ LEARNING_RATE = 0.00001
 
 
 def data_config(r_lower, r_upper=None, circles_max=DEFAULT_CIRCLES_MAX):
-    config = __base_config(r_lower, r_upper, circles_max)
+    config = __base_data_config(r_lower, r_upper, circles_max)
 
-    def get_config(key, **kwargs):
+    def get_config(key='radius', **kwargs):
         match key:
             case 'radius':
                 if r_lower and r_upper:
@@ -27,11 +27,11 @@ def data_config(r_lower, r_upper=None, circles_max=DEFAULT_CIRCLES_MAX):
                 else:
                     return r_lower
             case 'error_path':
-                if kwargs.get('tolerance'):
-                    tolerance = kwargs['tolerance']
+                if kwargs.get('error_gt'):
+                    error_gt = kwargs['error_gt']
                 else:
-                    tolerance = 'unknown'
-                error_data_file = '%s.tolerance-%s.npz' % (config['name'], tolerance)
+                    error_gt = 0
+                error_data_file = '%s.error_gt-%s.npz' % (config['name'], error_gt)
                 return os.path.join(DATA_SET_PATH, error_data_file)
 
         return config[key]
@@ -39,7 +39,7 @@ def data_config(r_lower, r_upper=None, circles_max=DEFAULT_CIRCLES_MAX):
     return get_config
 
 
-def __base_config(r_lower, r_upper, circles_max):
+def __base_data_config(r_lower, r_upper, circles_max):
     config = {}
     config['r_lower'] = r_lower
     config['circles_max'] = circles_max
