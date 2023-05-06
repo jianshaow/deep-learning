@@ -5,48 +5,12 @@ import sys
 import img_utils as img
 import numpy as np
 
-from common import data_dir
-
-DATA_SET_PATH = os.path.join(data_dir, 'dataset')
-DATA_NAME_PREFIX = 'circle_count'
-
-DATA_SIZE = 100000
+from circle_count import DATA_SET_PATH, DEFAULT_DATA_CONFIG
 
 TOLERANCE = 0.1
+DATA_SIZE = 100000
 ERROR_BATCH_SIZE = 100
 ERROR_DATA_SIZE = 10000
-
-CIRCLES_MAX = 6
-
-
-def data_config(r_lower, r_upper=None, circles_max=CIRCLES_MAX, error_of='error'):
-    config = {}
-    config['r_lower'] = r_lower
-    config['circles_max'] = circles_max
-
-    data_name = '%s.%02d' % (DATA_NAME_PREFIX, r_lower)
-    if r_upper is not None:
-        config['r_upper'] = r_upper
-        data_name = '%s-%02d' % (data_name, r_upper)
-    data_name = '%s.%02d' % (data_name, circles_max)
-    config['name'] = data_name
-    config['path'] = os.path.join(DATA_SET_PATH, data_name + '.npz')
-    config['error_path'] = os.path.join(
-        DATA_SET_PATH, data_name + '.' + error_of + '.npz'
-    )
-
-    def get_config(key='radius'):
-        if key == 'radius':
-            if r_lower and r_upper:
-                return random.randint(r_lower, r_upper)
-            else:
-                return r_lower
-        return config[key]
-
-    return get_config
-
-
-DEFAULT_CONFIG = data_config(6, 8)
 
 
 def __save_dataset(path, data):
@@ -66,15 +30,15 @@ def __load_dataset(path):
         return (x, y)
 
 
-def load_error_data(get_config=DEFAULT_CONFIG):
+def load_error_data(get_config=DEFAULT_DATA_CONFIG):
     return __load_dataset(get_config('error_path'))
 
 
-def load_data(get_config=DEFAULT_CONFIG):
+def load_data(get_config=DEFAULT_DATA_CONFIG):
     return __load_dataset(get_config('path'))
 
 
-def gen_sample_data(get_config=DEFAULT_CONFIG, size=1):
+def gen_sample_data(get_config=DEFAULT_DATA_CONFIG, size=1):
     x, y = img.zero_data(size)
 
     def handle(index, images, circles):
@@ -88,17 +52,17 @@ def gen_sample_data(get_config=DEFAULT_CONFIG, size=1):
     return x, y
 
 
-def load_sample_data(get_config=DEFAULT_CONFIG, size=20):
+def load_sample_data(get_config=DEFAULT_DATA_CONFIG, size=20):
     x, y = load_data(get_config)
     return x[:size], y[:size]
 
 
-def load_sample_error_data(get_config=DEFAULT_CONFIG, size=20):
+def load_sample_error_data(get_config=DEFAULT_DATA_CONFIG, size=20):
     x, y = load_error_data(get_config)
     return x[:size], y[:size]
 
 
-def build_data(get_config=DEFAULT_CONFIG):
+def build_data(get_config=DEFAULT_DATA_CONFIG):
     print('generating train data...')
     x, y = gen_sample_data(get_config, DATA_SIZE)
 
@@ -107,7 +71,11 @@ def build_data(get_config=DEFAULT_CONFIG):
 
 
 def build_error_data(
-    model, get_config=DEFAULT_CONFIG, tolerance=TOLERANCE, append=False, dry_run=False
+    model,
+    get_config=DEFAULT_DATA_CONFIG,
+    tolerance=TOLERANCE,
+    append=False,
+    dry_run=False,
 ):
     if not dry_run:
         x, y = img.zero_data(ERROR_DATA_SIZE)
@@ -115,7 +83,7 @@ def build_error_data(
     added = 0
     handled = 0
     while added < ERROR_DATA_SIZE:
-        images, circle_nums = gen_sample_data(DEFAULT_CONFIG, ERROR_BATCH_SIZE)
+        images, circle_nums = gen_sample_data(get_config, ERROR_BATCH_SIZE)
         preds = model.predict(images)
         for i in range(ERROR_BATCH_SIZE):
             pred = preds[i]
@@ -154,11 +122,11 @@ def build_error_data(
         print('error data [' + get_config('name') + '] saved')
 
 
-def show_data(get_config=DEFAULT_CONFIG):
+def show_data(get_config=DEFAULT_DATA_CONFIG):
     __show_data(load_data(get_config), 'data')
 
 
-def show_error_data(get_config=DEFAULT_CONFIG):
+def show_error_data(get_config=DEFAULT_DATA_CONFIG):
     __show_data(load_error_data(get_config), 'data')
 
 

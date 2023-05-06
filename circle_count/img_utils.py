@@ -4,6 +4,8 @@ import matplotlib.patches as ptchs
 import matplotlib.pyplot as plt
 import numpy as np
 
+from circle_count import DEFAULT_CIRCLES_MAX
+
 SIDE_LIMIT = 100
 DEFAULT_RADIUS = 6
 SPACE = 2
@@ -13,7 +15,9 @@ def __get_radius():
     return DEFAULT_RADIUS
 
 
-def random_circles_images(handle, get_radius=__get_radius, size=1, circles_max=6):
+def random_circles_images(
+    handle, get_radius=__get_radius, size=1, circles_max=DEFAULT_CIRCLES_MAX
+):
     fig = plt.figure(figsize=(1, 1))
     for i in range(size):
         circle_num = random.randint(0, circles_max - 1)
