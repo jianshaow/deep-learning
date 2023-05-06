@@ -37,6 +37,7 @@ class Model:
 
         model_path, _ = self.__get_model_path()
         self.model = keras.models.load_model(model_path, compile=compile)
+        print(model_path, 'loaded')
         self.model.summary()
         self.__compiled = compile
 
