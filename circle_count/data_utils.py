@@ -59,9 +59,7 @@ def load_sample_data(get_config=DEFAULT_DATA_CONFIG, size=20):
     return x[:size], y[:size]
 
 
-def load_sample_error_data(
-    get_config=DEFAULT_DATA_CONFIG, error_gt=TOLERANCE, size=20
-):
+def load_sample_error_data(get_config=DEFAULT_DATA_CONFIG, error_gt=TOLERANCE, size=20):
     x, y = load_error_data(get_config, error_gt)
     return x[:size], y[:size]
 
@@ -98,7 +96,7 @@ def build_error_data(
             error = abs(pred_circle_num - circle_nums[i])
             if error > tolerance:
                 if dry_run:
-                    print(pred_circle_num, circle_nums[i])
+                    print(pred_circle_num, circle_nums[i], 'error =', error)
                 else:
                     x[added] = images[i]
                     y[added] = circle_nums[i]
@@ -115,7 +113,7 @@ def build_error_data(
                 if added >= ERROR_DATA_SIZE:
                     break
         handled += ERROR_BATCH_SIZE
-        print(added, 'error data added per', handled)
+        print(added, 'error data added per', handled, 'with tolerance', tolerance)
 
     if not dry_run:
         if append:
@@ -131,8 +129,14 @@ def show_data(get_config=DEFAULT_DATA_CONFIG):
     __show_data(load_data(get_config), 'data')
 
 
-def show_error_data(get_config=DEFAULT_DATA_CONFIG, error_gt=TOLERANCE, tolerance=TOLERANCE):
-    __show_data(load_error_data(get_config, error_gt), 'error-data(%s)' % tolerance, tolerance=tolerance)
+def show_error_data(
+    get_config=DEFAULT_DATA_CONFIG, error_gt=TOLERANCE, tolerance=TOLERANCE
+):
+    __show_data(
+        load_error_data(get_config, error_gt),
+        'error-data(%s)' % tolerance,
+        tolerance=tolerance,
+    )
 
 
 def __show_data(data, title='data', tolerance=TOLERANCE):
@@ -154,9 +158,13 @@ if __name__ == '__main__':
             exit(0)
     show_data()
     # import cc_model
+
     # model = cc_model.load_model()
     # build_error_data(model)
     # build_error_data(model, tolerance=0.2)
     # build_error_data(model, append=True)
+    # build_error_data(model, tolerance=0.2, append=True)
     # build_error_data(model, dry_run=True)
+    # build_error_data(model, tolerance=0.2, dry_run=True)
+    # show_error_data()
     # show_error_data()
