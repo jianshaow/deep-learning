@@ -82,7 +82,7 @@ class Model:
             epochs=epochs,
             validation_data=test_data,
             callbacks=[
-                vis.matplotlib_callback(),
+                vis.matplotlib_callback(show_model=False),
                 vis.tensorboard_callback('circle_count'),
             ],
         )

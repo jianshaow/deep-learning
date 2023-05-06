@@ -156,6 +156,7 @@ if __name__ == '__main__':
     # import cc_model
     # model = cc_model.load_model()
     # build_error_data(model)
+    # build_error_data(model, tolerance=0.2)
     # build_error_data(model, append=True)
-    # build_error_data(dry_run=True)
+    # build_error_data(model, dry_run=True)
     # show_error_data()
