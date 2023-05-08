@@ -20,19 +20,18 @@ def data_config(r_lower, r_upper=None, circles_max=DEFAULT_CIRCLES_MAX):
     config = __base_data_config(r_lower, r_upper, circles_max)
 
     def get_config(key='radius', **kwargs):
-        match key:
-            case 'radius':
-                if r_lower and r_upper:
-                    return random.randint(r_lower, r_upper)
-                else:
-                    return r_lower
-            case 'error_path':
-                if kwargs.get('error_gt'):
-                    error_gt = kwargs['error_gt']
-                else:
-                    error_gt = 0
-                error_data_file = '%s.error_gt-%s.npz' % (config['name'], error_gt)
-                return os.path.join(DATA_SET_PATH, error_data_file)
+        if key== 'radius':
+            if r_lower and r_upper:
+                return random.randint(r_lower, r_upper)
+            else:
+                return r_lower
+        elif key == 'error_path':
+            if kwargs.get('error_gt'):
+                error_gt = kwargs['error_gt']
+            else:
+                error_gt = 0
+            error_data_file = '%s.error_gt-%s.npz' % (config['name'], error_gt)
+            return os.path.join(DATA_SET_PATH, error_data_file)
 
         return config[key]
 
