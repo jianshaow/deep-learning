@@ -156,9 +156,7 @@ if __name__ == '__main__':
             func = getattr(mod, cmd)
             func()
             exit(0)
-    show_data()
     # import cc_model
-
     # model = cc_model.load_model()
     # build_error_data(model)
     # build_error_data(model, tolerance=0.2)
@@ -166,5 +164,6 @@ if __name__ == '__main__':
     # build_error_data(model, tolerance=0.2, append=True)
     # build_error_data(model, dry_run=True)
     # build_error_data(model, tolerance=0.2, dry_run=True)
+    show_data()
     # show_error_data()
-    # show_error_data()
+    # show_error_data(error_gt=0.2)

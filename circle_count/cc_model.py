@@ -241,10 +241,10 @@ def load_model(type=RegressionModel, params=DEFAULT_MODEL_PARAMS, compile=False)
 
 if __name__ == '__main__':
     import data_utils as dutils
-
     data = dutils.gen_sample_data(size=1000)
     # data = dutils.load_data()
     # data = dutils.load_error_data()
+    # data = dutils.load_error_data(error_gt=0.2)
 
     model = RegressionModel(DEFAULT_MODEL_PARAMS)
     model.load(compile=True)

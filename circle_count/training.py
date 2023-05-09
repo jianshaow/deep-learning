@@ -52,7 +52,7 @@ if __name__ == '__main__':
     re_run()
     # re_run(learning_rate=0.0001)
     # re_run(learning_rate=0.000001)
-    # re_run(data_loader=utils.load_error_data)
+    # re_run(data_loader=utils.load_error_data, epochs=40)
     # re_run(data_loader=lambda: utils.load_error_data(error_gt=0.2), epochs=40)
     # re_run(data_loader=utils.load_error_data, learning_rate=0.0001)
     # re_run(data_loader=utils.load_error_data, learning_rate=0.000001)
