@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:2.12.0-gpu
+FROM tensorflow/tensorflow:2.14.0-gpu
 
 COPY deep-learning.packages.txt /deep-learning.packages.txt
 RUN /setup.packages.sh /deep-learning.packages.txt && \
