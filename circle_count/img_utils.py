@@ -11,6 +11,7 @@ DEFAULT_RADIUS = 6
 SPACE = 2
 TOLERANCE = 0.1
 
+
 def __get_radius():
     return DEFAULT_RADIUS
 
@@ -41,14 +42,11 @@ def __random_circles_image(fig, circle_num, get_radius=__get_radius):
         circle = ptchs.Circle(center, radius, fill=False)
         ax.add_artist(circle)
 
-    canvas = fig.canvas
-    canvas.draw()
-    fig_size = fig.get_size_inches()
-    fig_dpi = fig.get_dpi()
-    width, height = fig_size * fig_dpi
-    data = np.frombuffer(canvas.tostring_rgb(), np.uint8).reshape(
-        (int(height), int(width), 3)
-    )
+    fig.canvas.draw()
+    width, height = fig.canvas.get_width_height()
+    rgb_array = np.frombuffer(fig.canvas.buffer_rgba(), np.uint8)
+    data = rgb_array.reshape((height, width, 4))[:, :, :3]
+
     from tensorflow import image as tfimg
 
     data = tfimg.rgb_to_grayscale(data)
@@ -90,7 +88,9 @@ def cls_to_num(label):
     return np.argmax(label)
 
 
-def show_images(data, preds=None, title='data', tolerance=TOLERANCE, random_sample=True):
+def show_images(
+    data, preds=None, title='data', tolerance=TOLERANCE, random_sample=True
+):
     images, labels = data
     fig = plt.figure(figsize=(8, 7))
     fig.subplots_adjust(0.05, 0.05, 0.95, 0.9)
