@@ -25,20 +25,14 @@ source tf-2/bin/activate
 # update pip
 pip install --upgrade pip
 
-# install tensorflow
-pip install tensorflow
-
-# install matplotlib for producing figures
-pip install matplotlib
-
-# for show the model graph, it depends on Graphviz
-pip install pydot_ng
+# install dependencies
+pip install -r requirements.txt
 ~~~
 
 ## docker for wsl2 with GPU support
 ~~~ shell
 # build docker image
-docker build -t jianshao/tf-gpu:2.14.0 docker/
+docker build -t jianshao/tf-gpu:2.14.0 .
 docker push jianshao/tf-gpu:2.14.0
 
 # run on wsl2 with GPU suport

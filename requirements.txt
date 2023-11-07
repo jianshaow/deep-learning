@@ -1,0 +1,3 @@
+tensorflow
+matplotlib
+pydot_ng
