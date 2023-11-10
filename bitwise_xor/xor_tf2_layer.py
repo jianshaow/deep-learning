@@ -2,7 +2,7 @@ import tensorflow as tf
 from common import data_utils as utils
 from common import layers, models
 from common import vis_utils as vis
-from common.data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
+from data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
 from tensorflow import keras
 
 

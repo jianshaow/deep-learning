@@ -13,7 +13,7 @@ def __seq_xor(seq_pair):
     xors = np.zeros((seq_pair.shape[1]), dtype=np.uint8)
 
     for i in range(len(seq_pair[0])):
-        xors[i] = (seq_pair[0][i] ^ seq_pair[1][i])
+        xors[i] = seq_pair[0][i] ^ seq_pair[1][i]
     return xors
 
 
@@ -52,10 +52,8 @@ def gen_xor_test_data(size=TEST_DATA_SIZE):
 
 
 def gen_xor_train_dataset():
-    return tf.data.Dataset.from_tensor_slices(
-        gen_xor_train_data())
+    return tf.data.Dataset.from_tensor_slices(gen_xor_train_data())
 
 
 def gen_xor_test_dataset():
-    return tf.data.Dataset.from_tensor_slices(
-        gen_xor_test_data())
+    return tf.data.Dataset.from_tensor_slices(gen_xor_test_data())
