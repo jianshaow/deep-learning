@@ -17,10 +17,10 @@ sudo apt-get install python3-tk
 sudo apt-get install graphviz
 
 # create a virtual environment
-python -m venv --system-site-packages tf-2
+python -m venv .venv
 
 # activate the env
-source tf-2/bin/activate
+source .venv/bin/activate
 
 # update pip
 pip install --upgrade pip
