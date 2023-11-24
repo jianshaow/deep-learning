@@ -1,4 +1,4 @@
-# deep-learning
+# tensorflow
 
 ## prepare devel environment
 python > 3.5
