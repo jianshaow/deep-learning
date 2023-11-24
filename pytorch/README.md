@@ -11,10 +11,10 @@ sudo apt-get install python3-pip
 sudo apt-get install python3-venv
 
 # create a virtual environment
-python -m venv --system-site-packages torch
+python -m venv .venv
 
 # activate the env
-source torch/bin/activate
+source .venv/bin/activate
 
 # update pip
 pip install --upgrade pip
