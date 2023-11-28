@@ -1,0 +1,4 @@
+{
+	"name": "DL-TF",
+	"image": "jianshao/tf-gpu:2.15.0"
+}
