@@ -33,7 +33,9 @@ pip install -r requirements.txt
 ~~~ shell
 # build docker image
 export image_tag=2.15.0
-docker build -t jianshao/tf-gpu:$image_tag .
+docker build -t jianshao/tf-dev:$image_tag -f Dockerfile.dev .
+docker build -t jianshao/tf-gpu:$image_tag -f Dockerfile.gpu .
+docker push jianshao/tf-dev:$image_tag
 docker push jianshao/tf-gpu:$image_tag
 
 # run on wsl2 with GPU suport
