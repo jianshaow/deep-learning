@@ -1,4 +1,10 @@
 {
 	"name": "DL-TF",
-	"image": "jianshao/tf-dev:2.15.0"
+	"image": "jianshao/tf-dev:2.15.0",
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {}
+	},
+	"remoteEnv": {
+		"PYTHONPATH": "."
+	}
 }

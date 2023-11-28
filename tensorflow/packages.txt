@@ -1,5 +1,2 @@
 python3-tk
 graphviz
-git
-git-gui
-git-lfs
