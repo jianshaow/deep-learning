@@ -41,7 +41,8 @@ docker push jianshao/tf-gpu:$image_tag
 # run on wsl2 with GPU suport
 docker run --name dl-tensorflow --gpus all -it \
        -v /tmp/.X11-unix:/tmp/.X11-unix -v /mnt/wslg:/mnt/wslg \
-       -v $PWD:/home/devel/workspace -v $HOME/.deep-learning:/home/devel/.deep-learning \
+       -v $PWD:/workspaces/tensorflow -w /workspaces/tensorflow \
+       -v $HOME/.deep-learning:/home/devel/.deep-learning \
        -e DISPLAY -e WAYLAND_DISPLAY -e XDG_RUNTIME_DIR -e PULSE_SERVER \
        jianshao/tf-gpu:$image_tag
 ~~~
