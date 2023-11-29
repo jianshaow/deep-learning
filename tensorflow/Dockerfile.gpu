@@ -9,8 +9,7 @@ RUN /setup.packages.sh /packages.txt && \
 USER devel
 ENV HOME=/home/devel
 ENV PATH=$HOME/.local/bin:$PATH
-ENV PYTHONPATH=$HOME/workspace
-WORKDIR $HOME/workspace
+WORKDIR /workspace
 
 RUN pip install --no-cache-dir --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple && \
     pip install --no-cache-dir matplotlib pydot_ng -i https://pypi.tuna.tsinghua.edu.cn/simple
