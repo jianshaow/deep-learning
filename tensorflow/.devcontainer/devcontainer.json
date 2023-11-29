@@ -7,6 +7,9 @@
 	"remoteEnv": {
 		"PYTHONPATH": "."
 	},
+	"mounts": [
+		{"source": "${localEnv:HOME}/.deep-learning", "target": "/home/devel/.deep-learning", "type": "bind"}
+	],
 	"customizations": {
 		"vscode": {
 			"extensions": [
