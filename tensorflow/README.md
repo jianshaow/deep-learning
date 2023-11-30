@@ -29,7 +29,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ~~~
 
-## docker for wsl2 with GPU support
+## docker for wsl2
 ~~~ shell
 # build docker image
 export image_tag=2.15.0
