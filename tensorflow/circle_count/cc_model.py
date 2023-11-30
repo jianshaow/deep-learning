@@ -268,7 +268,7 @@ if __name__ == "__main__":
     # data = dutils.load_error_data()
     # data = dutils.load_error_data(error_gt=0.2)
 
-    # model = new_model(RegressionModel, DEFAULT_MODEL_PARAMS)
-    model = new_model(type=ConvRegModel, params=DEFAULT_MODEL_PARAMS)
+    # model = new_model(DEFAULT_MODEL_PARAMS)
+    model = new_model(params=DEFAULT_MODEL_PARAMS)
     model.load(compile=True)
     model.verify(data)

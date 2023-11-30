@@ -41,15 +41,16 @@ def demo_model(data_loader=lambda: utils.gen_sample_data(size=100)):
 
 
 def __new_model(model_params=DEFAULT_MODEL_PARAMS):
+    # model_params["model_type"] = "ClassificationModel"
     return cc_model.new_model(model_params)
 
 
 if __name__ == '__main__':
-    first_run()
+    # first_run()
     # first_run(dry_run=True, epochs=1)
     # first_run(learning_rate=0.0001)
     # first_run(dry_run=True, learning_rate=0.000001)
-    # re_run()
+    re_run()
     # re_run(learning_rate=0.0001)
     # re_run(learning_rate=0.000001)
     # re_run(data_loader=utils.load_error_data, epochs=40)
@@ -59,3 +60,4 @@ if __name__ == '__main__':
     # demo_model()
     # demo_model(data_loader=lambda: utils.load_sample_data(size=1000))
     # demo_model(data_loader=lambda: utils.load_sample_error_data(size=1000))
+    pass
