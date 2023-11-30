@@ -24,4 +24,9 @@ pip install -r requirements.txt --index-url https://download.pytorch.org/whl/cpu
 
 # install dependencies for cuda12
 pip install -r requirements.txt --index-url https://download.pytorch.org/whl/cu121
+
+# visualization
+pip install matplotlib
+pip install pydot_ng
+
 ~~~
