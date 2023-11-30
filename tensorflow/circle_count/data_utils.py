@@ -20,24 +20,24 @@ def __save_dataset(path, data):
         os.makedirs(DATA_SET_PATH)
 
     np.savez(path, x=x, y=y)
-    print(path, 'saved')
+    print(path, "saved")
 
 
 def __load_dataset(path):
     with np.load(path) as dataset:
-        x = dataset['x']
-        y = dataset['y']
-        print(path, 'loaded')
+        x = dataset["x"]
+        y = dataset["y"]
+        print(path, "loaded")
 
         return (x, y)
 
 
 def load_error_data(get_config=DEFAULT_DATA_CONFIG, error_gt=TOLERANCE):
-    return __load_dataset(get_config('error_path', error_gt=error_gt))
+    return __load_dataset(get_config("error_path", error_gt=error_gt))
 
 
 def load_data(get_config=DEFAULT_DATA_CONFIG):
-    return __load_dataset(get_config('path'))
+    return __load_dataset(get_config("path"))
 
 
 def gen_sample_data(get_config=DEFAULT_DATA_CONFIG, size=1):
@@ -47,9 +47,9 @@ def gen_sample_data(get_config=DEFAULT_DATA_CONFIG, size=1):
         x[index] = images
         y[index] = circles
         if size >= 1000 and (index + 1) % 1000 == 0:
-            print(index + 1, 'data generated...')
+            print(index + 1, "data generated...")
 
-    img.random_circles_images(handle, get_config, size, get_config('circles_max'))
+    img.random_circles_images(handle, get_config, size, get_config("circles_max"))
 
     return x, y
 
@@ -65,11 +65,11 @@ def load_sample_error_data(get_config=DEFAULT_DATA_CONFIG, error_gt=TOLERANCE, s
 
 
 def build_data(get_config=DEFAULT_DATA_CONFIG):
-    print('generating train data...')
+    print("generating train data...")
     x, y = gen_sample_data(get_config, DATA_SIZE)
 
-    __save_dataset(get_config('path'), (x, y))
-    print('data [' + get_config('name') + '] saved')
+    __save_dataset(get_config("path"), (x, y))
+    print("data [" + get_config("name") + "] saved")
 
 
 def build_error_data(
@@ -96,14 +96,14 @@ def build_error_data(
             error = abs(pred_circle_num - circle_nums[i])
             if error > tolerance:
                 if dry_run:
-                    print(pred_circle_num, circle_nums[i], 'error =', error)
+                    print(pred_circle_num, circle_nums[i], "error =", error)
                 else:
                     x[added] = images[i]
                     y[added] = circle_nums[i]
                 added += 1
                 if added >= ERROR_DATA_SIZE:
                     break
-                if random.randint(0, get_config('circles_max') - 1) == 0:
+                if random.randint(0, get_config("circles_max") - 1) == 0:
                     if dry_run:
                         print(0, 0)
                     else:
@@ -113,7 +113,7 @@ def build_error_data(
                 if added >= ERROR_DATA_SIZE:
                     break
         handled += ERROR_BATCH_SIZE
-        print(added, 'error data added per', handled, 'with tolerance', tolerance)
+        print(added, "error data added per", handled, "with tolerance", tolerance)
 
     if not dry_run:
         if append:
@@ -121,12 +121,12 @@ def build_error_data(
             x = np.concatenate((x, x_exist))
             y = np.concatenate((y, y_exist))
 
-        __save_dataset(get_config('error_path', error_gt=tolerance), (x, y))
-        print('error data [' + get_config('name') + '] saved')
+        __save_dataset(get_config("error_path", error_gt=tolerance), (x, y))
+        print("error data [" + get_config("name") + "] saved")
 
 
 def show_data(get_config=DEFAULT_DATA_CONFIG):
-    __show_data(load_data(get_config), 'data')
+    __show_data(load_data(get_config), "data")
 
 
 def show_error_data(
@@ -134,22 +134,22 @@ def show_error_data(
 ):
     __show_data(
         load_error_data(get_config, error_gt),
-        'error-data(%s)' % tolerance,
+        "error-data(%s)" % tolerance,
         tolerance=tolerance,
     )
 
 
-def __show_data(data, title='data', tolerance=TOLERANCE):
+def __show_data(data, title="data", tolerance=TOLERANCE):
     x, y = data
 
     img.show_images(data, title=title, tolerance=tolerance)
 
     i = random.randint(0, len(x) - 1)
-    img.show_image(x[i], y[i], title=title + ' [' + str(i) + ']', tolerance=tolerance)
+    img.show_image(x[i], y[i], title=title + " [" + str(i) + "]", tolerance=tolerance)
 
 
-if __name__ == '__main__':
-    mod = sys.modules['__main__']
+if __name__ == "__main__":
+    mod = sys.modules["__main__"]
     if len(sys.argv) == 2:
         cmd = sys.argv[1]
         if hasattr(mod, cmd):

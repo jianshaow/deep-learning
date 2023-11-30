@@ -31,13 +31,13 @@ def __random_circles_image(fig, circle_num, get_radius=__get_radius):
     ax = fig.add_axes([0, 0, 1, 1], frameon=False)
     ax.set_xlim(0, SIDE_LIMIT)
     ax.set_ylim(0, SIDE_LIMIT)
-    ax.axis('off')
+    ax.axis("off")
 
     circle_params = []
     for _ in range(circle_num):
         radius = get_radius()
         center = __random_center(circle_params, radius)
-        circle_param = {'r': radius, 'c': center}
+        circle_param = {"r": radius, "c": center}
         circle_params.append(circle_param)
         circle = ptchs.Circle(center, radius, fill=False)
         ax.add_artist(circle)
@@ -47,10 +47,6 @@ def __random_circles_image(fig, circle_num, get_radius=__get_radius):
     rgb_array = np.frombuffer(fig.canvas.buffer_rgba(), np.uint8)
     data = rgb_array.reshape((height, width, 4))[:, :, :3]
 
-    from tensorflow import image as tfimg
-
-    data = tfimg.rgb_to_grayscale(data)
-    data = np.squeeze(data)
     fig.clf()
     return data
 
@@ -64,9 +60,9 @@ def __random_center(circle_params, radius):
         y = random.randint(center_lower, center_upper)
         accepted = True
         for circle_param in circle_params:
-            center_x, center_y = circle_param['c']
+            center_x, center_y = circle_param["c"]
             distance = np.sqrt(np.square(x - center_x) + np.square(y - center_y))
-            if distance <= radius + circle_param['r'] + SPACE:
+            if distance <= radius + circle_param["r"] + SPACE:
                 accepted = False
                 break
         if accepted:
@@ -75,13 +71,13 @@ def __random_center(circle_params, radius):
 
 
 def zero_data(size=1):
-    x = np.zeros((size, 100, 100), dtype=np.uint8)
+    x = np.zeros((size, 100, 100, 3), dtype=np.uint8)
     y = np.zeros((size), dtype=np.uint8)
     return x, y
 
 
 def blank_image():
-    return np.full((100, 100), 255, dtype=np.uint8)
+    return np.full((100, 100, 3), 255, dtype=np.uint8)
 
 
 def cls_to_num(label):
@@ -89,7 +85,7 @@ def cls_to_num(label):
 
 
 def show_images(
-    data, preds=None, title='data', tolerance=TOLERANCE, random_sample=True
+    data, preds=None, title="data", tolerance=TOLERANCE, random_sample=True
 ):
     images, labels = data
     fig = plt.figure(figsize=(8, 7))
@@ -100,7 +96,7 @@ def show_images(
     else:
         start = 0
 
-    fig.suptitle(title + ' [' + str(start) + ' - ' + str(start + 20 - 1) + ']')
+    fig.suptitle(title + " [" + str(start) + " - " + str(start + 20 - 1) + "]")
 
     errors = 0
     for i in range(20):
@@ -128,15 +124,15 @@ def show_images(
 
         if error > tolerance:
             errors += 1
-            print('image[', index, ']', xlabel, '!=', label, 'error =', error)
-            t.set_color('r')
+            print("image[", index, "]", xlabel, "!=", label, "error =", error)
+            t.set_color("r")
     plt.show()
 
     if preds is not None:
-        print('error rate is', errors / 20, 'with tolerance', tolerance)
+        print("error rate is", errors / 20, "with tolerance", tolerance)
 
 
-def show_image(image, label, pred=None, title='image', tolerance=TOLERANCE):
+def show_image(image, label, pred=None, title="image", tolerance=TOLERANCE):
     fig = plt.figure(figsize=(5, 6))
     fig.suptitle(title)
     ax = fig.add_axes([0.05, 0.05, 0.9, 0.9])
@@ -158,12 +154,12 @@ def show_image(image, label, pred=None, title='image', tolerance=TOLERANCE):
 
     t = ax.set_xlabel(xlabel)
     if error > tolerance:
-        print(xlabel, '!=', label, 'error =', error)
-        t.set_color('r')
+        print(xlabel, "!=", label, "error =", error)
+        t.set_color("r")
     plt.show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     images, nums = zero_data(20)
 
     def handle(i, image, num):
