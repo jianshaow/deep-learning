@@ -7,7 +7,12 @@ TRAIN_EPOCHS = 10
 RERUN_EPOCHS = 20
 
 
-def first_run(data_loader=utils.load_data, learning_rate=LEARNING_RATE, epochs=TRAIN_EPOCHS, dry_run=False):
+def first_run(
+    data_loader=utils.load_data,
+    learning_rate=LEARNING_RATE,
+    epochs=TRAIN_EPOCHS,
+    dry_run=False,
+):
     model = __new_model()
     model.build()
     model.compile(learning_rate)
@@ -41,11 +46,11 @@ def demo_model(data_loader=lambda: utils.gen_sample_data(size=100)):
 
 
 def __new_model(model_params=DEFAULT_MODEL_PARAMS):
-    # model_params["model_type"] = "ClassificationModel"
+    # model_params = model_params | {"model_type": "ClassificationModel"}
     return cc_model.new_model(model_params)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # first_run()
     # first_run(dry_run=True, epochs=1)
     # first_run(learning_rate=0.0001)
