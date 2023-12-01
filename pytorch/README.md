@@ -10,6 +10,12 @@ sudo apt-get install python3-pip
 # install venv
 sudo apt-get install python3-venv
 
+# install tkinter
+sudo apt-get install python3-tk
+
+# install graphviz
+sudo apt-get install graphviz
+
 # create a virtual environment
 python -m venv .venv
 

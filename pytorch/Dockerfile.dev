@@ -1,13 +1,7 @@
-ARG BASE_IMAGE=python
-ARG TAG=3.10-slim
+ARG BASE_IMAGE=jianshao/dl-dev-base
+ARG TAG=3.11-slim
 
 FROM ${BASE_IMAGE}:${TAG} as torch-dev
-
-RUN useradd -ms /bin/bash devel
-USER devel
-ENV HOME=/home/devel
-ENV PATH=$HOME/.local/bin:$PATH
-WORKDIR /workspaces
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple && \
