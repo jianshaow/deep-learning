@@ -6,14 +6,17 @@ import torch
 from common import vis_utils as vis
 from data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
 
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+print("running on", device)
+
 
 def run():
     train_data, train_labels = utils.gen_xor_train_data()
-    train_data = torch.from_numpy(train_data)
-    train_data = train_data.to(torch.float)
-    train_labels = torch.from_numpy(train_labels)
-    train_labels = train_labels.to(torch.float)
-    test_data = utils.gen_xor_test_data()
+    train_data = torch.from_numpy(train_data).to(torch.float).to(device)
+    train_labels = torch.from_numpy(train_labels).to(torch.float).to(device)
+    test_data, test_labels = utils.gen_xor_test_data()
+    test_data = torch.from_numpy(test_data).to(torch.float).to(device)
+    test_labels = torch.from_numpy(test_labels).to(torch.float).to(device)
 
     model = nn.Sequential(
         nn.Flatten(start_dim=0),
@@ -25,7 +28,8 @@ def run():
         nn.ReLU(),
         nn.Linear(64, SEQUENCE_SIZE),
         nn.Sigmoid(),
-    )
+    ).to(device)
+    print("model infomation:")
     print(model)
 
     optimizer = optim.Adam(model.parameters())
@@ -34,16 +38,27 @@ def run():
     for epoch in range(TRAIN_EPOCH):
         model.train()
         train_loss = 0
-        size = len(train_data)
-        for i in range(size):
+        train_size = len(train_data)
+        for i in range(train_size):
+            optimizer.zero_grad()
             pred = model(train_data[i])
             loss = loss_fn(pred, train_labels[i])
             loss.backward()
             optimizer.step()
-            optimizer.zero_grad()
             train_loss += loss.item()
+        model.eval()
+        test_size = len(test_data)
+        val_loss = 0
+        for i in range(test_size):
+            pred = model(test_data[i])
+            loss = loss_fn(pred, test_labels[i])
+            val_loss += loss.item()
         print("Epoch {}/{}".format(epoch + 1, TRAIN_EPOCH))
-        print("loss: {}".format(train_loss / size))
+        print(
+            "loss: {} - val_loss: {}".format(
+                train_loss / train_size, val_loss / test_size
+            )
+        )
 
     example_data = utils.random_seq_pairs(1)
     model.eval()
