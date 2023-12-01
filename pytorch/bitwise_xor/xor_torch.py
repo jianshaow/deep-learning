@@ -65,7 +65,7 @@ def run():
     example_result = model(torch.from_numpy(example_data[0]).to(torch.float).to(device))
     vis.build_multi_bar_figure(
         ["seq1", "seq2", "xor"],
-        [example_data[0][0], example_data[0][1], example_result.cpu().detach().numpy()],
+        [example_data[0][0], example_data[0][1], example_result.tolist()],
     )
     vis.show_all()
 
