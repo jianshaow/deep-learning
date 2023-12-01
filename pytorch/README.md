@@ -51,4 +51,4 @@ docker run --name dl-pytorch --gpus all -it \
        -v $PWD:/workspaces/pytorch -w /workspaces/pytorch \
        -v $HOME/.deep-learning:/home/devel/.deep-learning \
        -e PYTHONPATH=. -e DISPLAY -e WAYLAND_DISPLAY -e XDG_RUNTIME_DIR -e PULSE_SERVER \
-       jianshao/torch-gpu:$image_tag
+       jianshao/torch-gpu:$image_tag bash
