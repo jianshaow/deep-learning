@@ -40,7 +40,7 @@ pip install pydot_ng
 ~~~ shell
 # build docker image
 export image_tag=cuda12.1
-docker build -t jianshao/torch-dev:$image_tag -f Dockerfile.dev .
+docker build -t jianshao/torch-dev:cpu -f Dockerfile.dev .
 docker build -t jianshao/torch-gpu:$image_tag -f Dockerfile.gpu .
 docker push jianshao/torch-dev:$image_tag
 docker push jianshao/torch-gpu:$image_tag

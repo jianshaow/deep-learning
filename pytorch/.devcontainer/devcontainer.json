@@ -1,6 +1,6 @@
 {
-	"name": "DL-TF",
-	"image": "jianshao/torch-dev:cuda12.1",
+	"name": "DL-Torch",
+	"image": "jianshao/torch-dev:cpu",
 	"features": {
 		"ghcr.io/devcontainers/features/git:1": {}
 	},
@@ -16,7 +16,8 @@
 				"ms-python.python",
 				"ms-python.vscode-pylance",
 				"ms-python.black-formatter",
-				"ms-python.isort"
+				"ms-python.isort",
+				"alphabotsec.vscode-eclipse-keybindings"
 			]
 		}
 	}
