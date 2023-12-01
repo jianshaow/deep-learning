@@ -6,7 +6,7 @@ import torch
 from common import vis_utils as vis
 from data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
 
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("running on", device)
 
 
@@ -62,10 +62,10 @@ def run():
 
     example_data = utils.random_seq_pairs(1)
     model.eval()
-    example_result = model(torch.from_numpy(example_data[0]).to(torch.float))
+    example_result = model(torch.from_numpy(example_data[0]).to(torch.float).to(device))
     vis.build_multi_bar_figure(
         ["seq1", "seq2", "xor"],
-        [example_data[0][0], example_data[0][1], example_result.detach().numpy()],
+        [example_data[0][0], example_data[0][1], example_result.cpu().detach().numpy()],
     )
     vis.show_all()
 
