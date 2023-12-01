@@ -1,6 +1,72 @@
+import tempfile
 from os import path
 
+import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
+import keras
+
+
+class MatplotlibCallback(keras.callbacks.Callback):
+    def __init__(self, show_model=True, show_metrics=True, dynamic_plot=True):
+        super().__init__()
+        self.metrics = dict()
+        self.show_model = show_model
+        self.show_metrics = show_metrics
+        self.dynamic_plot = dynamic_plot
+        self.history_figure = None
+
+    def on_train_begin(self, logs=None):
+        if self.show_model:
+            build_model_figure(self.model)
+            show_all()
+
+        if self.show_metrics and self.dynamic_plot:
+            self.history_figure = plt.figure(figsize=(9, 6))
+            plt.ion()
+
+    def on_epoch_end(self, epoch, logs=None):
+        if self.show_metrics and self.dynamic_plot:
+            self.__save_history(logs)
+
+            self.history_figure.clf()
+            self.__plot_history()
+
+            plt.pause(0.005)
+
+    def on_train_end(self, logs=None):
+        if self.show_metrics:
+            if self.dynamic_plot:
+                plt.ioff()
+            else:
+                self.metrics = self.model.history.history
+                self.__plot_history()
+            show_all()
+
+    def __save_history(self, logs):
+        for name, value in logs.items():
+            history = self.metrics.get(name)
+            if not history:
+                history = []
+                self.metrics[name] = history
+            history.append(value)
+
+    def __plot_history(self):
+        epochs = self.params["epochs"]
+        _plot_history(self.history_figure, epochs, self.metrics)
+
+
+def build_model_figure(model, dpi=100):
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        model_image_file = path.join(tmpdirname, "model.png")
+        keras.utils.plot_model(model, show_shapes=True, to_file=model_image_file)
+        img = mpimg.imread(model_image_file)
+
+        figsize = (img.shape[1] * (1.25) / dpi, img.shape[0] / dpi)
+        figure = plt.figure(figsize=figsize, dpi=dpi)
+        ax = figure.add_axes([0, 0, 1, 1])
+        ax.set_axis_off()
+        ax.imshow(img)
+    return figure
 
 
 def build_history_figure(history):
@@ -125,4 +191,10 @@ def __annotate(ax, text, xy, xytext, c="green"):
         textcoords="offset points",
         ha="right",
         arrowprops=dict(facecolor="black", arrowstyle="-|>"),
+    )
+
+
+def matplotlib_callback(show_model=True, show_metrics=True, dynamic_plot=True):
+    return MatplotlibCallback(
+        show_model=show_model, show_metrics=show_metrics, dynamic_plot=dynamic_plot
     )

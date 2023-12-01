@@ -6,7 +6,6 @@ import torch
 from common import vis_utils as vis
 from data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
 
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
 def run():
     train_data, train_labels = utils.gen_xor_train_data()
