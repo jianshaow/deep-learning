@@ -1,5 +1,5 @@
 import tensorflow as tf
-from common import data_utils as utils
+import data_utils as utils
 from common import layers, models
 from common import vis_utils as vis
 from data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
