@@ -1,19 +1,20 @@
 import cc_model
 import data_utils as utils
 
-from circle_count import DEFAULT_MODEL_PARAMS, LEARNING_RATE
+from circle_count import CONV_MODEL_PARAMS, DEFAULT_MODEL_PARAMS, LEARNING_RATE
 
 TRAIN_EPOCHS = 10
 RERUN_EPOCHS = 20
 
 
 def first_run(
+    model_params=DEFAULT_MODEL_PARAMS,
     data_loader=utils.load_data,
     learning_rate=LEARNING_RATE,
     epochs=TRAIN_EPOCHS,
     dry_run=False,
 ):
-    model = __new_model()
+    model = __new_model(model_params)
     model.build()
     model.compile(learning_rate)
     model.train(data_loader(), epochs=epochs)
@@ -26,9 +27,12 @@ def first_run(
 
 
 def re_run(
-    data_loader=utils.load_data, learning_rate=LEARNING_RATE, epochs=RERUN_EPOCHS
+    model_params=DEFAULT_MODEL_PARAMS,
+    data_loader=utils.load_data,
+    learning_rate=LEARNING_RATE,
+    epochs=RERUN_EPOCHS,
 ):
-    model = __new_model()
+    model = __new_model(model_params)
     model.load()
     model.compile(learning_rate)
     model.train(data_loader(), epochs=epochs)
@@ -38,24 +42,27 @@ def re_run(
     return model
 
 
-def demo_model(data_loader=lambda: utils.gen_sample_data(size=100)):
-    model = __new_model()
+def demo_model(
+    model_params=DEFAULT_MODEL_PARAMS,
+    data_loader=lambda: utils.gen_sample_data(size=100),
+):
+    model = __new_model(model_params)
     model.load()
     model.compile()
     model.verify(data_loader())
 
 
-def __new_model(model_params=DEFAULT_MODEL_PARAMS):
+def __new_model(model_params):
     # model_params = model_params | {"model_type": "ClassificationModel"}
     return cc_model.new_model(model_params)
 
 
 if __name__ == "__main__":
-    # first_run()
+    first_run(model_params=CONV_MODEL_PARAMS)
     # first_run(dry_run=True, epochs=1)
     # first_run(learning_rate=0.0001)
     # first_run(dry_run=True, learning_rate=0.000001)
-    re_run()
+    # re_run(model_params=CONV_MODEL_PARAMS, epochs=10)
     # re_run(learning_rate=0.0001)
     # re_run(learning_rate=0.000001)
     # re_run(data_loader=utils.load_error_data, epochs=40)

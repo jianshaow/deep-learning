@@ -5,7 +5,7 @@ import img_utils as img
 import tensorflow as tf
 from tensorflow import keras
 
-from circle_count import DEFAULT_MODEL_PARAMS, LEARNING_RATE
+from circle_count import CONV_MODEL_PARAMS, DEFAULT_MODEL_PARAMS, LEARNING_RATE
 from common import data_dir
 from common import vis_utils as vis
 
@@ -230,7 +230,10 @@ class ConvRegModel(RegressionModel):
         self.model.add(
             keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_shape)
         )
+        # self.model.add(keras.layers.MaxPooling2D((2, 2)))
+        self.model.add(keras.layers.Conv2D(32, (3, 3), activation="relu"))
         self.model.add(keras.layers.MaxPooling2D((2, 2)))
+        self.model.add(keras.layers.Flatten())
 
 
 def new_model(params=DEFAULT_MODEL_PARAMS):
@@ -268,7 +271,7 @@ if __name__ == "__main__":
     # data = dutils.load_error_data()
     # data = dutils.load_error_data(error_gt=0.2)
 
-    params = DEFAULT_MODEL_PARAMS  # | {"model_type": "ClassificationModel"}
+    params = CONV_MODEL_PARAMS # | {"model_type": "ClassificationModel"}
     model = new_model(params)
     model.load(compile=True)
     model.verify(data)

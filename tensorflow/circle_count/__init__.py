@@ -13,8 +13,8 @@ DEFAULT_MODEL_PARAMS = {
 
 CONV_MODEL_PARAMS = {
     "model_type": "ConvRegModel",
-    "input_shape": (100, 100, 3),
-    "hidden_layers": 2,
+    "input_shape": (100, 100, 1),
+    "hidden_layers": 1,
     "hidden_layer_units": 64,
     "output_units": 6,
 }
