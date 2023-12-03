@@ -149,17 +149,12 @@ class Model:
         for _ in range(layers):
             self.model.add(keras.layers.Dense(units, activation="relu"))
 
-    def _construct_output_layer(self):
-        output_units = self._params["output_units"]
-        self.model.add(keras.layers.Dense(output_units, activation="softmax"))
-
     def _get_model_name(self):
         layers = self._params["hidden_layers"]
         units = self._params["hidden_layer_units"]
-        return "{}.{}-{}".format(MODEL_NAME_PREFIX, layers, units)
-
-    def _get_loss(self):
-        return "sparse_categorical_crossentropy"
+        return "{}.{}.{}-{}".format(
+            MODEL_NAME_PREFIX, self.__class__.__name__, layers, units
+        )
 
     def _get_metrics(self):
         return ["accuracy"]
@@ -186,54 +181,43 @@ class ClassificationModel(Model):
     def __init__(self, params):
         super().__init__(params)
 
-    def _get_model_name(self):
-        layers = self._params["hidden_layers"]
-        units = self._params["hidden_layer_units"]
+    def _get_loss(self):
+        return "sparse_categorical_crossentropy"
+
+    def _construct_output_layer(self):
         output_units = self._params["output_units"]
-        return "{}.cls.{}-{}.{}".format(MODEL_NAME_PREFIX, layers, units, output_units)
+        self.model.add(keras.layers.Dense(output_units, activation="softmax"))
 
 
 class RegressionModel(Model):
     def __init__(self, params):
         super().__init__(params)
 
-    def _get_model_name(self):
-        layers = self._params["hidden_layers"]
-        units = self._params["hidden_layer_units"]
-        output_units = self._params["output_units"]
-        return "{}.reg.{}-{}.{}".format(MODEL_NAME_PREFIX, layers, units, output_units)
-
     def _get_loss(self):
         return "mean_squared_error"
-
-    def _construct_hidden_layer(self):
-        layers = self._params["hidden_layers"]
-        units = self._params["hidden_layer_units"]
-        for _ in range(layers):
-            self.model.add(keras.layers.Dense(units, activation="relu"))
 
     def _construct_output_layer(self):
         self.model.add(keras.layers.Dense(1))
 
 
-class ConvRegModel(RegressionModel):
-    def _get_model_name(self):
-        layers = self._params["hidden_layers"]
-        units = self._params["hidden_layer_units"]
-        output_units = self._params["output_units"]
-        return "{}.convreg.{}-{}.{}".format(
-            MODEL_NAME_PREFIX, layers, units, output_units
-        )
-
+class ConvModel(Model):
     def _construct_input_layer(self):
         input_shape = self._params["input_shape"]
         self.model.add(
             keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_shape)
         )
-        # self.model.add(keras.layers.MaxPooling2D((2, 2)))
+        # self.model.add(keras.layers.MaxPooling2D())
         self.model.add(keras.layers.Conv2D(32, (3, 3), activation="relu"))
-        self.model.add(keras.layers.MaxPooling2D((2, 2)))
+        self.model.add(keras.layers.MaxPooling2D())
         self.model.add(keras.layers.Flatten())
+
+
+class ConvRegModel(RegressionModel, ConvModel):
+    pass
+
+
+class ConvClsModel(ClassificationModel, ConvModel):
+    pass
 
 
 def new_model(params=DEFAULT_MODEL_PARAMS):
@@ -271,7 +255,7 @@ if __name__ == "__main__":
     # data = dutils.load_error_data()
     # data = dutils.load_error_data(error_gt=0.2)
 
-    params = CONV_MODEL_PARAMS # | {"model_type": "ClassificationModel"}
+    params = CONV_MODEL_PARAMS  # | {"model_type": "ClassificationModel"}
     model = new_model(params)
     model.load(compile=True)
     model.verify(data)
