@@ -50,7 +50,7 @@ def gen_sample_data(get_config=DEFAULT_DATA_CONFIG, size=1):
             print(index + 1, "data generated...")
 
     img.random_circles_images(
-        handle, get_config("radius_fn"), size, get_config("quantity_fn")
+        handle, get_config("radius_fn"), get_config("quantity_fn"), size
     )
 
     return x, y
