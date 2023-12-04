@@ -21,7 +21,7 @@ def __get_quantity():
 
 
 def random_circles_images(
-    handle, get_radius=__get_radius, size=1, get_quantity=__get_quantity
+    handle, get_radius=__get_radius, get_quantity=__get_quantity, size=1
 ):
     fig = plt.figure(figsize=(1, 1))
     for i in range(size):
