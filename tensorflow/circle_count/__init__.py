@@ -19,21 +19,39 @@ CONV_MODEL_PARAMS = {
     "output_units": 6,
 }
 
-DEFAULT_CIRCLES_MAX = 6
+DEFAULT_CIRCLES_MAX = 5
 DATA_NAME_PREFIX = "circles"
 DATA_SET_PATH = os.path.join(data_dir, "dataset")
 LEARNING_RATE = 0.00001
 
 
-def data_config(r_lower, r_upper=None, circles_max=DEFAULT_CIRCLES_MAX):
-    config = __base_data_config(r_lower, r_upper, circles_max)
+def data_config(
+    r_lower,
+    r_upper=None,
+    q_lower=DEFAULT_CIRCLES_MAX,
+    q_upper=None,
+):
+    config = __base_data_config(r_lower, r_upper, q_lower, q_upper)
 
-    def get_config(key="radius", **kwargs):
-        if key == "radius":
-            if r_lower and r_upper:
-                return random.randint(r_lower, r_upper)
-            else:
-                return r_lower
+    def get_config(key, **kwargs):
+        if key == "radius_fn":
+
+            def fn():
+                if r_upper is not None:
+                    return random.randint(r_lower, r_upper)
+                else:
+                    return r_lower
+
+            return fn
+        elif key == "quantity_fn":
+
+            def fn():
+                if q_upper is not None:
+                    return random.randint(q_lower, q_upper)
+                else:
+                    return q_lower
+
+            return fn
         elif key == "error_path":
             if kwargs.get("error_gt"):
                 error_gt = kwargs["error_gt"]
@@ -47,20 +65,25 @@ def data_config(r_lower, r_upper=None, circles_max=DEFAULT_CIRCLES_MAX):
     return get_config
 
 
-def __base_data_config(r_lower, r_upper, circles_max):
+def __base_data_config(r_lower, r_upper, q_lower, q_upper):
     config = {}
     config["r_lower"] = r_lower
-    config["circles_max"] = circles_max
+    config["q_lower"] = q_lower
 
-    data_name = "%s.%02d" % (DATA_NAME_PREFIX, r_lower)
+    data_name = "%s.r%02d" % (DATA_NAME_PREFIX, r_lower)
     if r_upper is not None:
         config["r_upper"] = r_upper
         data_name = "%s-%02d" % (data_name, r_upper)
-    data_name = "%s.%02d" % (data_name, circles_max)
+
+    data_name = "%s.q%02d" % (data_name, q_lower)
+    if q_upper is not None:
+        config["q_upper"] = q_upper
+        data_name = "%s-%02d" % (data_name, q_upper)
+
     config["name"] = data_name
     config["path"] = os.path.join(DATA_SET_PATH, data_name + ".npz")
 
     return config
 
 
-DEFAULT_DATA_CONFIG = data_config(6, 8)
+DEFAULT_DATA_CONFIG = data_config(6, 8, 0, DEFAULT_CIRCLES_MAX)

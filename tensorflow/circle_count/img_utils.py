@@ -16,12 +16,16 @@ def __get_radius():
     return DEFAULT_RADIUS
 
 
+def __get_quantity():
+    return random.randint(0, DEFAULT_CIRCLES_MAX)
+
+
 def random_circles_images(
-    handle, get_radius=__get_radius, size=1, circles_max=DEFAULT_CIRCLES_MAX
+    handle, get_radius=__get_radius, size=1, get_quantity=__get_quantity
 ):
     fig = plt.figure(figsize=(1, 1))
     for i in range(size):
-        circle_num = random.randint(0, circles_max - 1)
+        circle_num = get_quantity()
         image = __random_circles_image(fig, circle_num, get_radius)
         handle(i, image, circle_num)
     plt.close(fig)

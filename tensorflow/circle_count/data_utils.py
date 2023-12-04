@@ -49,7 +49,9 @@ def gen_sample_data(get_config=DEFAULT_DATA_CONFIG, size=1):
         if size >= 1000 and (index + 1) % 1000 == 0:
             print(index + 1, "data generated...")
 
-    img.random_circles_images(handle, get_config, size, get_config("circles_max"))
+    img.random_circles_images(
+        handle, get_config("radius_fn"), size, get_config("quantity_fn")
+    )
 
     return x, y
 
@@ -103,7 +105,7 @@ def build_error_data(
                 added += 1
                 if added >= ERROR_DATA_SIZE:
                     break
-                if random.randint(0, get_config("circles_max") - 1) == 0:
+                if random.randint(0, get_config("q_lower")) == 0:
                     if dry_run:
                         print(0, 0)
                     else:
@@ -123,6 +125,10 @@ def build_error_data(
 
         __save_dataset(get_config("error_path", error_gt=tolerance), (x, y))
         print("error data [" + get_config("name") + "] saved")
+
+
+def show_gen_data(get_config=DEFAULT_DATA_CONFIG):
+    __show_data(gen_sample_data(get_config, 20), "data")
 
 
 def show_data(get_config=DEFAULT_DATA_CONFIG):
@@ -164,6 +170,7 @@ if __name__ == "__main__":
     # build_error_data(model, tolerance=0.2, append=True)
     # build_error_data(model, dry_run=True)
     # build_error_data(model, tolerance=0.2, dry_run=True)
+    # show_gen_data()
     show_data()
     # show_error_data()
     # show_error_data(error_gt=0.2)
