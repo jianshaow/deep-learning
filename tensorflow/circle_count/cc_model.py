@@ -5,7 +5,7 @@ import img_utils as img
 import tensorflow as tf
 from tensorflow import keras
 
-from circle_count import CONV_MODEL_PARAMS, DEFAULT_MODEL_PARAMS, LEARNING_RATE
+import circle_count as cc
 from common import data_dir
 from common import vis_utils as vis
 
@@ -41,7 +41,7 @@ class Model:
         self.model.summary()
         self.__compiled = compile
 
-    def compile(self, learning_rate=LEARNING_RATE):
+    def compile(self, learning_rate=cc.LEARNING_RATE):
         if self.model is None:
             raise Exception("model is not initialized, call build or load method")
 
@@ -206,8 +206,9 @@ class ConvModel(Model):
         self.model.add(
             keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_shape)
         )
-        # self.model.add(keras.layers.MaxPooling2D())
         self.model.add(keras.layers.Conv2D(32, (3, 3), activation="relu"))
+        self.model.add(keras.layers.MaxPooling2D())
+        self.model.add(keras.layers.Conv2D(64, (3, 3), activation="relu"))
         self.model.add(keras.layers.MaxPooling2D())
         self.model.add(keras.layers.Flatten())
 
@@ -220,7 +221,7 @@ class ConvClsModel(ClassificationModel, ConvModel):
     pass
 
 
-def new_model(params=DEFAULT_MODEL_PARAMS):
+def new_model(params=cc.DEFAULT_MODEL_PARAMS):
     type = params["model_type"]
     if not type:
         type = RegressionModel
@@ -234,7 +235,7 @@ def new_model(params=DEFAULT_MODEL_PARAMS):
         raise Exception("no such model %s" % type)
 
 
-def load_model(type=RegressionModel, params=DEFAULT_MODEL_PARAMS, compile=False):
+def load_model(type=RegressionModel, params=cc.DEFAULT_MODEL_PARAMS, compile=False):
     if isinstance(type, str):
         model_class = globals()[type]
     else:
@@ -250,12 +251,13 @@ def load_model(type=RegressionModel, params=DEFAULT_MODEL_PARAMS, compile=False)
 if __name__ == "__main__":
     import data_utils as dutils
 
-    data = dutils.gen_sample_data(size=1000)
+    data = dutils.gen_sample_data(get_config=cc.data_config(6, circles_max=8), size=20)
     # data = dutils.load_data()
     # data = dutils.load_error_data()
     # data = dutils.load_error_data(error_gt=0.2)
 
-    params = CONV_MODEL_PARAMS  # | {"model_type": "ClassificationModel"}
+    # params = cc.DEFAULT_MODEL_PARAMS # | {"model_type": "ClassificationModel"}
+    params = cc.CONV_MODEL_PARAMS  # | {"model_type": "ConvClsModel"}
     model = new_model(params)
     model.load(compile=True)
     model.verify(data)

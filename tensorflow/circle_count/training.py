@@ -1,16 +1,16 @@
 import cc_model
 import data_utils as utils
+import circle_count as cc
 
-from circle_count import CONV_MODEL_PARAMS, DEFAULT_MODEL_PARAMS, LEARNING_RATE
 
 TRAIN_EPOCHS = 10
 RERUN_EPOCHS = 20
 
 
 def first_run(
-    model_params=DEFAULT_MODEL_PARAMS,
+    model_params=cc.DEFAULT_MODEL_PARAMS,
     data_loader=utils.load_data,
-    learning_rate=LEARNING_RATE,
+    learning_rate=cc.LEARNING_RATE,
     epochs=TRAIN_EPOCHS,
     dry_run=False,
 ):
@@ -27,9 +27,9 @@ def first_run(
 
 
 def re_run(
-    model_params=DEFAULT_MODEL_PARAMS,
+    model_params=cc.DEFAULT_MODEL_PARAMS,
     data_loader=utils.load_data,
-    learning_rate=LEARNING_RATE,
+    learning_rate=cc.LEARNING_RATE,
     epochs=RERUN_EPOCHS,
 ):
     model = __new_model(model_params)
@@ -43,7 +43,7 @@ def re_run(
 
 
 def demo_model(
-    model_params=DEFAULT_MODEL_PARAMS,
+    model_params=cc.DEFAULT_MODEL_PARAMS,
     data_loader=lambda: utils.gen_sample_data(size=100),
 ):
     model = __new_model(model_params)
@@ -58,11 +58,20 @@ def __new_model(model_params):
 
 
 if __name__ == "__main__":
-    first_run(model_params=CONV_MODEL_PARAMS)
+    # first_run()
+    first_run(model_params=cc.CONV_MODEL_PARAMS)
+    # first_run(
+    #     model_params=cc.DEFAULT_MODEL_PARAMS | {"model_type": "ClassificationModel"}
+    # )
     # first_run(dry_run=True, epochs=1)
     # first_run(learning_rate=0.0001)
     # first_run(dry_run=True, learning_rate=0.000001)
-    # re_run(model_params=CONV_MODEL_PARAMS, epochs=10)
+    # re_run()
+    # re_run(model_params=cc.DEFAULT_MODEL_PARAMS | {"model_type": "ClassificationModel"})
+    # re_run(model_params=cc.CONV_MODEL_PARAMS, epochs=10)
+    # re_run(
+    #     model_params=cc.CONV_MODEL_PARAMS | {"model_type": "ConvClsModel"}, epochs=10
+    # )
     # re_run(learning_rate=0.0001)
     # re_run(learning_rate=0.000001)
     # re_run(data_loader=utils.load_error_data, epochs=40)
@@ -70,6 +79,13 @@ if __name__ == "__main__":
     # re_run(data_loader=utils.load_error_data, learning_rate=0.0001)
     # re_run(data_loader=utils.load_error_data, learning_rate=0.000001)
     # demo_model()
+    # demo_model(
+    #     model_params=cc.DEFAULT_MODEL_PARAMS | {"model_type": "ClassificationModel"}
+    # )
+    # demo_model(model_params=cc.CONV_MODEL_PARAMS)
+    # demo_model(
+    #     model_params=cc.CONV_MODEL_PARAMS | {"model_type": "ConvClsModel"}
+    # )
     # demo_model(data_loader=lambda: utils.load_sample_data(size=1000))
     # demo_model(data_loader=lambda: utils.load_sample_error_data(size=1000))
     pass

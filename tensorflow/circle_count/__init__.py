@@ -15,7 +15,7 @@ CONV_MODEL_PARAMS = {
     "model_type": "ConvRegModel",
     "input_shape": (100, 100, 1),
     "hidden_layers": 1,
-    "hidden_layer_units": 64,
+    "hidden_layer_units": 128,
     "output_units": 6,
 }
 
