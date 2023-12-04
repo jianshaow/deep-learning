@@ -115,11 +115,11 @@ class Model:
         x, y = data
         x, y = self._pre_process(x, y)
 
-        preds = self.model.predict(x)
-        img.show_images(data, preds, title="predict result")
-
         evaluation = self.model.evaluate(x, y)
         print("evaluation: ", evaluation)
+
+        preds = self.model.predict(x)
+        img.show_images(data, preds, title="predict result")
 
     def save(self, ask=False):
         if ask:
@@ -206,7 +206,7 @@ class ConvModel(Model):
         self.model.add(
             keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_shape)
         )
-        self.model.add(keras.layers.Conv2D(32, (3, 3), activation="relu"))
+        self.model.add(keras.layers.Conv2D(64, (3, 3), activation="relu"))
         self.model.add(keras.layers.MaxPooling2D())
         self.model.add(keras.layers.Conv2D(64, (3, 3), activation="relu"))
         self.model.add(keras.layers.MaxPooling2D())
@@ -235,7 +235,8 @@ def new_model(params=cc.DEFAULT_MODEL_PARAMS):
         raise Exception("no such model %s" % type)
 
 
-def load_model(type=RegressionModel, params=cc.DEFAULT_MODEL_PARAMS, compile=False):
+def load_model(params=cc.DEFAULT_MODEL_PARAMS, compile=False):
+    type = params["model_type"]
     if isinstance(type, str):
         model_class = globals()[type]
     else:
@@ -251,13 +252,12 @@ def load_model(type=RegressionModel, params=cc.DEFAULT_MODEL_PARAMS, compile=Fal
 if __name__ == "__main__":
     import data_utils as dutils
 
-    data = dutils.gen_sample_data(get_config=cc.data_config(6, q_upper=6), size=20)
+    data = dutils.gen_sample_data(get_config=cc.data_config(6, q_upper=7), size=20)
     # data = dutils.load_data()
     # data = dutils.load_error_data()
     # data = dutils.load_error_data(error_gt=0.2)
 
     # params = cc.DEFAULT_MODEL_PARAMS # | {"model_type": "ClassificationModel"}
     params = cc.CONV_MODEL_PARAMS  # | {"model_type": "ConvClsModel"}
-    model = new_model(params)
-    model.load(compile=True)
+    model = load_model(params, compile=True)
     model.verify(data)
