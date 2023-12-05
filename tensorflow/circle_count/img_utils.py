@@ -108,7 +108,7 @@ def show_images(
         ax.set_xticks([])
         ax.set_yticks([])
         ax.grid(False)
-        ax.imshow(images[start + i], cmap=plt.cm.binary, vmin=0, vmax=255)
+        ax.imshow(images[start + i])
 
         index = start + i
         label = labels[index]
@@ -143,7 +143,7 @@ def show_image(image, label, pred=None, title="image", tolerance=TOLERANCE):
     ax.set_xticks([])
     ax.set_yticks([])
     ax.grid(False)
-    ax.imshow(image, cmap=plt.cm.binary, vmin=0, vmax=255)
+    ax.imshow(image)
 
     if label.shape != ():
         label = cls_to_num(label)
