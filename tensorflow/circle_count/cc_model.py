@@ -252,7 +252,7 @@ def load_model(params=cc.DEFAULT_MODEL_PARAMS, compile=False):
 if __name__ == "__main__":
     import data_utils as dutils
 
-    data = dutils.gen_sample_data(get_config=cc.data_config(6, q_upper=7), size=20)
+    data = dutils.gen_sample_data(get_config=cc.data_config((6, 6), (6, 7)), size=20)
     # data = dutils.load_data()
     # data = dutils.load_error_data()
     # data = dutils.load_error_data(error_gt=0.2)

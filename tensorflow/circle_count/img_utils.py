@@ -4,10 +4,10 @@ import matplotlib.patches as ptchs
 import matplotlib.pyplot as plt
 import numpy as np
 
-from circle_count import DEFAULT_CIRCLES_MAX
 
 SIDE_LIMIT = 100
 DEFAULT_RADIUS = 6
+DEFAULT_QUANTITY = 5
 SPACE = 2
 TOLERANCE = 0.1
 
@@ -17,7 +17,7 @@ def __get_radius():
 
 
 def __get_quantity():
-    return random.randint(0, DEFAULT_CIRCLES_MAX)
+    return DEFAULT_QUANTITY
 
 
 def random_circles_images(

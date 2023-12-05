@@ -19,39 +19,41 @@ CONV_MODEL_PARAMS = {
     "output_units": 6,
 }
 
-DEFAULT_CIRCLES_MAX = 5
+DEFAULT_RADIUS_RANGE = (6, 8)
+DEFAULT_CIRCLES_RANGE = (0, 5)
 DATA_NAME_PREFIX = "circles"
 DATA_SET_PATH = os.path.join(data_dir, "dataset")
 LEARNING_RATE = 0.00001
 
 
 def data_config(
-    r_lower,
-    r_upper=None,
-    q_lower=DEFAULT_CIRCLES_MAX,
-    q_upper=None,
+    r_range=DEFAULT_RADIUS_RANGE,
+    q_range=DEFAULT_CIRCLES_RANGE,
 ):
+    r_lower, r_upper = r_range
+    q_lower, q_upper = q_range
+
     config = __base_data_config(r_lower, r_upper, q_lower, q_upper)
 
     def get_config(key, **kwargs):
         if key == "radius_fn":
 
-            def fn():
+            def r_fn():
                 if r_upper is not None:
                     return random.randint(r_lower, r_upper)
                 else:
                     return r_lower
 
-            return fn
+            return r_fn
         elif key == "quantity_fn":
 
-            def fn():
+            def q_fn():
                 if q_upper is not None:
                     return random.randint(q_lower, q_upper)
                 else:
                     return q_lower
 
-            return fn
+            return q_fn
         elif key == "error_path":
             if kwargs.get("error_gt"):
                 error_gt = kwargs["error_gt"]
@@ -86,4 +88,4 @@ def __base_data_config(r_lower, r_upper, q_lower, q_upper):
     return config
 
 
-DEFAULT_DATA_CONFIG = data_config(6, 8, 0, DEFAULT_CIRCLES_MAX)
+DEFAULT_DATA_CONFIG = data_config()
