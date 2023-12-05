@@ -1,21 +1,38 @@
 import os
 import random
-
 from common import data_dir
 
-DEFAULT_MODEL_PARAMS = {
+REG_MODEL_PARAMS = {
     "model_type": "RegressionModel",
     "input_shape": (100, 100, 1),
-    "hidden_layers": 3,
-    "hidden_layer_units": 64,
+    "fc_layers": 3,
+    "fc_layers_units": 64,
+}
+
+CLS_MODEL_PARAMS = {
+    "model_type": "ClassificationModel",
+    "input_shape": (100, 100, 1),
+    "fc_layers": 3,
+    "fc_layers_units": 64,
     "output_units": 6,
 }
 
-CONV_MODEL_PARAMS = {
+CONV_REG_MODEL_PARAMS = {
     "model_type": "ConvRegModel",
     "input_shape": (100, 100, 1),
-    "hidden_layers": 1,
-    "hidden_layer_units": 128,
+    "conv_layers": 2,
+    "conv_filters": 64,
+    "fc_layers": 1,
+    "fc_layers_units": 128,
+}
+
+CONV_CLS_MODEL_PARAMS = {
+    "model_type": "ConvClsModel",
+    "input_shape": (100, 100, 1),
+    "conv_layers": 1,
+    "fc_layers": 2,
+    "conv_filters": 64,
+    "fc_layers_units": 32,
     "output_units": 6,
 }
 

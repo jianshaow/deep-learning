@@ -27,7 +27,7 @@ class Model:
 
         self._construct_model()
         self._construct_input_layer()
-        self._construct_hidden_layer()
+        self._construct_fc_layer()
         self._construct_output_layer()
         self.model.summary()
 
@@ -82,7 +82,7 @@ class Model:
             epochs=epochs,
             validation_data=test_data,
             callbacks=[
-                vis.matplotlib_callback(show_model=False),
+                vis.matplotlib_callback(show_model=False, show_metrics=False),
                 vis.tensorboard_callback("circle_count"),
             ],
         )
@@ -143,9 +143,9 @@ class Model:
         input_shape = self._params["input_shape"]
         self.model.add(keras.layers.Flatten(input_shape=input_shape))
 
-    def _construct_hidden_layer(self):
-        layers = self._params["hidden_layers"]
-        units = self._params["hidden_layer_units"]
+    def _construct_fc_layer(self):
+        layers = self._params["fc_layers"]
+        units = self._params["fc_layers_units"]
         for _ in range(layers):
             self.model.add(keras.layers.Dense(units, activation="relu"))
 
@@ -156,9 +156,9 @@ class Model:
         )
 
     def _get_model_name(self):
-        layers = self._params["hidden_layers"]
-        units = self._params["hidden_layer_units"]
-        return "{}.{}.{}-{}".format(
+        layers = self._params["fc_layers"]
+        units = self._params["fc_layers_units"]
+        return "{}.{}.fc{}-{}".format(
             MODEL_NAME_PREFIX, self.__class__.__name__, layers, units
         )
 
@@ -213,15 +213,21 @@ class RegressionModel(Model):
 
 
 class ConvModel(Model):
+    def _get_model_name(self):
+        layers = self._params["conv_layers"]
+        filters = self._params["conv_filters"]
+        return "{}.conv{}-{}".format(super()._get_model_name(), layers, filters)
+
     def _construct_input_layer(self):
         input_shape = self._params["input_shape"]
         self.model.add(
             keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_shape)
         )
-        self.model.add(keras.layers.Conv2D(64, (3, 3), activation="relu"))
-        self.model.add(keras.layers.MaxPooling2D())
-        self.model.add(keras.layers.Conv2D(64, (3, 3), activation="relu"))
-        self.model.add(keras.layers.MaxPooling2D())
+        layers = self._params["conv_layers"]
+        filters = self._params["conv_filters"]
+        for _ in range(layers):
+            self.model.add(keras.layers.Conv2D(filters, (3, 3), activation="relu"))
+            self.model.add(keras.layers.MaxPooling2D())
         self.model.add(keras.layers.Flatten())
 
 
@@ -233,7 +239,7 @@ class ConvClsModel(ClassificationModel, ConvModel):
     pass
 
 
-def new_model(params=cc.DEFAULT_MODEL_PARAMS):
+def new_model(params=cc.REG_MODEL_PARAMS):
     type = params["model_type"]
     if not type:
         type = RegressionModel
@@ -247,7 +253,7 @@ def new_model(params=cc.DEFAULT_MODEL_PARAMS):
         raise Exception("no such model %s" % type)
 
 
-def load_model(params=cc.DEFAULT_MODEL_PARAMS, compile=False):
+def load_model(params=cc.REG_MODEL_PARAMS, compile=False):
     type = params["model_type"]
     if isinstance(type, str):
         model_class = globals()[type]
@@ -264,12 +270,15 @@ def load_model(params=cc.DEFAULT_MODEL_PARAMS, compile=False):
 if __name__ == "__main__":
     import data_utils as dutils
 
+    # data = dutils.gen_sample_data(size=20)
     data = dutils.gen_sample_data(get_config=cc.data_config((6, 6), (6, 7)), size=20)
     # data = dutils.load_data()
     # data = dutils.load_error_data()
     # data = dutils.load_error_data(error_gt=0.2)
 
-    # params = cc.DEFAULT_MODEL_PARAMS # | {"model_type": "ClassificationModel"}
-    params = cc.CONV_MODEL_PARAMS  # | {"model_type": "ConvClsModel"}
+    # params = cc.REG_MODEL_PARAMS
+    # params = cc.CLS_MODEL_PARAMS
+    params = cc.CONV_REG_MODEL_PARAMS
+    # params = cc.CONV_CLS_MODEL_PARAMS
     model = load_model(params, compile=True)
     model.verify(data)

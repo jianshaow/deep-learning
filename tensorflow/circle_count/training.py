@@ -8,7 +8,7 @@ RERUN_EPOCHS = 20
 
 
 def first_run(
-    model_params=cc.DEFAULT_MODEL_PARAMS,
+    model_params=cc.REG_MODEL_PARAMS,
     data_loader=utils.load_data,
     learning_rate=cc.LEARNING_RATE,
     epochs=TRAIN_EPOCHS,
@@ -27,7 +27,7 @@ def first_run(
 
 
 def re_run(
-    model_params=cc.DEFAULT_MODEL_PARAMS,
+    model_params=cc.REG_MODEL_PARAMS,
     data_loader=utils.load_data,
     learning_rate=cc.LEARNING_RATE,
     epochs=RERUN_EPOCHS,
@@ -43,7 +43,7 @@ def re_run(
 
 
 def demo_model(
-    model_params=cc.DEFAULT_MODEL_PARAMS,
+    model_params=cc.REG_MODEL_PARAMS,
     data_loader=lambda: utils.gen_sample_data(size=100),
 ):
     model = __new_model(model_params)
@@ -59,16 +59,15 @@ def __new_model(model_params):
 
 if __name__ == "__main__":
     # first_run()
-    first_run(model_params=cc.CONV_MODEL_PARAMS)
-    # first_run(
-    #     model_params=cc.DEFAULT_MODEL_PARAMS | {"model_type": "ClassificationModel"}
-    # )
+    # first_run(model_params=cc.CLS_MODEL_PARAMS)
+    # first_run(model_params=cc.CONV_REG_MODEL_PARAMS)
+    first_run(model_params=cc.CONV_CLS_MODEL_PARAMS)
     # first_run(dry_run=True, epochs=1)
     # first_run(learning_rate=0.0001)
     # first_run(dry_run=True, learning_rate=0.000001)
     # re_run()
-    # re_run(model_params=cc.DEFAULT_MODEL_PARAMS | {"model_type": "ClassificationModel"})
-    # re_run(model_params=cc.CONV_MODEL_PARAMS, epochs=10)
+    # re_run(model_params=cc.REG_MODEL_PARAMS | {"model_type": "ClassificationModel"})
+    # re_run(model_params=cc.CONV_REG_MODEL_PARAMS, epochs=10)
     # re_run(
     #     model_params=cc.CONV_MODEL_PARAMS | {"model_type": "ConvClsModel"}, epochs=10
     # )
@@ -80,7 +79,7 @@ if __name__ == "__main__":
     # re_run(data_loader=utils.load_error_data, learning_rate=0.000001)
     # demo_model()
     # demo_model(
-    #     model_params=cc.DEFAULT_MODEL_PARAMS | {"model_type": "ClassificationModel"}
+    #     model_params=cc.REG_MODEL_PARAMS | {"model_type": "ClassificationModel"}
     # )
     # demo_model(model_params=cc.CONV_MODEL_PARAMS)
     # demo_model(
