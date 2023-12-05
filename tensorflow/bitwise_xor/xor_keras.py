@@ -1,7 +1,7 @@
+import keras
 import data_utils as utils
 from data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
 from common import vis_utils as vis
-from tensorflow import keras
 
 
 def run():
