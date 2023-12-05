@@ -45,14 +45,14 @@ def run():
             loss = loss_fn(pred, train_labels[i])
             loss.backward()
             optimizer.step()
-            train_loss += loss.item()
+            train_loss += loss.item() * train_data[i].size(0)
         model.eval()
         test_size = len(test_data)
         val_loss = 0
         for i in range(test_size):
             pred = model(test_data[i])
             loss = loss_fn(pred, test_labels[i])
-            val_loss += loss.item()
+            val_loss += loss.item() * test_data[i].size(0)
         print("Epoch {}/{}".format(epoch + 1, TRAIN_EPOCH))
         print(
             "loss: {} - val_loss: {}".format(
