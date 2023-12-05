@@ -3,7 +3,7 @@ import shutil
 
 import img_utils as img
 import tensorflow as tf
-from tensorflow import keras
+import keras
 
 import circle_count as cc
 from common import data_dir
@@ -149,11 +149,23 @@ class Model:
         for _ in range(layers):
             self.model.add(keras.layers.Dense(units, activation="relu"))
 
+    def _construct_output_layer(self):
+        raise NotImplementedError(
+            f"Model {self.__class__.__name__} does not have a `_construct_output_layer()` "
+            "method implemented."
+        )
+
     def _get_model_name(self):
         layers = self._params["hidden_layers"]
         units = self._params["hidden_layer_units"]
         return "{}.{}.{}-{}".format(
             MODEL_NAME_PREFIX, self.__class__.__name__, layers, units
+        )
+
+    def _get_loss(self):
+        raise NotImplementedError(
+            f"Model {self.__class__.__name__} does not have a `_construct_output_layer()` "
+            "method implemented."
         )
 
     def _get_metrics(self):
