@@ -1,4 +1,4 @@
-from tensorflow import keras
+import keras
 
 
 class LossFunctionWrapper(keras.losses.Loss):
