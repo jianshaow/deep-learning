@@ -206,7 +206,7 @@ def matplotlib_callback(show_model=True, show_metrics=True, dynamic_plot=True):
 
 
 def tensorboard_callback(name):
-    if keras.backend == "tensorflow":
+    if keras.backend.backend() == "tensorflow":
         logdir = path.join(
             path.join("logs", name), datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         )

@@ -1,16 +1,17 @@
 import tensorflow as tf
 import keras
 
-import callbacks as cbs
-import layers, losses
-import metrics as mtx
+from common import callbacks as cbs
+from common import layers, losses
+from common import metrics as mtx
 
 
 class SimpleSequential(layers.Layer):
     def __init__(self, layers):
         super(SimpleSequential, self).__init__()
         self._is_graph_network = False
-        self._layers = []
+        self.built = True
+        self.layers = []
         self.metrics = []
         self.history = History()
 
@@ -18,12 +19,12 @@ class SimpleSequential(layers.Layer):
             self.add(layer)
 
     def add(self, layer):
-        self._layers.append(layer)
+        self.layers.append(layer)
 
     def call(self, data):
         input = data
         output = input
-        for layer in self._layers:
+        for layer in self.layers:
             output = layer(input)
             input = output
         return output
@@ -31,7 +32,7 @@ class SimpleSequential(layers.Layer):
     @property
     def trainable_variables(self):
         variables = []
-        for layer in self._layers:
+        for layer in self.layers:
             variables.extend(layer.trainable_variables)
         return variables
 

@@ -1,7 +1,7 @@
 import tensorflow as tf
+from keras.datasets import mnist
 from common import layers, models
 from common import vis_utils as vis
-import keras.datasets.mnist as mnist
 
 
 def run():

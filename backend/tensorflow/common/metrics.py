@@ -1,7 +1,7 @@
 import tensorflow as tf
 import keras
 
-import losses
+from common import losses
 
 
 class MeanMetricWrapper(keras.metrics.Mean):

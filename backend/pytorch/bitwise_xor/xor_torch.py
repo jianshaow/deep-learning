@@ -1,16 +1,16 @@
+import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch
 import bitwise_xor.data_utils as utils
 
 from common import vis_utils as vis
 from bitwise_xor.data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print("running on", device)
-
 
 def run():
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print("running on", device)
+
     train_data, train_labels = utils.gen_xor_train_data()
     train_data = torch.from_numpy(train_data).to(torch.float).to(device)
     train_labels = torch.from_numpy(train_labels).to(torch.float).to(device)

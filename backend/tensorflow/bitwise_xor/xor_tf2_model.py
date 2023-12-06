@@ -1,9 +1,9 @@
+import keras
 import tensorflow as tf
 import bitwise_xor.data_utils as utils
 from common import models
 from common import vis_utils as vis
 from bitwise_xor.data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
-from tensorflow import keras
 
 
 def run():
