@@ -11,21 +11,25 @@ def run():
     dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
     dataset = dataset.batch(32)
 
-    model = models.SimpleSequential([
-        layers.SimpleFlatten(input_shape=(28, 28)),
-        layers.SimpleDense(128, activation='relu'),
-        layers.SimpleDense(10, activation='softmax')
-    ])
+    model = models.SimpleSequential(
+        [
+            layers.SimpleFlatten(input_shape=(28, 28)),
+            layers.SimpleDense(128, activation="relu"),
+            layers.SimpleDense(10, activation="softmax"),
+        ]
+    )
 
-    model.compile(optimizer='adam',
-                  loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
+    model.compile(
+        optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
+    )
 
-    model.fit(dataset,
-              validation_data=(x_test, y_test),
-              callbacks=[vis.matplotlib_callback()],
-              epochs=10)
+    model.fit(
+        dataset,
+        validation_data=(x_test, y_test),
+        callbacks=[vis.matplotlib_callback()],
+        epochs=10,
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()
