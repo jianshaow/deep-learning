@@ -1,8 +1,8 @@
 import tensorflow as tf
-import data_utils as utils
+import bitwise_xor.data_utils as utils
 from common import models
 from common import vis_utils as vis
-from data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
+from bitwise_xor.data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
 from tensorflow import keras
 
 

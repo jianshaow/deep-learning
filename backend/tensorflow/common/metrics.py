@@ -1,11 +1,10 @@
 import tensorflow as tf
 import keras
 
-from common import losses
+import losses
 
 
 class MeanMetricWrapper(keras.metrics.Mean):
-
     def __init__(self, fn, name=None):
         super(MeanMetricWrapper, self).__init__(name=name)
         self.fn = fn
@@ -24,20 +23,22 @@ def get_metric(metric, loss):
     if metric is None or isinstance(metric, keras.metrics.Mean):
         return metric
 
-    if metric not in ['accuracy', 'acc', 'crossentropy', 'ce']:
+    if metric not in ["accuracy", "acc", "crossentropy", "ce"]:
         return MeanMetricWrapper(keras.metrics.get(metric), metric)
 
-    is_sparse_categorical_crossentropy = (
-        isinstance(loss, keras.losses.SparseCategoricalCrossentropy) or
-        (isinstance(loss, losses.LossFunctionWrapper) and
-         loss.fn == keras.losses.sparse_categorical_crossentropy))
+    is_sparse_categorical_crossentropy = isinstance(
+        loss, keras.losses.SparseCategoricalCrossentropy
+    ) or (
+        isinstance(loss, losses.LossFunctionWrapper)
+        and loss.fn == keras.losses.sparse_categorical_crossentropy
+    )
 
-    is_binary_crossentropy = (
-        isinstance(loss, keras.losses.BinaryCrossentropy) or
-        (isinstance(loss, losses.LossFunctionWrapper) and
-         loss.fn == keras.losses.binary_crossentropy))
+    is_binary_crossentropy = isinstance(loss, keras.losses.BinaryCrossentropy) or (
+        isinstance(loss, losses.LossFunctionWrapper)
+        and loss.fn == keras.losses.binary_crossentropy
+    )
 
-    if metric in ['accuracy', 'acc']:
+    if metric in ["accuracy", "acc"]:
         if is_binary_crossentropy:
             return MeanMetricWrapper(keras.metrics.binary_accuracy, metric)
         elif is_sparse_categorical_crossentropy:

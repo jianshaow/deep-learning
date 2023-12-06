@@ -1,5 +1,4 @@
-
-class CallbackList():
+class CallbackList:
     def __init__(self, callbacks=None):
         callbacks = callbacks or []
         self.callbacks = [c for c in callbacks]

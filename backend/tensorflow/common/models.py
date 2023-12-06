@@ -1,13 +1,12 @@
 import tensorflow as tf
 import keras
 
-from common import callbacks as cbs
-from common import layers, losses
-from common import metrics as mtx
+import callbacks as cbs
+import layers, losses
+import metrics as mtx
 
 
 class SimpleSequential(layers.Layer):
-
     def __init__(self, layers):
         super(SimpleSequential, self).__init__()
         self._is_graph_network = False
@@ -38,7 +37,7 @@ class SimpleSequential(layers.Layer):
 
     @property
     def metrics_names(self):
-        metrics_names = ['loss']
+        metrics_names = ["loss"]
         metrics_names += [m.name for m in self._metrics]
         return metrics_names
 
@@ -51,23 +50,25 @@ class SimpleSequential(layers.Layer):
         self.optimizer = keras.optimizers.get(optimizer)
         self.loss = losses.get_loss(loss)
         self.loss_mean = keras.metrics.Mean()
-        self._metrics = [mtx.get_metric(metric, self.loss)
-                         for metric in metrics]
+        self._metrics = [mtx.get_metric(metric, self.loss) for metric in metrics]
 
     def fit(self, dataset, epochs, callbacks=[], verbose=True, validation_data=None):
-        callbacks = [keras.callbacks.BaseLogger()] + \
-            (callbacks or []) + [self.history]
+        callbacks = [keras.callbacks.BaseLogger()] + (callbacks or []) + [self.history]
         if verbose:
-            callbacks.append(keras.callbacks.ProgbarLogger(count_mode='steps'))
+            callbacks.append(keras.callbacks.ProgbarLogger(count_mode="steps"))
         callbacks = cbs.CallbackList(callbacks)
 
         callbacks.set_model(self)
         callback_metrics = list(self.metrics_names)
         if validation_data:
-            callback_metrics += ['val_' + n for n in self.metrics_names]
+            callback_metrics += ["val_" + n for n in self.metrics_names]
         steps = tf.data.experimental.cardinality(dataset).numpy()
-        params = {'metrics': callback_metrics, 'epochs': epochs,
-                  'steps': steps, 'verbose': verbose}
+        params = {
+            "metrics": callback_metrics,
+            "epochs": epochs,
+            "steps": steps,
+            "verbose": verbose,
+        }
         callbacks.set_params(params)
 
         callbacks.on_train_begin()
@@ -80,11 +81,11 @@ class SimpleSequential(layers.Layer):
             for batch, train_data in dataset.enumerate():
                 batch_value = batch.numpy()
                 callbacks.on_batch_begin(batch_value)
-                batch_logs = {'size': len(train_data), 'batch': batch_value}
+                batch_logs = {"size": len(train_data), "batch": batch_value}
                 self.train_step(train_data, batch_logs)
                 callbacks.on_batch_end(batch_value, batch_logs)
 
-            epoch_logs['loss'] = self.loss_mean.result().numpy()
+            epoch_logs["loss"] = self.loss_mean.result().numpy()
             for metric in self._metrics:
                 epoch_logs[metric.name] = metric.result().numpy()
 
@@ -102,12 +103,10 @@ class SimpleSequential(layers.Layer):
         with tf.GradientTape() as tape:
             preds = self(data)
             loss_value = self.loss(labels, preds)
-            grads = tape.gradient(
-                loss_value, self.trainable_variables)
-        self.optimizer.apply_gradients(
-            zip(grads, self.trainable_variables))
+            grads = tape.gradient(loss_value, self.trainable_variables)
+        self.optimizer.apply_gradients(zip(grads, self.trainable_variables))
         self.loss_mean(loss_value)
-        batch_logs['loss'] = loss_value.numpy()
+        batch_logs["loss"] = loss_value.numpy()
 
         for metric in self._metrics:
             metric_value = metric(labels, preds)
@@ -118,18 +117,16 @@ class SimpleSequential(layers.Layer):
         self.reset_metrics()
         test_preds = self(test_data)
         test_loss_value = self.loss(test_labels, test_preds)
-        epoch_logs['val_loss'] = test_loss_value.numpy()
+        epoch_logs["val_loss"] = test_loss_value.numpy()
         for metric in self._metrics:
             test_metric_value = metric(test_labels, test_preds)
-            epoch_logs['val_' +
-                       metric.name] = test_metric_value.numpy()
+            epoch_logs["val_" + metric.name] = test_metric_value.numpy()
 
     def predict(self, data):
         return self(data).numpy()
 
 
 class History(keras.callbacks.Callback):
-
     def on_train_begin(self, logs=None):
         self.epoch = []
         self.history = {}
