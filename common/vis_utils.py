@@ -17,7 +17,7 @@ class MatplotlibCallback(keras.callbacks.Callback):
         self.history_figure = None
 
     def on_train_begin(self, logs=None):
-        if self.show_model and self.model._is_graph_network:
+        if self.show_model:
             build_model_figure(self.model)
             show_all()
 
@@ -56,9 +56,13 @@ class MatplotlibCallback(keras.callbacks.Callback):
         _plot_history(self.history_figure, epochs, self.metrics)
 
 
+class NoopCallback(keras.callbacks.Callback):
+    pass
+
+
 def build_model_figure(model, dpi=100):
     with tempfile.TemporaryDirectory() as tmpdirname:
-        model_image_file = path.join(tmpdirname, 'model.png')
+        model_image_file = path.join(tmpdirname, "model.png")
         keras.utils.plot_model(model, show_shapes=True, to_file=model_image_file)
         img = mpimg.imread(model_image_file)
 
@@ -84,7 +88,7 @@ def build_multi_bar_figure(labels, data):
         data_size = len(data[i])
         plt.xticks(range(data_size), range(1, data_size + 1))
         plt.ylabel(labels[i])
-        plt.bar(range(data_size), data[i], width=1, edgecolor='black')
+        plt.bar(range(data_size), data[i], width=1, edgecolor="black")
 
     return figure
 
@@ -106,25 +110,25 @@ def show_all():
 
 def _plot_history(figure, epochs, metrics):
     left_ax = figure.gca()
-    left_ax.set_title('Training Metrics & Loss')
-    left_ax.set_xlabel('Epoch')
-    left_ax.set_ylabel('Metrics', c='blue')
+    left_ax.set_title("Training Metrics & Loss")
+    left_ax.set_xlabel("Epoch")
+    left_ax.set_ylabel("Metrics", c="blue")
 
     left_ax.set_xlim(-0.5, epochs - 0.5)
     left_ax.set_xticks(range(epochs // 10 - 1, epochs, max(1, epochs // 10)))
     left_ax.set_xticklabels(range(epochs // 10, epochs + 1, max(1, epochs // 10)))
-    left_ax.tick_params(axis='y', colors='blue')
+    left_ax.tick_params(axis="y", colors="blue")
 
     right_ax = left_ax.twinx()
-    right_ax.set_ylabel('Loss', c='red')
-    right_ax.tick_params(axis='y', colors='red')
+    right_ax.set_ylabel("Loss", c="red")
+    right_ax.tick_params(axis="y", colors="red")
 
     acc_metrics, loss_metrics = __split_metrics(metrics)
-    _plot_metrics(left_ax, acc_metrics, 'center left', 'blue')
-    _plot_metrics(right_ax, loss_metrics, 'center right', 'red')
+    _plot_metrics(left_ax, acc_metrics, "center left", "blue")
+    _plot_metrics(right_ax, loss_metrics, "center right", "red")
 
 
-def _plot_metrics(ax, metrics, legend_loc='center right', c='black'):
+def _plot_metrics(ax, metrics, legend_loc="center right", c="black"):
     offsets = __get_offsets(metrics)
     for metric_name, metric in metrics.items():
         __plot_metric(
@@ -137,18 +141,18 @@ def __split_metrics(metrics):
     acc_metrics = dict()
     loss_metrics = dict()
     for metric_name, metric in metrics.items():
-        if 'loss' in metric_name:
+        if "loss" in metric_name:
             loss_metrics[metric_name] = metric
         else:
             acc_metrics[metric_name] = metric
     return acc_metrics, loss_metrics
 
 
-def __plot_metric(ax, metric_name, metric, style='.b-', c='black', offset=1):
+def __plot_metric(ax, metric_name, metric, style=".b-", c="black", offset=1):
     ax.plot(metric, style, c=c)
     __annotate(
         ax,
-        metric_name + ': %f' % metric[-1],
+        metric_name + ": %f" % metric[-1],
         (len(metric) - 1, metric[-1]),
         (20, offset * 40),
         c=c,
@@ -156,12 +160,12 @@ def __plot_metric(ax, metric_name, metric, style='.b-', c='black', offset=1):
 
 
 def __get_style(metric_name):
-    style = '.'
+    style = "."
 
-    if 'val' in metric_name:
-        style = style + '--'
+    if "val" in metric_name:
+        style = style + "--"
     else:
-        style = style + '-'
+        style = style + "-"
     return style
 
 
@@ -183,15 +187,15 @@ def __get_offsets(metrics):
     return offsets
 
 
-def __annotate(ax, text, xy, xytext, c='green'):
+def __annotate(ax, text, xy, xytext, c="green"):
     ax.annotate(
         text,
         xy=xy,
         xytext=xytext,
         c=c,
-        textcoords='offset points',
-        ha='right',
-        arrowprops=dict(facecolor='black', arrowstyle='-|>'),
+        textcoords="offset points",
+        ha="right",
+        arrowprops=dict(facecolor="black", arrowstyle="-|>"),
     )
 
 
@@ -202,7 +206,10 @@ def matplotlib_callback(show_model=True, show_metrics=True, dynamic_plot=True):
 
 
 def tensorboard_callback(name):
-    logdir = path.join(
-        path.join("logs", name), datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    )
-    return keras.callbacks.TensorBoard(logdir, histogram_freq=1)
+    if keras.backend == "tensorflow":
+        logdir = path.join(
+            path.join("logs", name), datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        )
+        return keras.callbacks.TensorBoard(logdir, histogram_freq=1)
+    else:
+        return NoopCallback()

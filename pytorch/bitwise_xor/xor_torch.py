@@ -1,10 +1,10 @@
-import data_utils as utils
 import torch.nn as nn
 import torch.optim as optim
 import torch
+import bitwise_xor.data_utils as utils
 
 from common import vis_utils as vis
-from data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
+from bitwise_xor.data_utils import SEQUENCE_SIZE, TRAIN_EPOCH
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("running on", device)

@@ -48,4 +48,3 @@ def gen_xor_test_data(size=TEST_DATA_SIZE):
     test_seq_pairs = random_seq_pairs(size)
     test_labels = batch_xor(test_seq_pairs)
     return test_seq_pairs, test_labels
-
