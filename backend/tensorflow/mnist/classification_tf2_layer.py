@@ -1,12 +1,10 @@
 import tensorflow as tf
 from common import layers, models
 from common import vis_utils as vis
-from tensorflow import keras
+import keras.datasets.mnist as mnist
 
 
 def run():
-    mnist = keras.datasets.mnist
-
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     x_train, x_test = x_train / 255.0, x_test / 255.0
 
