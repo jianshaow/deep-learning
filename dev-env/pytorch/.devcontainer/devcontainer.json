@@ -9,7 +9,7 @@
 	},
 	"mounts": [
 		{"source": "${localEnv:HOME}/.deep-learning", "target": "/home/devel/.deep-learning", "type": "bind"},
-		{"source": "${localEnv:HOME}/.keras/datasets", "target": "/home/devel/.keras/datasets", "type": "bind"}
+		{"source": "${localEnv:HOME}/.keras", "target": "/home/devel/.keras", "type": "bind"}
 	],
 	"customizations": {
 		"vscode": {
