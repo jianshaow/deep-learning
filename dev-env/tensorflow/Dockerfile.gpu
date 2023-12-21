@@ -1,7 +1,7 @@
 ARG BASE_IMAGE=tensorflow/tensorflow
 ARG TF_VERSION=2.15.0
 
-FROM ${BASE_IMAGE}:${TF_VERSION}-gpu as tf-gpu
+FROM ${BASE_IMAGE}:${TF_VERSION}-gpu
 
 COPY packages.txt /
 RUN /setup.packages.sh /packages.txt && \

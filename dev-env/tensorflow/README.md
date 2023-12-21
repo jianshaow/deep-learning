@@ -48,7 +48,6 @@ docker run --name dl-tensorflow --gpus all -it \
 ~~~
 
 ## Run Tensorboard
-
 ~~~ shell
 tensorboard --logdir logs
 ~~~

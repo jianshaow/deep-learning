@@ -1,7 +1,7 @@
 ARG BASE_IMAGE=jianshao/dl-dev-base
 ARG TAG=3.11-slim
 
-FROM ${BASE_IMAGE}:${TAG} as torch-dev
+FROM ${BASE_IMAGE}:${TAG}
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple && \
