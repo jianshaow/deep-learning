@@ -60,8 +60,8 @@ def __new_model(model_params):
 if __name__ == "__main__":
     # first_run()
     # first_run(model_params=cc.CLS_MODEL_PARAMS)
-    # first_run(model_params=cc.CONV_REG_MODEL_PARAMS)
-    first_run(model_params=cc.CONV_CLS_MODEL_PARAMS)
+    first_run(model_params=cc.CONV_REG_MODEL_PARAMS)
+    # first_run(model_params=cc.CONV_CLS_MODEL_PARAMS)
     # first_run(dry_run=True, epochs=1)
     # first_run(learning_rate=0.0001)
     # first_run(dry_run=True, learning_rate=0.000001)
