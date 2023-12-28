@@ -54,10 +54,12 @@ def run():
     train_model(model, train_data, train_labels, test_data)
     verify_model(model)
 
+
 def show():
     model = build_model()
     vis.build_model_figure(model)
     vis.show_all()
+
 
 if __name__ == "__main__":
     show()
