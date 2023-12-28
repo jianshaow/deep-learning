@@ -48,3 +48,14 @@ def gen_xor_test_data(size=TEST_DATA_SIZE):
     test_seq_pairs = random_seq_pairs(size)
     test_labels = batch_xor(test_seq_pairs)
     return test_seq_pairs, test_labels
+
+
+if __name__ == "__main__":
+    data = random_seq_pairs(1)
+    xor = batch_xor(data)
+    import common.vis_utils as vis
+
+    vis.build_multi_bar_figure(
+        ["seq1", "seq2", "xor"], [data[0][0], data[0][1], xor[0]]
+    )
+    vis.show_all()

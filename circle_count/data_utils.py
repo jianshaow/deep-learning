@@ -2,9 +2,9 @@ import os.path
 import random
 import sys
 
-import img_utils as img
 import numpy as np
 
+import circle_count.img_utils as img
 from circle_count import DATA_SET_PATH, DEFAULT_DATA_CONFIG
 
 TOLERANCE = 0.1

@@ -1,13 +1,12 @@
 import os
 import shutil
 
-import tensorflow as tf
 import keras
 
-import img_utils as img
-import circle_count as cc
 from common import data_dir
 from common import vis_utils as vis
+import circle_count as cc
+import circle_count.img_utils as img
 
 MODEL_NAME_PREFIX = "circle_count"
 MODEL_BASE_DIR = os.path.join(data_dir, "model")
@@ -62,26 +61,7 @@ class Model:
         if not self.__compiled:
             raise Exception("model is not compiled yet, call compile first")
 
-        size = len(data[0])
-        dataset = tf.data.Dataset.from_tensor_slices(data)
-        dataset = dataset.shuffle(size, reshuffle_each_iteration=True)
-        dataset = dataset.map(self._pre_process)
-
-        if test_data is None:
-            train_num = round(size * 0.9)
-            train_data = dataset.take(train_num).batch(32)
-            test_data = dataset.skip(train_num).batch(32)
-        else:
-            train_data = dataset.batch(32)
-            test_size = len(test_data[0])
-            test_dataset = tf.data.Dataset.from_tensor_slices(test_data)
-            test_dataset = test_dataset.shuffle(
-                test_size, reshuffle_each_iteration=True
-            )
-            test_data = test_dataset.map(self._pre_process).batch(32)
-
-        train_data = train_data.prefetch(buffer_size=tf.data.AUTOTUNE)
-        test_data = test_data.prefetch(buffer_size=tf.data.AUTOTUNE)
+        train_data, test_data = cc.dataset.prepare_data(data)
 
         self.model.fit(
             train_data,
@@ -178,9 +158,7 @@ class Model:
         return ["accuracy"]
 
     def _pre_process(self, x, y):
-        x = tf.image.rgb_to_grayscale(x)
-        x = tf.cast(x, tf.float32) / 255.0
-        return (x, y)
+        return cc.dataset.pre_process(x, y)
 
     def _post_process(self, data):
         return data
@@ -274,7 +252,7 @@ def load_model(params=cc.REG_MODEL_PARAMS, compile=False):
 
 
 if __name__ == "__main__":
-    import data_utils as dutils
+    import circle_count.data_utils as dutils
 
     # data = dutils.gen_sample_data(size=20)
     data = dutils.gen_sample_data(get_config=cc.data_config((6, 6), (6, 7)), size=20)
