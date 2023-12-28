@@ -65,6 +65,7 @@ def build_model_figure(model, dpi=100):
         model_image_file = path.join(tmpdirname, "model.png")
         keras.utils.plot_model(
             model,
+            dpi=dpi,
             to_file=model_image_file,
             show_shapes=True,
             show_layer_activations=True,
