@@ -4,8 +4,8 @@ import sys
 
 import numpy as np
 
-import circle_count.img_utils as img
-from circle_count import DATA_SET_PATH, DEFAULT_DATA_CONFIG
+import circle_count as cc
+import img_utils as img
 
 TOLERANCE = 0.1
 DATA_SIZE = 100000
@@ -16,8 +16,8 @@ ERROR_DATA_SIZE = 10000
 def __save_dataset(path, data):
     x, y = data
 
-    if not os.path.exists(DATA_SET_PATH):
-        os.makedirs(DATA_SET_PATH)
+    if not os.path.exists(cc.DATA_SET_PATH):
+        os.makedirs(cc.DATA_SET_PATH)
 
     np.savez(path, x=x, y=y)
     print(path, "saved")
@@ -32,15 +32,15 @@ def __load_dataset(path):
         return (x, y)
 
 
-def load_error_data(get_config=DEFAULT_DATA_CONFIG, error_gt=TOLERANCE):
+def load_error_data(get_config=cc.DEFAULT_DATA_CONFIG, error_gt=TOLERANCE):
     return __load_dataset(get_config("error_path", error_gt=error_gt))
 
 
-def load_data(get_config=DEFAULT_DATA_CONFIG):
+def load_data(get_config=cc.DEFAULT_DATA_CONFIG):
     return __load_dataset(get_config("path"))
 
 
-def gen_sample_data(get_config=DEFAULT_DATA_CONFIG, size=1):
+def gen_sample_data(get_config=cc.DEFAULT_DATA_CONFIG, size=1):
     x, y = img.zero_data(size)
 
     def handle(index, images, circles):
@@ -56,17 +56,19 @@ def gen_sample_data(get_config=DEFAULT_DATA_CONFIG, size=1):
     return x, y
 
 
-def load_sample_data(get_config=DEFAULT_DATA_CONFIG, size=20):
+def load_sample_data(get_config=cc.DEFAULT_DATA_CONFIG, size=20):
     x, y = load_data(get_config)
     return x[:size], y[:size]
 
 
-def load_sample_error_data(get_config=DEFAULT_DATA_CONFIG, error_gt=TOLERANCE, size=20):
+def load_sample_error_data(
+    get_config=cc.DEFAULT_DATA_CONFIG, error_gt=TOLERANCE, size=20
+):
     x, y = load_error_data(get_config, error_gt)
     return x[:size], y[:size]
 
 
-def build_data(get_config=DEFAULT_DATA_CONFIG):
+def build_data(get_config=cc.DEFAULT_DATA_CONFIG):
     print("generating train data...")
     x, y = gen_sample_data(get_config, DATA_SIZE)
 
@@ -76,7 +78,7 @@ def build_data(get_config=DEFAULT_DATA_CONFIG):
 
 def build_error_data(
     model,
-    get_config=DEFAULT_DATA_CONFIG,
+    get_config=cc.DEFAULT_DATA_CONFIG,
     tolerance=TOLERANCE,
     append=False,
     dry_run=False,
@@ -127,16 +129,16 @@ def build_error_data(
         print("error data [" + get_config("name") + "] saved")
 
 
-def show_gen_data(get_config=DEFAULT_DATA_CONFIG):
+def show_gen_data(get_config=cc.DEFAULT_DATA_CONFIG):
     __show_data(gen_sample_data(get_config, 20), "data")
 
 
-def show_data(get_config=DEFAULT_DATA_CONFIG):
+def show_data(get_config=cc.DEFAULT_DATA_CONFIG):
     __show_data(load_data(get_config), "data")
 
 
 def show_error_data(
-    get_config=DEFAULT_DATA_CONFIG, error_gt=TOLERANCE, tolerance=TOLERANCE
+    get_config=cc.DEFAULT_DATA_CONFIG, error_gt=TOLERANCE, tolerance=TOLERANCE
 ):
     __show_data(
         load_error_data(get_config, error_gt),

@@ -1,6 +1,6 @@
-import data_utils as utils
 import circle_count as cc
-from circle_count import cc_model
+import data_utils as utils
+import cc_model
 
 
 TRAIN_EPOCHS = 10

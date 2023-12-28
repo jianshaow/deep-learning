@@ -6,7 +6,7 @@ import keras
 from common import data_dir
 from common import vis_utils as vis
 import circle_count as cc
-import circle_count.img_utils as img
+import img_utils as img
 
 MODEL_NAME_PREFIX = "circle_count"
 MODEL_BASE_DIR = os.path.join(data_dir, "model")
@@ -39,6 +39,21 @@ class Model:
         print(model_path, "loaded")
         self.model.summary()
         self.__compiled = compile
+
+    def save(self, ask=False):
+        if ask:
+            save = input('save model ["{}"]? (y|n): '.format(self.model.name))
+            if save != "y":
+                print("model [{}] not saved".format(self.model.name))
+                return
+
+        model_path, model_old_path = self.__get_model_path()
+        if os.path.exists(model_path):
+            if os.path.exists(model_old_path):
+                shutil.rmtree(model_old_path)
+            os.rename(model_path, model_old_path)
+        self.model.save(model_path)
+        print("model [" + self.model.name + "] saved")
 
     def show(self):
         if self.model is None:
@@ -106,21 +121,6 @@ class Model:
 
         preds = self.model.predict(x)
         img.show_images(data, preds, title="predict result")
-
-    def save(self, ask=False):
-        if ask:
-            save = input('save model ["{}"]? (y|n): '.format(self.model.name))
-            if save != "y":
-                print("model [{}] not saved".format(self.model.name))
-                return
-
-        model_path, model_old_path = self.__get_model_path()
-        if os.path.exists(model_path):
-            if os.path.exists(model_old_path):
-                shutil.rmtree(model_old_path)
-            os.rename(model_path, model_old_path)
-        self.model.save(model_path)
-        print("model [" + self.model.name + "] saved")
 
     def _construct_model(self):
         self.model = keras.Sequential(name=self._get_model_name())
