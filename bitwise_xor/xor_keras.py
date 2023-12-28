@@ -60,5 +60,5 @@ def show():
     vis.show_all()
 
 if __name__ == "__main__":
-    # show()
-    run()
+    show()
+    # run()

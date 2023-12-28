@@ -68,6 +68,8 @@ def build_model_figure(model, dpi=100):
             dpi=dpi,
             to_file=model_image_file,
             show_shapes=True,
+            show_dtype=True,
+            show_layer_names=True,
             show_layer_activations=True,
         )
         img = mpimg.imread(model_image_file)
