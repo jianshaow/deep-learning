@@ -63,7 +63,12 @@ class NoopCallback(keras.callbacks.Callback):
 def build_model_figure(model, dpi=100):
     with tempfile.TemporaryDirectory() as tmpdirname:
         model_image_file = path.join(tmpdirname, "model.png")
-        keras.utils.plot_model(model, show_shapes=True, to_file=model_image_file)
+        keras.utils.plot_model(
+            model,
+            to_file=model_image_file,
+            show_shapes=True,
+            show_layer_activations=True,
+        )
         img = mpimg.imread(model_image_file)
 
         figsize = (img.shape[1] * (1.25) / dpi, img.shape[0] / dpi)

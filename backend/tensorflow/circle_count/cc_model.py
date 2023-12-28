@@ -1,10 +1,10 @@
 import os
 import shutil
 
-import img_utils as img
 import tensorflow as tf
 import keras
 
+import img_utils as img
 import circle_count as cc
 from common import data_dir
 from common import vis_utils as vis
@@ -40,6 +40,12 @@ class Model:
         print(model_path, "loaded")
         self.model.summary()
         self.__compiled = compile
+
+    def show(self):
+        if self.model is None:
+            raise Exception("model is not initialized, call build or load method")
+        vis.build_model_figure(self.model)
+        vis.show_all()
 
     def compile(self, learning_rate=cc.LEARNING_RATE):
         if self.model is None:
@@ -281,4 +287,5 @@ if __name__ == "__main__":
     params = cc.CONV_REG_MODEL_PARAMS
     # params = cc.CONV_CLS_MODEL_PARAMS
     model = load_model(params, compile=True)
+    model.show()
     model.verify(data)
