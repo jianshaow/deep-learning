@@ -1,12 +1,13 @@
-import os
-import random
+import os, random
 from common import data_dir
-
 import keras
 
 if keras.backend.backend() == "tensorflow":
     from backend.tensorflow.circle_count import dataset
-
+    from backend.tensorflow.circle_count import model_store
+if keras.backend.backend() == "torch":
+    from backend.pytorch.circle_count import dataset
+    from backend.pytorch.circle_count import model_store
 
 REG_MODEL_PARAMS = {
     "model_type": "RegressionModel",

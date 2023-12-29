@@ -1,6 +1,4 @@
-import circle_count as cc
-import data_utils as utils
-import cc_model
+import circle_count as cc, data_utils as utils, cc_model
 
 
 TRAIN_EPOCHS = 10
@@ -58,7 +56,7 @@ def __new_model(model_params):
 
 
 if __name__ == "__main__":
-    # first_run()
+    first_run()
     # first_run(model_params=cc.CLS_MODEL_PARAMS)
     # first_run(model_params=cc.CONV_REG_MODEL_PARAMS)
     # first_run(model_params=cc.CONV_CLS_MODEL_PARAMS)
@@ -74,7 +72,7 @@ if __name__ == "__main__":
     # re_run(data_loader=utils.load_error_data, learning_rate=0.0001)
     # re_run(data_loader=utils.load_error_data, learning_rate=0.000001)
     # demo_model()
-    demo_model(model_params=cc.CONV_REG_MODEL_PARAMS)
+    # demo_model(model_params=cc.CONV_REG_MODEL_PARAMS)
     # demo_model(data_loader=lambda: utils.load_sample_data(size=1000))
     # demo_model(data_loader=lambda: utils.load_sample_error_data(size=1000))
     pass

@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-def prepare_data(data):
+def prepare_data(data, test_data=None):
     size = len(data[0])
     dataset = tf.data.Dataset.from_tensor_slices(data)
     dataset = dataset.shuffle(size, reshuffle_each_iteration=True)

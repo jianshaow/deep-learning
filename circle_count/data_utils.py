@@ -1,11 +1,6 @@
-import os.path
-import random
-import sys
-
+import os.path, random, sys
 import numpy as np
-
-import circle_count as cc
-import img_utils as img
+import circle_count as cc, img_utils as img
 
 TOLERANCE = 0.1
 DATA_SIZE = 100000

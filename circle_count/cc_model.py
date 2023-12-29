@@ -1,12 +1,7 @@
 import os
-import shutil
-
 import keras
-
-from common import data_dir
-from common import vis_utils as vis
-import circle_count as cc
-import img_utils as img
+from common import data_dir, vis_utils as vis
+import circle_count as cc, img_utils as img
 
 MODEL_NAME_PREFIX = "circle_count"
 MODEL_BASE_DIR = os.path.join(data_dir, "model")
@@ -34,8 +29,8 @@ class Model:
         if self.model is not None:
             raise Exception("model is initialized")
 
-        model_path, _ = self.__get_model_path()
-        self.model = keras.models.load_model(model_path, compile=compile)
+        model_path = self.__get_model_path()
+        self.model = cc.model_store.load(model_path)
         print(model_path, "loaded")
         self.model.summary()
         self.__compiled = compile
@@ -47,12 +42,8 @@ class Model:
                 print("model [{}] not saved".format(self.model.name))
                 return
 
-        model_path, model_old_path = self.__get_model_path()
-        if os.path.exists(model_path):
-            if os.path.exists(model_old_path):
-                shutil.rmtree(model_old_path)
-            os.rename(model_path, model_old_path)
-        self.model.save(model_path)
+        model_path = self.__get_model_path()
+        cc.model_store.save(model, model_path)
         print("model [" + self.model.name + "] saved")
 
     def show(self):
@@ -76,7 +67,7 @@ class Model:
         if not self.__compiled:
             raise Exception("model is not compiled yet, call compile first")
 
-        train_data, test_data = cc.dataset.prepare_data(data)
+        train_data, test_data = cc.dataset.prepare_data(data, test_data)
 
         self.model.fit(
             train_data,
@@ -168,9 +159,7 @@ class Model:
             name = self.model.name
         else:
             name = self._get_model_name()
-        return os.path.join(MODEL_BASE_DIR, name), os.path.join(
-            MODEL_BASE_DIR, name + ".old"
-        )
+        return os.path.join(MODEL_BASE_DIR, name)
 
 
 class ClassificationModel(Model):

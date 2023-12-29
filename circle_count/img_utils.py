@@ -1,8 +1,6 @@
 import random
-
-import matplotlib.patches as ptchs
-import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib import patches as ptchs, pyplot as plt
 
 
 SIDE_LIMIT = 100

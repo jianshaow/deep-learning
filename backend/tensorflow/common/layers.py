@@ -4,8 +4,10 @@ import keras
 
 
 class Layer:
-    def __init__(self, name=None):
+    def __init__(self, name=None, dtype=tf.float32):
         self.name = name
+        self.dtype = dtype
+        self._inbound_nodes = []
 
     def __call__(self, inputs):
         return self.call(inputs)
@@ -22,10 +24,9 @@ class SimpleInput(Layer):
 
 class SimpleFlatten(Layer):
     def __init__(self, units=None, input_shape=None, dtype=tf.float32):
-        super(SimpleFlatten, self).__init__()
+        super(SimpleFlatten, self).__init__(dtype=dtype)
         self.units = units
         self.input_shape = input_shape
-        self.dtype = dtype
 
     @property
     def trainable_variables(self):
