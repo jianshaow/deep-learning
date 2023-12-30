@@ -1,4 +1,4 @@
-import keras
+import keras, mnist_demo
 from keras.datasets import mnist
 from common import vis_utils as vis
 
@@ -6,6 +6,10 @@ from common import vis_utils as vis
 def run():
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     x_train, x_test = x_train / 255.0, x_test / 255.0
+
+    train_data, test_data = mnist_demo.dataset.prepare_data(
+        (x_train, y_train), (x_test, y_test)
+    )
 
     model = keras.Sequential(
         [
@@ -21,9 +25,8 @@ def run():
     )
 
     model.fit(
-        x_train,
-        y_train,
-        validation_data=(x_test, y_test),
+        train_data,
+        validation_data=test_data,
         callbacks=[vis.matplotlib_callback()],
         epochs=10,
     )
