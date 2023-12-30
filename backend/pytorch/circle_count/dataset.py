@@ -13,15 +13,19 @@ class CircleCountDataset(TensorDataset):
         sample = super().__getitem__(index)
 
         if self.transform:
-            sample = self.transform(sample[0])
+            sample = self.transform(sample)
 
         return sample
 
 
 def prepare_data(data, test_data=None):
     totals = len(data[0])
+    transform = lambda data: (__normalize(data[0]), data[1])
+
     train_dataset = CircleCountDataset(
-        torch.from_numpy(data[0]), torch.from_numpy(data[1]), transform=__normalize
+        torch.from_numpy(data[0]),
+        torch.from_numpy(data[1]),
+        transform=transform,
     )
 
     if test_data is None:
@@ -32,7 +36,9 @@ def prepare_data(data, test_data=None):
         )
     else:
         test_dataset = CircleCountDataset(
-            torch.from_numpy(test_data[0]), torch.from_numpy(test_data[1]), __normalize
+            torch.from_numpy(test_data[0]),
+            torch.from_numpy(test_data[1]),
+            transform=transform,
         )
 
     train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=True)

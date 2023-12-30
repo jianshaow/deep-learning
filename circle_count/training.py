@@ -55,7 +55,7 @@ def __new_model(model_params):
 
 
 if __name__ == "__main__":
-    first_run()
+    # first_run()
     # first_run(model_params=cc.CLS_MODEL_PARAMS)
     # first_run(model_params=cc.CONV_REG_MODEL_PARAMS)
     # first_run(model_params=cc.CONV_CLS_MODEL_PARAMS)
@@ -64,13 +64,11 @@ if __name__ == "__main__":
     # first_run(dry_run=True, learning_rate=0.000001)
     # re_run()
     # re_run(model_params=cc.CONV_REG_MODEL_PARAMS, epochs=10)
-    # re_run(learning_rate=0.0001)
     # re_run(learning_rate=0.000001)
     # re_run(data_loader=utils.load_error_data, epochs=40)
     # re_run(data_loader=lambda: utils.load_error_data(error_gt=0.2), epochs=40)
-    # re_run(data_loader=utils.load_error_data, learning_rate=0.0001)
     # re_run(data_loader=utils.load_error_data, learning_rate=0.000001)
-    # demo_model()
+    demo_model()
     # demo_model(model_params=cc.CONV_REG_MODEL_PARAMS)
     # demo_model(data_loader=lambda: utils.load_sample_data(size=1000))
     # demo_model(data_loader=lambda: utils.load_sample_error_data(size=1000))

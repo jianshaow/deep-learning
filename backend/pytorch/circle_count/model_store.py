@@ -13,6 +13,6 @@ def save(model, model_path):
     model_old_path = model_path + ".old"
     if os.path.exists(model_path):
         if os.path.exists(model_old_path):
-            shutil.rmtree(model_old_path)
+            os.remove(model_old_path)
         os.rename(model_path, model_old_path)
     model.save(model_path)
