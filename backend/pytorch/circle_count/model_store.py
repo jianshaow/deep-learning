@@ -4,7 +4,7 @@ import keras
 SUFFIX = ".keras"
 
 
-def load(model_path, compile=True):
+def load(model_path, compile=False):
     return keras.models.load_model(model_path + SUFFIX, compile=compile)
 
 

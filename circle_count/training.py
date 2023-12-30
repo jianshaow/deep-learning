@@ -45,8 +45,8 @@ def demo_model(
     data_loader=lambda: utils.gen_sample_data(size=100),
 ):
     model = __new_model(model_params)
-    model.load()
-    model.compile()
+    model.load(compile=False)
+    model.show()
     model.verify(data_loader())
 
 
@@ -68,8 +68,8 @@ if __name__ == "__main__":
     # re_run(data_loader=utils.load_error_data, epochs=40)
     # re_run(data_loader=lambda: utils.load_error_data(error_gt=0.2), epochs=40)
     # re_run(data_loader=utils.load_error_data, learning_rate=0.000001)
-    demo_model()
-    # demo_model(model_params=cc.CONV_REG_MODEL_PARAMS)
+    # demo_model()
+    demo_model(model_params=cc.CONV_REG_MODEL_PARAMS)
     # demo_model(data_loader=lambda: utils.load_sample_data(size=1000))
     # demo_model(data_loader=lambda: utils.load_sample_error_data(size=1000))
     pass

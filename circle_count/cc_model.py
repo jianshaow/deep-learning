@@ -30,7 +30,7 @@ class Model:
             raise Exception("model is initialized")
 
         model_path = self.__get_model_path()
-        self.model = cc.model_store.load(model_path)
+        self.model = cc.model_store.load(model_path, compile=compile)
         print(model_path, "loaded")
         self.model.summary()
         self.__compiled = compile
@@ -101,14 +101,12 @@ class Model:
         if self.model is None:
             raise Exception("model is not initialized, call build or load method first")
 
-        if not self.__compiled:
-            raise Exception("model is not compiled yet, call compile first")
-
         x, y = data
         x, y = self._pre_process(x, y)
 
-        evaluation = self.model.evaluate(x, y)
-        print("evaluation: ", evaluation)
+        if self.__compiled:
+            evaluation = self.model.evaluate(x, y)
+            print("evaluation: ", evaluation)
 
         preds = self.model.predict(x)
         img.show_images(data, preds, title="predict result")
@@ -249,10 +247,10 @@ if __name__ == "__main__":
     # data = dutils.load_error_data()
     # data = dutils.load_error_data(error_gt=0.2)
 
-    params = cc.REG_MODEL_PARAMS
+    # params = cc.REG_MODEL_PARAMS
     # params = cc.CLS_MODEL_PARAMS
-    # params = cc.CONV_REG_MODEL_PARAMS
+    params = cc.CONV_REG_MODEL_PARAMS
     # params = cc.CONV_CLS_MODEL_PARAMS
-    model = load_model(params, compile=True)
+    model = load_model(params)
     model.show()
     model.verify(data)
