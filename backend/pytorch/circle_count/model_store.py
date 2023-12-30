@@ -1,4 +1,4 @@
-import os, shutil
+import os
 import keras
 
 SUFFIX = ".keras"
