@@ -43,7 +43,7 @@ class Model:
                 return
 
         model_path = self.__get_model_path()
-        cc.model_store.save(model, model_path)
+        cc.model_store.save(self.model, model_path)
         print("model [" + self.model.name + "] saved")
 
     def show(self):
@@ -74,7 +74,7 @@ class Model:
             epochs=epochs,
             validation_data=test_data,
             callbacks=[
-                vis.matplotlib_callback(show_model=False, show_metrics=False),
+                vis.matplotlib_callback(),
                 vis.tensorboard_callback("circle_count"),
             ],
         )
@@ -249,9 +249,9 @@ if __name__ == "__main__":
     # data = dutils.load_error_data()
     # data = dutils.load_error_data(error_gt=0.2)
 
-    # params = cc.REG_MODEL_PARAMS
+    params = cc.REG_MODEL_PARAMS
     # params = cc.CLS_MODEL_PARAMS
-    params = cc.CONV_REG_MODEL_PARAMS
+    # params = cc.CONV_REG_MODEL_PARAMS
     # params = cc.CONV_CLS_MODEL_PARAMS
     model = load_model(params, compile=True)
     model.show()

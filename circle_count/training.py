@@ -51,7 +51,6 @@ def demo_model(
 
 
 def __new_model(model_params):
-    # model_params = model_params | {"model_type": "ClassificationModel"}
     return cc_model.new_model(model_params)
 
 
