@@ -7,10 +7,15 @@ from common import metrics as mtx
 
 
 class SimpleSequential(layers.Layer):
+    name_prefix = "sequential"
+
     def __init__(self, layers):
         super(SimpleSequential, self).__init__()
         self._is_graph_network = True
+        self._network_nodes = []
         self.built = True
+        self.input = None
+        self.output = None
         self.layers = []
         self.metrics = []
         self.history = History()
@@ -19,6 +24,18 @@ class SimpleSequential(layers.Layer):
             self.add(layer)
 
     def add(self, layer):
+        if self.input is None:
+            self.input = keras.layers.Input(
+                batch_shape=layer._batch_input_shape,
+                dtype=layer.dtype,
+                name=layer.name + "_input",
+            )
+            self.layers.append(self.input.node.layer)
+            self.output = layer(self.input)
+        else:
+            self.output = layer(self.output)
+        node_key = layer.name + "_ib-0"
+        self._network_nodes.append(node_key)
         self.layers.append(layer)
 
     def call(self, data):

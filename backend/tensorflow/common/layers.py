@@ -4,8 +4,13 @@ import keras
 
 
 class Layer:
+    name_prefix = "layer"
+
     def __init__(self, name=None, dtype=tf.float32):
-        self.name = name
+        if name is None:
+            self.name = gen_name(self.__class__.name_prefix)
+        else:
+            self.name = name
         self.dtype = dtype
         self._inbound_nodes = []
 
@@ -17,16 +22,22 @@ class Layer:
 
 
 class SimpleInput(Layer):
+    name_prefix = "input"
+
     def __init__(self, input_shape=None):
         super(SimpleInput, self).__init__()
         self.input_shape = input_shape
 
 
 class SimpleFlatten(Layer):
+    name_prefix = "flatten"
+
     def __init__(self, units=None, input_shape=None, dtype=tf.float32):
         super(SimpleFlatten, self).__init__(dtype=dtype)
+        self.name = ""
         self.units = units
         self.input_shape = input_shape
+        self._batch_input_shape = (None,) + input_shape
 
     @property
     def trainable_variables(self):
@@ -45,6 +56,8 @@ class SimpleFlatten(Layer):
 
 
 class SimpleDense(Layer):
+    name_prefix = "dense"
+
     def __init__(
         self,
         units,
@@ -92,3 +105,32 @@ class SimpleDense(Layer):
         weight = tf.Variable(initializer(shape), name=name, shape=shape)
         self.weights.append(weight)
         return weight
+
+
+name_indexes = {}
+
+
+def gen_name(name_prefix):
+    index = name_indexes.get(name_prefix)
+    if index is None:
+        name_indexes[name_prefix] = 0
+        return name_prefix
+    else:
+        index += 1
+        name_indexes[name_prefix] = index
+        return name_prefix + "_" + str(index)
+
+
+if __name__ == "__main__":
+    layer = Layer()
+    print(layer.name)
+    layer = Layer()
+    print(layer.name)
+    layer = SimpleFlatten(1)
+    print(layer.name)
+    layer = SimpleFlatten(1)
+    print(layer.name)
+    layer = SimpleDense(1)
+    print(layer.name)
+    layer = SimpleDense(1)
+    print(layer.name)
