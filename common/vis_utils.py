@@ -71,6 +71,7 @@ def build_model_figure(model, dpi=100):
             show_dtype=True,
             show_layer_names=True,
             show_layer_activations=True,
+            show_trainable=True,
         )
         img = mpimg.imread(model_image_file)
 
