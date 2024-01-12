@@ -1,7 +1,8 @@
 import os
 import keras
 from common import data_dir, vis_utils as vis
-import circle_count as cc, img_utils as img
+from circle_count import img_utils as img
+import circle_count as cc
 
 MODEL_NAME_PREFIX = "circle_count"
 MODEL_BASE_DIR = os.path.join(data_dir, "model")
