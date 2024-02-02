@@ -9,4 +9,6 @@ if keras.backend.backend() == "tensorflow":
 
 import os
 
-data_dir = os.path.expanduser("~/.deep-learning")
+DL_DATA_DIR = os.path.expanduser("~/.deep-learning")
+MODEL_BASE_DIR = os.path.join(DL_DATA_DIR, "model")
+DATA_SET_DIR = os.path.join(DL_DATA_DIR, "dataset")

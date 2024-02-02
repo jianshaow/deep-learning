@@ -1,5 +1,6 @@
 import os.path, random, sys
 import numpy as np
+from common import DATA_SET_DIR
 from circle_count import img_utils as img
 import circle_count as cc
 
@@ -12,8 +13,8 @@ ERROR_DATA_SIZE = 10000
 def __save_dataset(path, data):
     x, y = data
 
-    if not os.path.exists(cc.DATA_SET_PATH):
-        os.makedirs(cc.DATA_SET_PATH)
+    if not os.path.exists(DATA_SET_DIR):
+        os.makedirs(DATA_SET_DIR)
 
     np.savez(path, x=x, y=y)
     print(path, "saved")

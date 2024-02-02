@@ -1,5 +1,5 @@
 import os, random
-from common import data_dir
+from common import DATA_SET_DIR
 import keras
 
 if keras.backend.backend() == "tensorflow":
@@ -46,7 +46,6 @@ CONV_CLS_MODEL_PARAMS = {
 DEFAULT_RADIUS_RANGE = (6, 8)
 DEFAULT_CIRCLES_RANGE = (0, 5)
 DATA_NAME_PREFIX = "circles"
-DATA_SET_PATH = os.path.join(data_dir, "dataset")
 LEARNING_RATE = 0.00001
 
 
@@ -84,7 +83,7 @@ def data_config(
             else:
                 error_gt = 0
             error_data_file = "%s.error_gt-%s.npz" % (config["name"], error_gt)
-            return os.path.join(DATA_SET_PATH, error_data_file)
+            return os.path.join(DATA_SET_DIR, error_data_file)
 
         return config[key]
 
@@ -107,7 +106,7 @@ def __base_data_config(r_lower, r_upper, q_lower, q_upper):
         data_name = "%s-%02d" % (data_name, q_upper)
 
     config["name"] = data_name
-    config["path"] = os.path.join(DATA_SET_PATH, data_name + ".npz")
+    config["path"] = os.path.join(DATA_SET_DIR, data_name + ".npz")
 
     return config
 
