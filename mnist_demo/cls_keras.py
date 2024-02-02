@@ -55,7 +55,7 @@ def load_model():
 
 
 def verify(model, data):
-    image, label = data
+    image, _ = data
     preds = model.predict(image)
     img_utils.show_images(data, preds=preds)
 

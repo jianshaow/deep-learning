@@ -55,7 +55,7 @@ def show_images(data, preds=None, title="data", random_sample=True):
 
         if error != 0:
             errors += 1
-            print("image[", index, "]", xlabel, "!=", label, "error =", error)
+            print("image[", index, "]", xlabel, "!=", label)
             t.set_color("r")
     plt.show()
 
@@ -85,7 +85,7 @@ def show_image(image, label, pred=None, title="image"):
 
     t = ax.set_xlabel(xlabel)
     if error != 0:
-        print(xlabel, "!=", label, "error =", error)
+        print(xlabel, "!=", label)
         t.set_color("r")
     plt.show()
 
