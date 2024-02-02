@@ -1,30 +1,63 @@
-from tensorflow.python.framework.ops import disable_eager_execution
+import numpy as np
+import tensorflow as tf
+from imageio import imsave
+from PIL import Image
 from keras import backend as K
+from tensorflow.python.framework.ops import disable_eager_execution
 import circle_count as cc
 from circle_count import data_utils as utils, cc_model
 
+
+def deprocess_image(x):
+    x -= x.mean()
+    x /= x.std() + 1e-5
+    x *= 0.1
+
+    x += 0.5
+    x = np.clip(x, 0, 1)
+
+    x *= 255
+    x = np.clip(x, 0, 255).astype("uint8")
+    return x
+
+
 if __name__ == "__main__":
     disable_eager_execution()
-    data = utils.gen_sample_data(get_config=cc.data_config((6, 6), (6, 7)), size=20)
+    data, _ = utils.gen_sample_data(get_config=cc.data_config((6, 6), (6, 7)), size=1)
     params = cc.CONV_REG_MODEL_PARAMS
-    model = cc_model.load_model(params)
-    # model.show()
-    layer_dict = dict([(layer.name, layer) for layer in model.model.layers])
+    model = cc_model.load_model(params).model
+    model.summary()
+    layer_dict = dict([(layer.name, layer) for layer in model.layers])
     print(layer_dict)
 
-    layer_name = 'conv2d'
-    filter_index = 0  # can be any integer from 0 to 511, as there are 512 filters in that layer
+    layer_name = "conv2d"
+    input_img = model.input
 
-    # build a loss function that maximizes the activation
-    # of the nth filter of the layer considered
+    filter_index = 0
     layer_output = layer_dict[layer_name].output
+
     loss = K.mean(layer_output[:, :, :, filter_index])
+    grads = K.gradients(loss, input_img)[0]
+    grads /= K.sqrt(K.mean(K.square(grads))) + 1e-5
 
-    # compute the gradient of the input picture wrt this loss
-    grads = K.gradients(loss, data[0][0])[0]
+    iterate = K.function([input_img], [loss, grads])
 
-    # normalization trick: we normalize the gradient
-    grads /= (K.sqrt(K.mean(K.square(grads))) + 1e-5)
+    input_img_data = np.random.random((1, 100, 100, 1))
 
-    # this function returns the loss and grads given the input picture
-    iterate = K.function([data[0][0]], [loss, grads])
+    kept_filters = []
+    for i in range(20):
+        loss_value, grads_value = iterate([input_img_data])
+        input_img_data += grads_value
+
+        print("Current loss value:", loss_value)
+        if loss_value <= 0.0:
+            break
+
+    if loss_value > 0:
+        img = deprocess_image(input_img_data[0])
+        kept_filters.append((img, loss_value))
+
+    temp = np.zeros((100, 100, 3))
+    temp[:] = img
+    img = Image.fromarray((temp).astype(np.uint8))
+    imsave("%s_filter_%d.png" % (layer_name, filter_index), img)
