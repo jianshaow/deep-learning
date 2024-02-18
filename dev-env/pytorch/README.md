@@ -39,7 +39,7 @@ pip install pydot_ng
 ## docker build
 ~~~ shell
 # build docker image
-docker build -t jianshao/pt-dev:cpu -f Dockerfile.dev .
+docker build -t jianshao/pt-dev:cpu -f Dockerfile.cpu .
 docker build -t jianshao/pt-dev:gpu -f Dockerfile.gpu .
 docker push jianshao/pt-dev:cpu
 docker push jianshao/pt-dev:gpu
