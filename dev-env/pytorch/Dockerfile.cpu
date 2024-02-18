@@ -1,5 +1,5 @@
 ARG BASE_IMAGE=jianshao/dl-dev-base
-ARG TAG=3.11-slim
+ARG TAG=3.11
 
 FROM ${BASE_IMAGE}:${TAG}
 
