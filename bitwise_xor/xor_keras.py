@@ -7,7 +7,8 @@ from common import vis_utils as vis
 def build_model():
     model = keras.Sequential(
         [
-            keras.layers.Flatten(input_shape=(2, SEQUENCE_SIZE)),
+            keras.layers.Input((2, SEQUENCE_SIZE)),
+            keras.layers.Flatten(),
             keras.layers.Dense(64, activation=keras.activations.relu),
             keras.layers.Dense(64, activation=keras.activations.relu),
             keras.layers.Dense(64, activation=keras.activations.relu),
