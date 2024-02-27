@@ -28,8 +28,8 @@ pip install --upgrade pip
 # install dependencies for cpu only
 pip install -r requirements.txt -i https://download.pytorch.org/whl/cpu
 
-# install dependencies for cuda12
-pip install -r requirements.txt -i https://download.pytorch.org/whl/cu121
+# install dependencies for cuda
+pip install -r requirements.txt
 
 # visualization
 pip install matplotlib
@@ -39,9 +39,8 @@ pip install pydot_ng
 ## docker build
 ~~~ shell
 # build docker image
-export image_tag=cuda12.1
 docker build -t jianshao/pt-dev:cpu -f Dockerfile.dev .
-docker build -t jianshao/pt-gpu:$image_tag -f Dockerfile.gpu .
+docker build -t jianshao/pt-dev:gpu -f Dockerfile.gpu .
 docker push jianshao/pt-dev:cpu
-docker push jianshao/pt-gpu:$image_tag
+docker push jianshao/pt-dev:gpu
 ~~~
