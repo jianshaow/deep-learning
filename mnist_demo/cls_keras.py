@@ -1,4 +1,5 @@
 import os, keras, mnist_demo
+from tkinter import N
 from keras.datasets import mnist
 from common import MODEL_BASE_DIR, vis_utils as vis
 from mnist_demo import img_utils
@@ -18,7 +19,7 @@ def load_data():
     return train_data, test_data
 
 
-def train(model, data):
+def train(data, model=None, save_needed=False):
     train_data, test_data = data
 
     if model is None:
@@ -44,7 +45,10 @@ def train(model, data):
         epochs=10,
     )
 
-    model.save(MODEL_DIR)
+    if save_needed:
+        model.save(MODEL_DIR)
+
+    return model
 
 
 def load_model():
@@ -63,7 +67,7 @@ def verify(model, data):
 if __name__ == "__main__":
     data = load_data()
     model = load_model()
-    # train(model, data)
+    # model = train(data)
     _, test_data = data
     data = test_data.as_numpy_iterator().next()
     verify(model, data)
