@@ -1,10 +1,8 @@
 import numpy as np
-from imageio import imsave
-from PIL import Image
 from keras import backend as K
 from tensorflow.python.framework.ops import disable_eager_execution
 import circle_count as cc
-from circle_count import data_utils as utils, cc_model, img_utils
+from circle_count import cc_model, img_utils
 
 
 def deprocess_image(x):
@@ -22,7 +20,6 @@ def deprocess_image(x):
 
 if __name__ == "__main__":
     disable_eager_execution()
-    data, _ = utils.gen_sample_data(get_config=cc.data_config((6, 6), (6, 7)), size=1)
     params = cc.CONV_REG_MODEL_PARAMS
     model = cc_model.load_model(params).model
     model.summary()
