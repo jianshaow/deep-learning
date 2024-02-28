@@ -32,11 +32,11 @@ pip install -r requirements.txt
 ## docker build
 ~~~ shell
 # build docker image
-export image_tag=2.15.0
-docker build -t jianshao/tf-dev:$image_tag -f Dockerfile.dev .
-docker build -t jianshao/tf-gpu:$image_tag -f Dockerfile.gpu .
+export image_tag=2.16.0
+docker build --build-arg TF_VER=$image_tag -t jianshao/tf-dev:$image_tag .
+docker build --build-arg TF_VER=$image_tag-gpu -t jianshao/tf-dev:$image_tag-gpu .
 docker push jianshao/tf-dev:$image_tag
-docker push jianshao/tf-gpu:$image_tag
+docker push jianshao/tf-gpu:$image_tag-gpu
 ~~~
 
 ## Run Tensorboard
