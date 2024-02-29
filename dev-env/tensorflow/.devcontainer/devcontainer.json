@@ -8,6 +8,7 @@
 		"PYTHONPATH": "."
 	},
 	"mounts": [
+		{"source": "${localEnv:HOME}/.ssh", "target": "/home/devel/.ssh", "type": "bind"},
 		{"source": "${localEnv:HOME}/.deep-learning", "target": "/home/devel/.deep-learning", "type": "bind"},
 		{"source": "${localEnv:HOME}/.keras", "target": "/home/devel/.keras", "type": "bind"}
 	],
