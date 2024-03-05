@@ -1,4 +1,4 @@
-import numpy as np
+import sys, numpy as np
 from keras import backend as K
 from tensorflow.python.framework.ops import disable_eager_execution
 import circle_count as cc
@@ -24,9 +24,8 @@ if __name__ == "__main__":
     model = cc_model.load_model(params).model
     model.summary()
     layer_dict = dict([(layer.name, layer) for layer in model.layers])
-    print(layer_dict)
 
-    layer_name = "conv2d"
+    layer_name = len(sys.argv) >= 2 and sys.argv[1] or "conv2d"
     input_img = model.input
 
     kept_filters = []
