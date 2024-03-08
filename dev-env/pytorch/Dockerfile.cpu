@@ -7,5 +7,6 @@ COPY requirements.txt .
 ARG PIP_INDEX_URL=""
 ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir keras && \
     pip install --no-cache-dir -r requirements.txt -i https://download.pytorch.org/whl/cpu
 ENV KERAS_BACKEND=torch
