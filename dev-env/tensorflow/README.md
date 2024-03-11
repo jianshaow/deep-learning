@@ -36,7 +36,7 @@ export tf_ver=2.16.1
 docker build --build-arg TF_VER=$tf_ver -t jianshao/tf-dev:$tf_ver .
 docker build --build-arg TF_VER=$tf_ver-gpu -t jianshao/tf-dev:$tf_ver-gpu .
 docker push jianshao/tf-dev:$tf_ver
-docker push jianshao/tf-gpu:$tf_ver-gpu
+docker push jianshao/tf-dev:$tf_ver-gpu
 ~~~
 
 ## Run Tensorboard
