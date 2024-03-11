@@ -25,7 +25,8 @@ def train(data, model=None, save_needed=False):
     if model is None:
         model = keras.Sequential(
             [
-                keras.layers.Flatten(input_shape=(28, 28)),
+                keras.layers.Input((28, 28)),
+                keras.layers.Flatten(),
                 keras.layers.Dense(128, activation="relu"),
                 keras.layers.Dropout(0.2),
                 keras.layers.Dense(10, activation="softmax"),
