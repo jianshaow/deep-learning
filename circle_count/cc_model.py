@@ -1,7 +1,7 @@
 import os
 import keras
 from common import MODEL_BASE_DIR, vis_utils as vis
-from circle_count import img_utils as img
+from circle_count import img_utils as img, model_store as store
 import circle_count as cc
 
 MODEL_NAME_PREFIX = "circle_count"
@@ -30,7 +30,7 @@ class Model:
             raise Exception("model is initialized")
 
         model_path = self.__get_model_path()
-        self.model = cc.model_store.load(model_path, compile=compile)
+        self.model = store.load(model_path, compile=compile)
         print(model_path, "loaded")
         self.model.summary()
         self.__compiled = compile
@@ -43,7 +43,7 @@ class Model:
                 return
 
         model_path = self.__get_model_path()
-        cc.model_store.save(self.model, model_path)
+        store.save(self.model, model_path)
         print("model [" + self.model.name + "] saved")
 
     def show(self):
