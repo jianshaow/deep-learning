@@ -6,7 +6,7 @@ from mnist_demo import img_utils
 
 
 MODEL_NAME = "mnist.cls.fc1-128"
-MODEL_DIR = os.path.join(MODEL_BASE_DIR, MODEL_NAME)
+MODEL_DIR = os.path.join(MODEL_BASE_DIR, MODEL_NAME + ".keras")
 
 
 def load_data():
@@ -51,7 +51,7 @@ def train(data, model=None, save_needed=False):
     return model
 
 
-def load_model():
+def load_model(compile=True):
     if os.path.exists(MODEL_DIR):
         return keras.models.load_model(MODEL_DIR, compile=compile)
     else:
