@@ -1,5 +1,5 @@
 ARG BASE_IMAGE=tensorflow/tensorflow
-ARG TF_VER=2.16.0
+ARG TF_VER=2.16.1
 
 FROM ${BASE_IMAGE}:${TF_VER}
 

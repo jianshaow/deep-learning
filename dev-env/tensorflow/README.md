@@ -32,7 +32,7 @@ pip install -r requirements.txt
 ## docker build
 ~~~ shell
 # build docker image
-export image_tag=2.16.0
+export image_tag=2.16.1
 docker build --build-arg TF_VER=$image_tag -t jianshao/tf-dev:$image_tag .
 docker build --build-arg TF_VER=$image_tag-gpu -t jianshao/tf-dev:$image_tag-gpu .
 docker push jianshao/tf-dev:$image_tag
