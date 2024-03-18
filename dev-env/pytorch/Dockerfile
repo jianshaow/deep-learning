@@ -1,5 +1,6 @@
 ARG BASE_IMAGE=jianshao/dl-torch-dev
 ARG TORCH_VER=2.2.1
+ARG IMAGE_TYPE=cpu
 
 FROM ${BASE_IMAGE}:${TORCH_VER}-${IMAGE_TYPE}
 
