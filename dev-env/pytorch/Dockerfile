@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=jianshao/dl-torch-dev
+ARG BASE_IMAGE=jianshao/torch-dev-base
 ARG TORCH_VER=2.2.1
 ARG IMAGE_TYPE=cpu
 
