@@ -39,8 +39,8 @@ pip install pydot_ng
 ## docker build
 ~~~ shell
 # build docker image
-docker build -t jianshao/pt-dev:cpu -f Dockerfile.cpu .
-docker build -t jianshao/pt-dev:gpu -f Dockerfile.gpu .
+docker build -t jianshao/pt-dev:cpu . --build-arg PYPI_INDEX_ARG="-i https://download.pytorch.org/whl/cpu"
+docker build -t jianshao/pt-dev:gpu . --build-arg IMAGE_TYPE=gpu
 docker push jianshao/pt-dev:cpu
 docker push jianshao/pt-dev:gpu
 ~~~

@@ -1,12 +1,11 @@
 ARG BASE_IMAGE=jianshao/dl-torch-dev
-ARG TAG=2.2.1-gpu
+ARG TORCH_VER=2.2.1
 
-FROM ${BASE_IMAGE}:${TAG}
+FROM ${BASE_IMAGE}:${TORCH_VER}-${IMAGE_TYPE}
 
 COPY requirements.txt .
-ARG PIP_INDEX_URL=""
-ENV PIP_INDEX_URL=${PIP_INDEX_URL}
+ARG PYPI_INDEX_ARG=""
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir keras && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir -r requirements.txt ${PYPI_INDEX_ARG}
 ENV KERAS_BACKEND=torch
