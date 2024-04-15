@@ -1,8 +1,8 @@
 import os, sys, numpy as np
 from keras import backend as K, models
 from tensorflow.python.framework.ops import disable_eager_execution
-import circle_count as cc, common
-from circle_count import cc_model, img_utils
+import circle_count as common
+from circle_count import img_utils
 
 
 def deprocess_image(x):
