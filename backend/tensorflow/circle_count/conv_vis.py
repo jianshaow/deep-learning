@@ -1,7 +1,7 @@
 import os, sys, numpy as np
 from keras import backend as K, models
 from tensorflow.python.framework.ops import disable_eager_execution
-import circle_count as common
+import common
 from circle_count import img_utils
 
 
