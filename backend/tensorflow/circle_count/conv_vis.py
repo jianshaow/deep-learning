@@ -1,7 +1,7 @@
-import sys, numpy as np
-from keras import backend as K
+import os, sys, numpy as np
+from keras import backend as K, models
 from tensorflow.python.framework.ops import disable_eager_execution
-import circle_count as cc
+import circle_count as cc, common
 from circle_count import cc_model, img_utils
 
 
@@ -20,8 +20,9 @@ def deprocess_image(x):
 
 if __name__ == "__main__":
     disable_eager_execution()
-    params = cc.CONV_REG_MODEL_PARAMS
-    model = cc_model.load_model(params).model
+    model = models.load_model(
+        os.path.join(common.MODEL_BASE_DIR, "circle_count.ConvClsModel.fc2-32.conv1-64")
+    )
     model.summary()
     layer_dict = dict([(layer.name, layer) for layer in model.layers])
 
