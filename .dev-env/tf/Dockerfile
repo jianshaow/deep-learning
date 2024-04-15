@@ -11,7 +11,5 @@ ENV HOME=/home/devel
 ENV PATH=$HOME/.local/bin:$PATH
 WORKDIR $HOME
 
-ARG PIP_INDEX_URL=""
-ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir matplotlib pydot_ng imageio
