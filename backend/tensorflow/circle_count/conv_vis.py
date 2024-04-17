@@ -21,7 +21,7 @@ def deprocess_image(x):
 if __name__ == "__main__":
     disable_eager_execution()
     model = models.load_model(
-        os.path.join(common.MODEL_BASE_DIR, "circle_count.ConvClsModel.fc2-32.conv1-64")
+        os.path.join(common.MODEL_BASE_DIR, "circle_count.ConvRegModel.fc1-128.conv2-64")
     )
     model.summary()
     layer_dict = dict([(layer.name, layer) for layer in model.layers])
