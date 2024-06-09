@@ -5,9 +5,21 @@
 		"PYTHONPATH": "."
 	},
 	"mounts": [
-		{"source": "${localEnv:HOME}/.ssh", "target": "/home/devel/.ssh", "type": "bind"},
-		{"source": "${localEnv:HOME}/.deep-learning", "target": "/home/devel/.deep-learning", "type": "bind"},
-		{"source": "${localEnv:HOME}/.keras", "target": "/home/devel/.keras", "type": "bind"}
+		{
+			"source": "${localEnv:HOME}/.ssh",
+			"target": "/home/devel/.ssh",
+			"type": "bind"
+		},
+		{
+			"source": "${localEnv:HOME}/.deep-learning",
+			"target": "/home/devel/.deep-learning",
+			"type": "bind"
+		},
+		{
+			"source": "${localEnv:HOME}/.keras",
+			"target": "/home/devel/.keras",
+			"type": "bind"
+		}
 	],
 	"customizations": {
 		"vscode": {
@@ -15,8 +27,7 @@
 				"ms-python.python",
 				"ms-python.vscode-pylance",
 				"ms-python.black-formatter",
-				"ms-python.isort",
-				"alphabotsec.vscode-eclipse-keybindings"
+				"ms-python.isort"
 			]
 		}
 	}
