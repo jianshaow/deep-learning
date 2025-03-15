@@ -1,7 +1,0 @@
-iproute2
-openssh-client
-netcat-openbsd
-curl
-git
-python3-tk
-graphviz
