@@ -1,8 +1,12 @@
 import os
+
 import keras
-from common import MODEL_BASE_DIR, vis_utils as vis
-from circle_count import img_utils as img, model_store as store
+
 import circle_count as cc
+from circle_count import img_utils as img
+from circle_count import model_store as store
+from common import MODEL_BASE_DIR
+from common import vis_utils as vis
 
 MODEL_NAME_PREFIX = "circle_count"
 
@@ -13,29 +17,36 @@ class Model:
     def __init__(self, params):
         self.__compiled = False
         self._params = params
-        self.model = None
+        self.model: keras.Sequential | None = None
+        self.built = False
 
     def build(self):
-        if self.model is not None:
-            raise Exception("model is initialized")
+        if self.built:
+            raise RuntimeError("model is initialized")
 
         self._construct_model()
         self._construct_input_layer()
         self._construct_fc_layer()
         self._construct_output_layer()
-        self.model.summary()
 
-    def load(self, compile=False):
+        if self.model:
+            self.model.summary()
+            self.built = True
+
+    def load(self, compile_needed=False):
         if self.model is not None:
-            raise Exception("model is initialized")
+            raise RuntimeError("model is initialized")
 
         model_path = self.__get_model_path()
-        self.model = store.load(model_path, compile=compile)
+        self.model = store.load(model_path, compile_needed=compile_needed)
         print(model_path, "loaded")
         self.model.summary()
-        self.__compiled = compile
+        self.__compiled = compile_needed
 
     def save(self, ask=False):
+        if self.model is None:
+            raise RuntimeError("model is not initialized, call build or load method")
+
         if ask:
             save = input('save model ["{}"]? (y|n): '.format(self.model.name))
             if save != "y":
@@ -48,13 +59,14 @@ class Model:
 
     def show(self):
         if self.model is None:
-            raise Exception("model is not initialized, call build or load method")
+            raise RuntimeError("model is not initialized, call build or load method")
+
         vis.build_model_figure(self.model)
         vis.show_all()
 
     def compile(self, learning_rate=cc.LEARNING_RATE):
         if self.model is None:
-            raise Exception("model is not initialized, call build or load method")
+            raise RuntimeError("model is not initialized, call build or load method")
 
         self.model.compile(
             optimizer=keras.optimizers.Adam(learning_rate),
@@ -64,8 +76,11 @@ class Model:
         self.__compiled = True
 
     def train(self, data, epochs=TRAIN_EPOCHS, test_data=None):
+        if self.model is None:
+            raise RuntimeError("model is not initialized, call build or load method")
+
         if not self.__compiled:
-            raise Exception("model is not compiled yet, call compile first")
+            raise RuntimeError("model is not compiled yet, call compile first")
 
         train_data, test_data = cc.dataset.prepare_data(data, test_data)
 
@@ -81,7 +96,9 @@ class Model:
 
     def predict(self, x):
         if self.model is None:
-            raise Exception("model is not initialized, call build or load method first")
+            raise RuntimeError(
+                "model is not initialized, call build or load method first"
+            )
 
         x, _ = self._pre_process(x, None)
         prediction = self.model.predict(x)
@@ -90,7 +107,9 @@ class Model:
 
     def evaluate(self, data):
         if self.model is None:
-            raise Exception("model is not initialized, call build or load method first")
+            raise RuntimeError(
+                "model is not initialized, call build or load method first"
+            )
 
         x, y = data
         x, y = self._pre_process(x, y)
@@ -99,7 +118,9 @@ class Model:
 
     def verify(self, data):
         if self.model is None:
-            raise Exception("model is not initialized, call build or load method first")
+            raise RuntimeError(
+                "model is not initialized, call build or load method first"
+            )
 
         x, y = data
         x, y = self._pre_process(x, y)
@@ -115,10 +136,18 @@ class Model:
         self.model = keras.Sequential(name=self._get_model_name())
 
     def _construct_input_layer(self):
+        if self.model is None:
+            raise RuntimeError(
+                "model is not initialized, call build or load method first"
+            )
+
         input_shape = self._params["input_shape"]
         self.model.add(keras.layers.Flatten(input_shape=input_shape))
 
     def _construct_fc_layer(self):
+        if self.model is None:
+            raise RuntimeError("model is not initialized, call build or load method")
+
         layers = self._params["fc_layers"]
         units = self._params["fc_layers_units"]
         for _ in range(layers):
@@ -161,35 +190,39 @@ class Model:
 
 
 class ClassificationModel(Model):
-    def __init__(self, params):
-        super().__init__(params)
 
     def _get_loss(self):
         return "sparse_categorical_crossentropy"
 
     def _construct_output_layer(self):
-        output_units = self._params["output_units"]
-        self.model.add(keras.layers.Dense(output_units, activation="softmax"))
+        if self.model:
+            output_units = self._params["output_units"]
+            self.model.add(keras.layers.Dense(output_units, activation="softmax"))
 
 
 class RegressionModel(Model):
-    def __init__(self, params):
-        super().__init__(params)
 
     def _get_loss(self):
         return "mean_squared_error"
 
     def _construct_output_layer(self):
+        if self.model is None:
+            raise RuntimeError("model is not initialized, call build or load method")
+
         self.model.add(keras.layers.Dense(1))
 
 
 class ConvModel(Model):
+
     def _get_model_name(self):
         layers = self._params["conv_layers"]
         filters = self._params["conv_filters"]
         return "{}.conv{}-{}".format(super()._get_model_name(), layers, filters)
 
     def _construct_input_layer(self):
+        if self.model is None:
+            raise RuntimeError("model is not initialized, call build or load method")
+
         input_shape = self._params["input_shape"]
         self.model.add(
             keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_shape)
@@ -201,6 +234,12 @@ class ConvModel(Model):
             self.model.add(keras.layers.MaxPooling2D())
         self.model.add(keras.layers.Flatten())
 
+    def _get_loss(self):
+        raise NotImplementedError(
+            f"Model {self.__class__.__name__} does not have a `_construct_output_layer()` "
+            "method implemented."
+        )
+
 
 class ConvRegModel(RegressionModel, ConvModel):
     pass
@@ -210,35 +249,35 @@ class ConvClsModel(ClassificationModel, ConvModel):
     pass
 
 
-def new_model(params=cc.REG_MODEL_PARAMS):
-    type = params["model_type"]
-    if not type:
-        type = RegressionModel
-    if isinstance(type, str):
-        model_class = globals()[type]
+def new_model(params):
+    model_type = params["model_type"]
+    if not model_type:
+        model_type = RegressionModel
+    if isinstance(model_type, str):
+        model_class = globals()[model_type]
     else:
-        model_class = type
+        model_class = model_type
     if model_class and issubclass(model_class, Model):
         return model_class(params)
     else:
-        raise Exception("no such model %s" % type)
+        raise ValueError("no such model %s" % model_type)
 
 
-def load_model(params=cc.REG_MODEL_PARAMS, compile=False):
-    type = params["model_type"]
-    if isinstance(type, str):
-        model_class = globals()[type]
+def load_model(params, compile_needed=False):
+    model_type = params["model_type"]
+    if isinstance(model_type, str):
+        model_class = globals()[model_type]
     else:
-        model_class = type
+        model_class = model_type
     if model_class and issubclass(model_class, Model):
         model = model_class(params)
-        model.load(compile=compile)
+        model.load(compile_needed=compile_needed)
         return model
     else:
-        raise Exception("no such model %s" % type)
+        raise RuntimeError("no such model %s" % model_type)
 
 
-if __name__ == "__main__":
+def __main():
     import circle_count.data_utils as dutils
 
     # data = dutils.gen_sample_data(size=20)
@@ -254,3 +293,7 @@ if __name__ == "__main__":
     model = load_model(params)
     model.show()
     model.verify(data)
+
+
+if __name__ == "__main__":
+    __main()

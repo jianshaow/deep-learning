@@ -1,12 +1,13 @@
-import circle_count as cc, data_utils as utils, cc_model
-
+import circle_count as cc
+from circle_count import cc_model
+from circle_count import data_utils as utils
 
 TRAIN_EPOCHS = 10
 RERUN_EPOCHS = 20
 
 
 def first_run(
-    model_params=cc.REG_MODEL_PARAMS,
+    model_params,
     data_loader=utils.load_data,
     learning_rate=cc.LEARNING_RATE,
     epochs=TRAIN_EPOCHS,
@@ -25,7 +26,7 @@ def first_run(
 
 
 def re_run(
-    model_params=cc.REG_MODEL_PARAMS,
+    model_params,
     data_loader=utils.load_data,
     learning_rate=cc.LEARNING_RATE,
     epochs=RERUN_EPOCHS,
@@ -40,12 +41,9 @@ def re_run(
     return model
 
 
-def demo_model(
-    model_params=cc.REG_MODEL_PARAMS,
-    data_loader=lambda: utils.gen_sample_data(size=100),
-):
+def demo_model(model_params, data_loader=lambda: utils.gen_sample_data(size=100)):
     model = __new_model(model_params)
-    model.load(compile=False)
+    model.load(compile_needed=False)
     model.show()
     model.verify(data_loader())
 
@@ -68,8 +66,7 @@ if __name__ == "__main__":
     # re_run(data_loader=utils.load_error_data, epochs=40)
     # re_run(data_loader=lambda: utils.load_error_data(error_gt=0.2), epochs=40)
     # re_run(data_loader=utils.load_error_data, learning_rate=0.000001)
-    # demo_model()
-    demo_model(model_params=cc.CONV_REG_MODEL_PARAMS)
+    # demo_model(cc.REG_MODEL_PARAMS)
+    demo_model(cc.CONV_REG_MODEL_PARAMS)
     # demo_model(data_loader=lambda: utils.load_sample_data(size=1000))
     # demo_model(data_loader=lambda: utils.load_sample_error_data(size=1000))
-    pass

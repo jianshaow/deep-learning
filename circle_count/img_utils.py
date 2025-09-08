@@ -1,7 +1,8 @@
 import random
-import numpy as np
-from matplotlib import patches as ptchs, pyplot as plt
 
+import numpy as np
+from matplotlib import patches as ptchs
+from matplotlib import pyplot as plt
 
 SIDE_LIMIT = 100
 DEFAULT_RADIUS = 6
@@ -122,7 +123,7 @@ def show_images(
             xlabel = pred
         else:
             xlabel = label
-        t = ax.set_xlabel(xlabel)
+        t = ax.set_xlabel(str(xlabel))
 
         if error > tolerance:
             errors += 1
@@ -137,7 +138,7 @@ def show_images(
 def show_image(image, label, pred=None, title="image", tolerance=TOLERANCE):
     fig = plt.figure(figsize=(5, 6))
     fig.suptitle(title)
-    ax = fig.add_axes([0.05, 0.05, 0.9, 0.9])
+    ax = fig.add_axes((0.05, 0.05, 0.9, 0.9))
     ax.set_xticks([])
     ax.set_yticks([])
     ax.grid(False)
@@ -154,14 +155,14 @@ def show_image(image, label, pred=None, title="image", tolerance=TOLERANCE):
         error = abs(pred - label)
         xlabel = pred
 
-    t = ax.set_xlabel(xlabel)
+    t = ax.set_xlabel(str(xlabel))
     if error > tolerance:
         print(xlabel, "!=", label, "error =", error)
         t.set_color("r")
     plt.show()
 
 
-if __name__ == "__main__":
+def _main():
     images, nums = zero_data(20)
 
     def handle(i, image, num):
@@ -171,3 +172,7 @@ if __name__ == "__main__":
     random_circles_images(handle, size=20)
     show_images((images, nums))
     show_image(images[0], nums[0])
+
+
+if __name__ == "__main__":
+    _main()

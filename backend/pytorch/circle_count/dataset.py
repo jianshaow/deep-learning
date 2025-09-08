@@ -63,8 +63,6 @@ def pre_process(x, y):
 
 
 if __name__ == "__main__":
-    import numpy as np
-
     x = np.array(
         [
             [[[0, 5, 10], [0, 5, 10]], [[0, 5, 10], [0, 5, 10]]],
