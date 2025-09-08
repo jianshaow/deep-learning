@@ -1,4 +1,5 @@
 import random
+
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -51,7 +52,7 @@ def show_images(data, preds=None, title="data", random_sample=True):
             xlabel = pred
         else:
             xlabel = label
-        t = ax.set_xlabel(xlabel)
+        t = ax.set_xlabel(str(xlabel))
 
         if error != 0:
             errors += 1
@@ -66,7 +67,7 @@ def show_images(data, preds=None, title="data", random_sample=True):
 def show_image(image, label, pred=None, title="image"):
     fig = plt.figure(figsize=(5, 6))
     fig.suptitle(title)
-    ax = fig.add_axes([0.05, 0.05, 0.9, 0.9])
+    ax = fig.add_axes((0.05, 0.05, 0.9, 0.9))
     ax.set_xticks([])
     ax.set_yticks([])
     ax.grid(False)
@@ -83,7 +84,7 @@ def show_image(image, label, pred=None, title="image"):
         error = abs(pred - label)
         xlabel = pred
 
-    t = ax.set_xlabel(xlabel)
+    t = ax.set_xlabel(str(xlabel))
     if error != 0:
         print(xlabel, "!=", label)
         t.set_color("r")

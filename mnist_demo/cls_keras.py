@@ -1,9 +1,13 @@
-import os, keras, mnist_demo
+import os
 from tkinter import N
-from keras.datasets import mnist
-from common import MODEL_BASE_DIR, vis_utils as vis
-from mnist_demo import img_utils
 
+import keras
+from keras.datasets import mnist
+
+import mnist_demo
+from common import MODEL_BASE_DIR
+from common import vis_utils as vis
+from mnist_demo import img_utils
 
 MODEL_NAME = "mnist.cls.fc1-128"
 MODEL_DIR = os.path.join(MODEL_BASE_DIR, MODEL_NAME + ".keras")
@@ -70,5 +74,5 @@ if __name__ == "__main__":
     model = load_model()
     # model = train(data)
     _, test_data = data
-    data = test_data.as_numpy_iterator().next()
+    data = test_data.as_numpy_iterator().next()  # type: ignore
     verify(model, data)

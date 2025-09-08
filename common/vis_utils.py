@@ -2,9 +2,9 @@ import datetime
 import tempfile
 from os import path
 
+import keras
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
-import keras
 
 
 class MatplotlibCallback(keras.callbacks.Callback):
@@ -26,7 +26,7 @@ class MatplotlibCallback(keras.callbacks.Callback):
             plt.ion()
 
     def on_epoch_end(self, epoch, logs=None):
-        if self.show_metrics and self.dynamic_plot:
+        if self.show_metrics and self.dynamic_plot and self.history_figure:
             self.__save_history(logs)
 
             self.history_figure.clf()
@@ -39,7 +39,7 @@ class MatplotlibCallback(keras.callbacks.Callback):
             if self.dynamic_plot:
                 plt.ioff()
             else:
-                self.metrics = self.model.history.history
+                self.metrics = self.model.history.history  # type: ignore
                 self.__plot_history()
             show_all()
 
@@ -52,8 +52,9 @@ class MatplotlibCallback(keras.callbacks.Callback):
             history.append(value)
 
     def __plot_history(self):
-        epochs = self.params["epochs"]
-        _plot_history(self.history_figure, epochs, self.metrics)
+        if self.params:
+            epochs = self.params["epochs"]
+            _plot_history(self.history_figure, epochs, self.metrics)
 
 
 class NoopCallback(keras.callbacks.Callback):
