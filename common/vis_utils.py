@@ -61,7 +61,7 @@ class NoopCallback(keras.callbacks.Callback):
     pass
 
 
-def build_model_figure(model, dpi=100):
+def build_model_figure(model, dpi=60):
     with tempfile.TemporaryDirectory() as tmpdirname:
         model_image_file = path.join(tmpdirname, "model.png")
         keras.utils.plot_model(
