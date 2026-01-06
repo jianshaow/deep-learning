@@ -8,7 +8,7 @@ from circle_count import model_store as store
 from common import MODEL_BASE_DIR
 from common import vis_utils as vis
 
-MODEL_NAME_PREFIX = "circle_count"
+MODEL_NAME_PREFIX = "circle-count"
 
 TRAIN_EPOCHS = 10
 
