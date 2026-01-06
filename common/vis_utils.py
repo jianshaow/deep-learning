@@ -78,7 +78,7 @@ def build_model_figure(model, dpi=100):
 
         figsize = (img.shape[1] * (1.25) / dpi, img.shape[0] / dpi)
         figure = plt.figure(figsize=figsize, dpi=dpi)
-        ax = figure.add_axes([0, 0, 1, 1])
+        ax = figure.add_axes((0, 0, 1, 1))
         ax.set_axis_off()
         ax.imshow(img)
     return figure
@@ -93,12 +93,12 @@ def build_history_figure(history):
 def build_multi_bar_figure(labels, data):
     figure = plt.figure(figsize=(9, 6))
 
-    for i in range(len(data)):
+    for i, d in enumerate(data):
         plt.subplot(3, 1, i + 1)
-        data_size = len(data[i])
-        plt.xticks(range(data_size), range(1, data_size + 1))
+        data_size = len(d)
+        plt.xticks(range(data_size), [str(x) for x in range(1, data_size + 1)])
         plt.ylabel(labels[i])
-        plt.bar(range(data_size), data[i], width=1, edgecolor="black")
+        plt.bar(range(data_size), d, width=1, edgecolor="black")
 
     return figure
 

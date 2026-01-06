@@ -142,7 +142,8 @@ class Model:
             )
 
         input_shape = self._params["input_shape"]
-        self.model.add(keras.layers.Flatten(input_shape=input_shape))
+        self.model.add(keras.layers.Input(shape=input_shape))
+        self.model.add(keras.layers.Flatten())
 
     def _construct_fc_layer(self):
         if self.model is None:
@@ -224,8 +225,9 @@ class ConvModel(Model):
             raise RuntimeError("model is not initialized, call build or load method")
 
         input_shape = self._params["input_shape"]
+        self.model.add(keras.layers.Input(shape=input_shape))
         self.model.add(
-            keras.layers.Conv2D(32, (3, 3), activation="relu", input_shape=input_shape)
+            keras.layers.Conv2D(32, (3, 3), activation="relu")
         )
         layers = self._params["conv_layers"]
         filters = self._params["conv_filters"]
