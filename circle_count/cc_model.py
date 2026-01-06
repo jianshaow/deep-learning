@@ -162,7 +162,7 @@ class Model:
     def _get_model_name(self):
         layers = self._params["fc_layers"]
         units = self._params["fc_layers_units"]
-        return "{}.{}.fc{}-{}".format(
+        return "{}_{}_fc{}-{}".format(
             MODEL_NAME_PREFIX, self.__class__.__name__, layers, units
         )
 
@@ -217,7 +217,7 @@ class ConvModel(Model):
     def _get_model_name(self):
         layers = self._params["conv_layers"]
         filters = self._params["conv_filters"]
-        return "{}.conv{}-{}".format(super()._get_model_name(), layers, filters)
+        return "{}_conv{}-{}".format(super()._get_model_name(), layers, filters)
 
     def _construct_input_layer(self):
         if self.model is None:
