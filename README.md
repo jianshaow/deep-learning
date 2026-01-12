@@ -8,7 +8,7 @@ docker run --name dl-tf --gpus all -it \
        -v $PWD:/workspaces/deep-learning -w /workspaces/deep-learning \
        -v $HOME/.deep-learning:/home/devel/.deep-learning \
        -e PYTHONPATH=. -e DISPLAY -e WAYLAND_DISPLAY -e XDG_RUNTIME_DIR -e PULSE_SERVER \
-       jianshao/tf-gpu:2.15.0
+       jianshao/tf-dev-base:2.20.0
 
 # run on wsl2 with pytorch GPU suport
 docker run --name dl-pt --gpus all -it \
@@ -16,5 +16,5 @@ docker run --name dl-pt --gpus all -it \
        -v $PWD:/workspaces/deep-learning -w /workspaces/deep-learning \
        -v $HOME/.deep-learning:/home/devel/.deep-learning \
        -e PYTHONPATH=. -e DISPLAY -e WAYLAND_DISPLAY -e XDG_RUNTIME_DIR -e PULSE_SERVER \
-       jianshao/pt-gpu:cuda12.1 /bin/bash
+       jianshao/pt-dev-base:2.4.1-cu124 /bin/bash
 ~~~
