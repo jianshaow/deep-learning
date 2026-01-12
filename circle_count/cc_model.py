@@ -69,7 +69,7 @@ class Model:
             raise RuntimeError("model is not initialized, call build or load method")
 
         self.model.compile(
-            optimizer=keras.optimizers.Adam(learning_rate),
+            optimizer=keras.optimizers.Adam(learning_rate),  # type: ignore
             loss=self._get_loss(),
             metrics=self._get_metrics(),
         )
@@ -226,9 +226,7 @@ class ConvModel(Model):
 
         input_shape = self._params["input_shape"]
         self.model.add(keras.layers.Input(shape=input_shape))
-        self.model.add(
-            keras.layers.Conv2D(32, (3, 3), activation="relu")
-        )
+        self.model.add(keras.layers.Conv2D(32, (3, 3), activation="relu"))
         layers = self._params["conv_layers"]
         filters = self._params["conv_filters"]
         for _ in range(layers):
